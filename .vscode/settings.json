@@ -1,0 +1,7 @@
+{
+	"files.associations": {
+		"*.meta": "ini",
+		"DIALOG.C": "cpp"
+	},
+	"doxdocgen.file.copyrightTag": ["@copyright Copyright (c) {year}. Work is based on original work from Microsoft Corp (c) 1994"]
+}
