@@ -23,22 +23,20 @@
 #include "include/pipe/pipe_normal.h"
 #include "include/state/state.h"
 
+#include "include/utils.h"
+
+
 
 static void align_notch(int newDir, int notch);
 static void align_plusy(int oldDir, int newDir);
 
-// defCylNotch shows where the notch for the default cylinder will be,
-//  in absolute coords, once we do an align_plusz
-
+/**
+ * defCylNotch shows where the notch for the default cylinder will be, in absolute coords, once we do an align_plusz
+ *
+ */
 static GLint defCylNotch[NUM_DIRS] =
 {PLUS_Y, PLUS_Y, MINUS_Z, PLUS_Z, PLUS_Y, PLUS_Y};
 
-
-/**************************************************************************\
-* NORMAL_PIPE constructor
-*
-*
-\**************************************************************************/
 
 NORMAL_PIPE::NORMAL_PIPE(STATE* pState)
 	: PIPE(pState) {
@@ -47,23 +45,13 @@ NORMAL_PIPE::NORMAL_PIPE(STATE* pState)
 	pNState = pState->pNState;
 
 	// choose weighting of going straight
-	if (!ss_iRand(20))
-		weightStraight = ss_iRand2(MAX_WEIGHT_STRAIGHT / 4, MAX_WEIGHT_STRAIGHT);
+	if (!iRand(20))
+		weightStraight = iRand2(MAX_WEIGHT_STRAIGHT / 4, MAX_WEIGHT_STRAIGHT);
 	else
-		weightStraight = 1 + ss_iRand(4);
+		weightStraight = 1 + iRand(4);
 }
 
-/**************************************************************************\
-* Start
-*
-* Start drawing a new normal pipe
-*
-* - Draw a start cap and short pipe in new direction
-*
-\**************************************************************************/
-
-void
-NORMAL_PIPE::Start() {
+void NORMAL_PIPE::Start() {
 	int newDir;
 
 	// Set start position
@@ -84,7 +72,7 @@ NORMAL_PIPE::Start() {
 	TranslateToCurrentPosition();
 
 	// Pick a random lastDir
-	lastDir = ss_iRand(NUM_DIRS);
+	lastDir = iRand(NUM_DIRS);
 
 	newDir = ChooseNewDirection();
 
@@ -115,16 +103,6 @@ NORMAL_PIPE::Start() {
 
 	lastDir = newDir;
 }
-
-/**************************************************************************\
-* Draw
-*
-* - if turning, draws a joint and a short cylinder, otherwise
-*   draws a long cylinder.
-* - the 'current node' is set as the one we draw thru the NEXT
-*   time around.
-*
-\**************************************************************************/
 
 void
 NORMAL_PIPE::Draw() {
@@ -167,15 +145,8 @@ NORMAL_PIPE::Draw() {
 	lastDir = newDir;
 }
 
-/**************************************************************************\
-* DrawStartCap
-*
-* Cap the start of the pipe with a ball
-*
-\**************************************************************************/
 
-void
-NORMAL_PIPE::DrawStartCap(int newDir) {
+void NORMAL_PIPE::DrawStartCap(int newDir) {
 	if (bTexture) {
 		align_plusz(newDir);
 		pNState->ballCap->Draw();
@@ -186,15 +157,7 @@ NORMAL_PIPE::DrawStartCap(int newDir) {
 	}
 }
 
-/**************************************************************************\
-* DrawEndCap():
-*
-* - Draws a ball, used to cap end of a pipe
-*
-\**************************************************************************/
-
-void
-NORMAL_PIPE::DrawEndCap() {
+void NORMAL_PIPE::DrawEndCap() {
 	glPushMatrix();
 
 	// Translate to current position
@@ -212,21 +175,11 @@ NORMAL_PIPE::DrawEndCap() {
 	glPopMatrix();
 }
 
-/**************************************************************************\
-* ChooseElbow
-*
-* - Decides which elbow to draw
-* - The beginning of each elbow is aligned along +y, and we have
-*   to choose the one with the notch in correct position
-* - The 'primary' start notch (elbow[0]) is in same direction as
-*   newDir, and successive elbows rotate this notch CCW around +y
-*
-\**************************************************************************/
-
-
-// this array supplies the sequence of elbow notch vectors, given
-//  oldDir and newDir  (0's are don't cares)
-// it is also used to determine the ending notch of an elbow
+/**
+ * This array supplies the sequence of elbow notch vectors, given oldDir and newDir  (0's are don't cares).
+ * It is also used to determine the ending notch of an elbow
+ *
+ */
 static GLint notchElbDir[NUM_DIRS][NUM_DIRS][4] = {
 // oldDir = +x
 		iXX,            iXX,            iXX,            iXX,
@@ -272,8 +225,7 @@ static GLint notchElbDir[NUM_DIRS][NUM_DIRS][4] = {
 		iXX,            iXX,            iXX,            iXX
 };
 
-GLint
-NORMAL_PIPE::ChooseElbow(int oldDir, int newDir) {
+GLint NORMAL_PIPE::ChooseElbow(int oldDir, int newDir) {
 	int i;
 
 	// precomputed table supplies correct elbow orientation
@@ -285,15 +237,7 @@ NORMAL_PIPE::ChooseElbow(int oldDir, int newDir) {
 	return -1;
 }
 
-/**************************************************************************\
-* DrawJoint
-*
-* Draw a joint between 2 pipes
-*
-\**************************************************************************/
-
-void
-NORMAL_PIPE::DrawJoint(int newDir) {
+void NORMAL_PIPE::DrawJoint(int newDir) {
 	int jointType;
 	int iBend;
 
@@ -386,26 +330,26 @@ static float RotZ[NUM_DIRS][NUM_DIRS] = {
 		-90.0f,  90.0f,   0.0f, 180.0f,   0.0f,   0.0f,
 		 90.0f, -90.0f, 180.0f,   0.0f,   0.0f,   0.0f};
 
-
-
-/*-----------------------------------------------------------------------
-|                                                                       |
-|    align_plusy( int lastDir, int newDir )                             |
-|       - Assuming +z axis is already aligned with newDir, align        |
-|         +y axis BACK along lastDir                                    |
-|                                                                       |
------------------------------------------------------------------------*/
-
-static void
-align_plusy(int oldDir, int newDir) {
+/**
+ * Assuming +z axis is already aligned with newDir, align +y axis BACK along lastDir
+ *
+ * @param oldDir
+ * @param newDir
+ */
+static void align_plusy(int oldDir, int newDir) {
 	GLfloat rotz;
 
 	rotz = RotZ[oldDir][newDir];
 	glRotatef(rotz, 0.0f, 0.0f, 1.0f);
 }
 
-// given a dir, determine how much to rotate cylinder around z to match notches
-// format is [newDir][notchVec]
+// 
+
+/**
+ * Given a dir, determine how much to rotate cylinder around z to match notches
+ * Format is [newDir][notchVec]
+ *
+ */
 
 static GLfloat alignNotchRot[NUM_DIRS][NUM_DIRS] = {
 		fXX,    fXX,    0.0f,   180.0f,  90.0f, -90.0f,
@@ -417,18 +361,15 @@ static GLfloat alignNotchRot[NUM_DIRS][NUM_DIRS] = {
 };
 
 
-/*-----------------------------------------------------------------------
-|                                                                       |
-|    align_notch( int newDir )                                          |
-|       - a cylinder is notched, and we have to line this up            |
-|         with the previous primitive's notch which is maintained as    |
-|         notchVec.                                                     |
-|       - this adds a rotation around z to achieve this                 |
-|                                                                       |
------------------------------------------------------------------------*/
+/**
+ * A cylinder is notched, and we have to line this up with the previous primitive's notch which is maintained as notchVec.
+ * This adds a rotation around z to achieve this
+ *
+ * @param newDir
+ * @param notch
+ */
 
-static void
-align_notch(int newDir, int notch) {
+static void align_notch(int newDir, int notch) {
 	GLfloat rotz;
 	GLint curNotch;
 

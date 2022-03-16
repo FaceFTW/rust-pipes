@@ -12,6 +12,8 @@
 //NOTE Most of this code originates from EVAL.H and XC.H
 //These will likely be updated for more recent versions of OpenGL
 
+#include "utils.h"
+
 #ifndef __glstuff_h_
 #define __glstuff_h_
 
@@ -100,7 +102,7 @@ class RANDOM4ARC_XC : public XC {
 
 class EVAL {
 	public:
-	EVAL(BOOL bTexture);
+	EVAL(bool bTexture);
 	~EVAL();
 	int         numSections;    // number of cross-sectional sections
 	int         uOrder, vOrder;
@@ -109,7 +111,7 @@ class EVAL {
 	int         uDiv, vDiv;    // figured out one level up ?
 	POINT3D* pts;          // vertex control points
 	// - texture always order 2 for s and t (linear mapping)
-	BOOL        bTexture;
+	bool        bTexture;
 	TEX_POINT2D* texPts;       // texture control points
 
 	void        Evaluate(); // evaluate/render the object
@@ -120,10 +122,10 @@ class EVAL {
 	void        ProcessXCPrimLinear(XC* xcStart, XC* xcEnd, float length);
 	void        ProcessXCPrimBendSimple(XC* xcCur, int dir, float radius);
 	void        ProcessXCPrimSingularity(XC* xcCur, float length,
-										  BOOL bOpening);
+										  bool bOpening);
 };
 
-extern void ResetEvaluator(BOOL bTexture);
+extern void ResetEvaluator(bool bTexture);
 
 //*********************************
 // Stuff from VIEW.H
@@ -144,13 +146,13 @@ class VIEW {
 	ISIZE       winSize;        // window size in pixels
 
 	VIEW();
-	BOOL        SetWinSize(int width, int height);
+	bool        SetWinSize(int width, int height);
 	void        SetGLView();
 	void        CalcNodeArraySize(IPOINT3D* pNodeDim);
 	void        SetProjMatrix();
 	void        IncrementSceneRotation();
 	private:
-	BOOL        bProjMode;      // projection mode
+	bool        bProjMode;      // projection mode
 	Perspective persp;          // perspective view description
 	float       aspectRatio;    // x/y window aspect ratio
 	POINT3D     world;          // view area in world space

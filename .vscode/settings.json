@@ -1,7 +1,14 @@
 {
 	"files.associations": {
 		"*.meta": "ini",
-		"DIALOG.C": "cpp"
+		"DIALOG.C": "cpp",
+		"TEXTURE.C": "cpp",
+		"SSIMAGE.C": "cpp",
+		"MATERIAL.C": "cpp",
+		"MATH.C": "cpp",
+		"SSA8.C": "cpp",
+		"COLOR.C": "cpp",
+		"FASTDIB.C": "cpp"
 	},
 	"doxdocgen.file.copyrightTag": ["@copyright Copyright (c) {year}. Work is based on original work from Microsoft Corp (c) 1994"]
 }

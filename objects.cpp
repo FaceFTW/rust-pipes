@@ -19,42 +19,28 @@
 #include <GL/gl.h>
 //TODO find refs
 //#include "sscommon.h"
+
 #include "include/objects.h"
 #include "include/pipe_main.h"
+#include "include/utils.h"
 
 #define ROOT_TWO 1.414213562373f
 
-/**************************************************************************\
-* OBJECT constructor
-*
-\**************************************************************************/
 OBJECT::OBJECT() {
 	listNum = glGenLists(1);
 }
 
-/**************************************************************************\
-* OBJECT destructor
-*
-\**************************************************************************/
 OBJECT::~OBJECT() {
 	glDeleteLists(listNum, 1);
 }
 
-/**************************************************************************\
-* Draw
-*
-* - Draw the object by calling its display list
-*
-\**************************************************************************/
+
 void
 OBJECT::Draw() {
 	glCallList(listNum);
 }
 
-/**************************************************************************\
-* PIPE_OBJECT constructors
-*
-\**************************************************************************/
+
 PIPE_OBJECT::PIPE_OBJECT(OBJECT_BUILD_INFO* pBuildInfo, float len) {
 	Build(pBuildInfo, len, 0.0f, 0.0f);
 }
@@ -63,10 +49,7 @@ PIPE_OBJECT::PIPE_OBJECT(OBJECT_BUILD_INFO* pBuildInfo, float len, float s_start
 	Build(pBuildInfo, len, s_start, s_end);
 }
 
-/**************************************************************************\
-* ELBOW_OBJECT constructors
-*
-\**************************************************************************/
+
 ELBOW_OBJECT::ELBOW_OBJECT(OBJECT_BUILD_INFO* pBuildInfo, int notch) {
 	Build(pBuildInfo, notch, 0.0f, 0.0f);
 }
@@ -75,18 +58,12 @@ ELBOW_OBJECT::ELBOW_OBJECT(OBJECT_BUILD_INFO* pBuildInfo, int notch, float s_sta
 	Build(pBuildInfo, notch, s_start, s_end);
 }
 
-/**************************************************************************\
-* BALLJOINT_OBJECT constructor
-*
-\**************************************************************************/
+
 BALLJOINT_OBJECT::BALLJOINT_OBJECT(OBJECT_BUILD_INFO* pBuildInfo, int notch, float s_start, float s_end) {
 	Build(pBuildInfo, notch, s_start, s_end);
 }
 
-/**************************************************************************\
-* SPHERE_OBJECT constructors
-*
-\**************************************************************************/
+
 SPHERE_OBJECT::SPHERE_OBJECT(OBJECT_BUILD_INFO* pBuildInfo, float radius) {
 	Build(pBuildInfo, radius, 0.0f, 0.0f);
 }
@@ -96,8 +73,16 @@ SPHERE_OBJECT::SPHERE_OBJECT(OBJECT_BUILD_INFO* pBuildInfo, float radius, float 
 }
 
 
-// rotate circle around x-axis, with edge attached to anchor
 
+/**
+ * @brief rotate circle around x-axis, with edge attached to anchor
+ *
+ * @param angle
+ * @param inPoint
+ * @param outPoint
+ * @param num
+ * @param anchor
+ */
 static void TransformCircle(
 	float angle,
 	POINT3D* inPoint,
@@ -108,29 +93,37 @@ static void TransformCircle(
 	int i;
 
 	// translate anchor point to origin
-	ss_matrixIdent(&matrix1);
-	ss_matrixTranslate(&matrix1, -anchor->x, -anchor->y, -anchor->z);
+	matrixIdent(&matrix1);
+	matrixTranslate(&matrix1, -anchor->x, -anchor->y, -anchor->z);
 
 	// rotate by angle, cw around x-axis
-	ss_matrixIdent(&matrix2);
-	ss_matrixRotate(&matrix2, (double)-angle, 0.0, 0.0);
+	matrixIdent(&matrix2);
+	matrixRotate(&matrix2, (double)-angle, 0.0, 0.0);
 
 	// concat these 2
-	ss_matrixMult(&matrix3, &matrix2, &matrix1);
+	matrixMult(&matrix3, &matrix2, &matrix1);
 
 	// translate back
-	ss_matrixIdent(&matrix2);
-	ss_matrixTranslate(&matrix2, anchor->x, anchor->y, anchor->z);
+	matrixIdent(&matrix2);
+	matrixTranslate(&matrix2, anchor->x, anchor->y, anchor->z);
 
 	// concat these 2
-	ss_matrixMult(&matrix1, &matrix2, &matrix3);
+	matrixMult(&matrix1, &matrix2, &matrix3);
 
 	// transform all the points, + center
 	for (i = 0; i < num; i++, outPoint++, inPoint++) {
-		ss_xformPoint(outPoint, inPoint, &matrix1);
+		xformPoint(outPoint, inPoint, &matrix1);
 	}
 }
 
+/**
+ * @brief
+ *
+ * @param p
+ * @param n
+ * @param center
+ * @param num
+ */
 static void CalcNormals(POINT3D* p, POINT3D* n, POINT3D* center,
 						 int num) {
 	int i;
@@ -139,25 +132,36 @@ static void CalcNormals(POINT3D* p, POINT3D* n, POINT3D* center,
 		n->x = p->x - center->x;
 		n->y = p->y - center->y;
 		n->z = p->z - center->z;
-		ss_normalizeNorm(n);
+		normalizeNorm(n);
 	}
 }
 
 /*----------------------------------------------------------------------\
 |    MakeQuadStrip()                                                    |
-|       - builds quadstrip between 2 rows of points. pA points to one   |
-|         row of points, and pB to the next rotated row.  Because       |
-|         the rotation has previously been defined CCW around the       |
-|         x-axis, using an A-B sequence will result in CCW quads        |
+|              |
 |                                                                       |
 \----------------------------------------------------------------------*/
+/**
+ * @brief - builds quadstrip between 2 rows of points.
+ * pA points to one row of points, and pB to the next rotated row.
+ * Because the rotation has previously been defined CCW around the x-axis, using an A-B sequence will result in CCW quads
+ *
+ * @param pA
+ * @param pB
+ * @param nA
+ * @param nB
+ * @param bTexture
+ * @param tex_s
+ * @param tex_t
+ * @param slices
+ */
 static void MakeQuadStrip
 (
 	POINT3D* pA,
 	POINT3D* pB,
 	POINT3D* nA,
 	POINT3D* nB,
-	BOOL    bTexture,
+	bool    bTexture,
 	GLfloat* tex_s,
 	GLfloat* tex_t,
 	GLint slices
@@ -233,7 +237,7 @@ ELBOW_OBJECT::Build(OBJECT_BUILD_INFO* pBuildInfo, int notch, float s_start, flo
 	int i;
 	IPOINT2D* texRep = pBuildInfo->texRep;
 	GLfloat radius = pBuildInfo->radius;
-	BOOL    bTexture = pBuildInfo->bTexture;
+	bool    bTexture = pBuildInfo->bTexture;
 
 	slices = pBuildInfo->nSlices;
 	stacks = slices / 2;
@@ -351,7 +355,7 @@ BALLJOINT_OBJECT::Build(OBJECT_BUILD_INFO* pBuildInfo, int notch,
 	GLint   stacks, slices;
 	IPOINT2D* texRep = pBuildInfo->texRep;
 	GLfloat radius = pBuildInfo->radius;
-	BOOL    bTexture = pBuildInfo->bTexture;
+	bool    bTexture = pBuildInfo->bTexture;
 
 	slices = pBuildInfo->nSlices;
 	stacks = slices;
@@ -487,10 +491,10 @@ PIPE_OBJECT::Build(OBJECT_BUILD_INFO* pBuildInfo, float length, float s_start,
 	GLfloat s_delta;
 	IPOINT2D* texRep = pBuildInfo->texRep;
 	GLfloat radius = pBuildInfo->radius;
-	BOOL    bTexture = pBuildInfo->bTexture;
+	bool bTexture = pBuildInfo->bTexture;
 
 	slices = pBuildInfo->nSlices;
-	stacks = (int)SS_ROUND_UP((length / pBuildInfo->divSize) * (float)slices);
+	stacks = (int)UTIL_ROUND_UP((length / pBuildInfo->divSize) * (float)slices);
 
 	if (slices >= CACHE_SIZE) slices = CACHE_SIZE - 1;
 	if (stacks >= CACHE_SIZE) stacks = CACHE_SIZE - 1;
@@ -564,7 +568,7 @@ SPHERE_OBJECT::Build(OBJECT_BUILD_INFO* pBuildInfo, GLfloat radius,
 	GLfloat s_delta;
 	GLint start, finish;
 	GLint   stacks, slices;
-	BOOL    bTexture = pBuildInfo->bTexture;
+	bool    bTexture = pBuildInfo->bTexture;
 	IPOINT2D* texRep = pBuildInfo->texRep;
 
 	slices = pBuildInfo->nSlices;
