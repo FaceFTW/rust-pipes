@@ -1,5 +1,5 @@
 /**
- * @file pipe_object.h
+ * @file objects.h
  * @author Alex "FaceFTW" Westerman
  * @brief
  * @version 0.1
@@ -11,11 +11,11 @@
 
 //NOTE the code here is mostly a copy of OBJECTS.H, will change over time
 
-#ifndef __pipe_objects_h__
-#define __pipe_objects_h__
+#ifndef __objects_h__
+#define __objects_h__
 
-#include "../pipe_main.h"
-#include "../state/state.h"
+#include "pipe_main.h"
+#include "state/state.h"
 
 class OBJECT_BUILD_INFO {
 	public:

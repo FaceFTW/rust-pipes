@@ -4,9 +4,9 @@
  * @brief Definition of Normal Pipes
  * @version 0.1
  * @date 2022-03-15
- * 
+ *
  * @copyright Copyright (c) 2022. Work is based on original work from Microsoft Corp (c) 1994
- *  
+ *
  */
 
 //NOTE this is mostly a copy of NPIPE.h for now, will likely change over time
@@ -21,18 +21,18 @@
 
 class NORMAL_STATE;
 
-class NORMAL_PIPE: public PIPE {
-private:
-public:
-    NORMAL_STATE      *pNState;
+class NORMAL_PIPE : public PIPE {
+	private:
+	public:
+	NORMAL_STATE* pNState;
 
-    NORMAL_PIPE( STATE *state );
-    void        Start();
-    GLint       ChooseElbow( int oldDir, int newDir);
-    void        DrawJoint( int newDir );
-    void        Draw( ); //mf: could take param to draw n sections
-    void        DrawStartCap( int newDir );
-    void        DrawEndCap();
+	NORMAL_PIPE(STATE* state);
+	void        Start();
+	GLint       ChooseElbow(int oldDir, int newDir);
+	void        DrawJoint(int newDir);
+	void        Draw(); //mf: could take param to draw n sections
+	void        DrawStartCap(int newDir);
+	void        DrawEndCap();
 };
 
 #endif // __pipe_normal_h__

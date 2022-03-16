@@ -24,7 +24,8 @@
 #include <math.h>
 #include <sys/types.h>
 #include <time.h>
-#include <windows.h>
+//TODO remove windows bindings
+//#include <windows.h>
 
 #include "include/pipe_main.h"
 #include "include/pipe/pipe_flexy.h"

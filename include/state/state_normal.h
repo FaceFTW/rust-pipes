@@ -16,7 +16,7 @@
 
 //TODO find dependencies
 //#include "sscommon.h"
-#include "../pipe/pipe_object.h"
+#include "../objects.h"
 #include "state.h"
 
 #define NORMAL_PIPE_COUNT       5
