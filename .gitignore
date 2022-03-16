@@ -34,3 +34,9 @@
 
 # Ignore the original source, have it in the same repo folder for easier reference
 pipes-port/
+
+# Visual Studio Cache
+.vs/
+
+obj/
+out/
