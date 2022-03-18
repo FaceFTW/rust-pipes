@@ -30,17 +30,23 @@ if(NOT GLUT_FOUND)
 endif(NOT GLUT_FOUND)
 message(STATUS "Found GLUT")
 
-find_package(X11)
-
-
 
 add_library(OpenGL::OpenGL STATIC IMPORTED)
 #add_library(OpenGL::GLX STATIC IMPORTED)
 #add_library(GLUT::GLUT STATIC IMPORTED)
 #add_library(X11::X11 STATIC IMPORTED)
-set(LIBS ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES} ${X11_X11_LIB})
-INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR} ${GLUT_INCLUDE_DIR} ${X11_INCLUDE_DIR})
+set(LIBS ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
+INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR} ${GLUT_INCLUDE_DIR})
 LINK_LIBRARIES(${LIBS})
 
-add_executable (gl-pipes "pipe_test.c")
-TARGET_LINK_LIBRARIES(gl-pipes ${LIBS})
+
+add_executable(gl-pipes-test "src/scratchwork/pipe_test_nox11.cpp")
+TARGET_LINK_LIBRARIES(gl-pipes-test ${LIBS})
+
+
+find_package(X11)
+set(LIBS ${LIBS} ${X11_X11_LIB})
+INCLUDE_DIRECTORIES(${X11_INCLUDE_DIR})
+add_executable (gl-pipes-x11-test "src/scratchwork/pipe_test.c")
+
+TARGET_LINK_LIBRARIES(gl-pipes-x11-test ${LIBS})
