@@ -1,0 +1,68 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "gl-pipes",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "gl-pipes-test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gl-pipes-test-Debug-fd130023654ac1eefc13.json",
+					"name" : "gl-pipes-test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gl-pipes-x11-test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gl-pipes-x11-test-Debug-99a2c97cd059fe23f95e.json",
+					"name" : "gl-pipes-x11-test",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/mnt/d/Onedrive/Workspaces/gl-pipes/build",
+		"source" : "/mnt/d/Onedrive/Workspaces/gl-pipes"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 0
+	}
+}
