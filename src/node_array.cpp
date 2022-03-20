@@ -11,6 +11,7 @@
  */
 
 #include "include/node_array.h"
+#include "include/utils.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -112,7 +113,7 @@ int NODE_ARRAY::ChooseRandomDirection(IPOINT3D* pos, int dir, int weightStraight
 	// Make a random choice
 	if((choice = (weightStraight + numEmpty)) == 0)
 		return DIR_NONE;
-	choice = ss_iRand(choice);
+	choice = iRand(choice);
 
 	if(choice < weightStraight) {
 		straightNode->MarkAsTaken();
@@ -166,7 +167,7 @@ int NODE_ARRAY::ChoosePreferredDirection(IPOINT3D* pos, int dir, int* prefDirs,
 
 	// Pick a random dir from the empty set
 
-	newDir = emptyDirs[ss_iRand(numEmpty)];
+	newDir = emptyDirs[iRand(numEmpty)];
 	nNode[newDir]->MarkAsTaken();
 	return newDir;
 }
@@ -206,7 +207,7 @@ int NODE_ARRAY::FindClearestDirection(IPOINT3D* pos) {
 		return DIR_NONE;
 
 	// randomnly choose a direction
-	newDir = emptyDirs[ss_iRand(count)];
+	newDir = emptyDirs[iRand(count)];
 
 	return newDir;
 }
@@ -232,7 +233,7 @@ int NODE_ARRAY::ChooseNewTurnDirection(IPOINT3D* pos, int dir) {
 		return DIR_STRAIGHT;// nowhere to turn, but could go straight
 
 	// randomnly choose one of the possible turns
-	newDir = turns[ss_iRand(nTurns)];
+	newDir = turns[iRand(nTurns)];
 
 	// SS_ASSERT((newDir >= 0) && (newDir < NUM_DIRS),
 	//           "NODE_ARRAY::ChooseNewTurnDirection : invalid newDir\n");
@@ -473,9 +474,9 @@ bool NODE_ARRAY::FindRandomEmptyNode(IPOINT3D* pos) {
 
 		// Pick a random node.
 
-		pos->x = ss_iRand(numNodes.x);
-		pos->y = ss_iRand(numNodes.y);
-		pos->z = ss_iRand(numNodes.z);
+		pos->x = iRand(numNodes.x);
+		pos->y = iRand(numNodes.y);
+		pos->z = iRand(numNodes.z);
 
 		// If its empty, we're done.
 
@@ -547,8 +548,8 @@ bool NODE_ARRAY::FindRandomEmptyNode2D(IPOINT3D* pos, int plane, int* box) {
 
 		// Pick a random node.
 
-		*newx = ss_iRand2(xDim[MIN_VAL], xDim[MAX_VAL]);
-		*newy = ss_iRand2(yDim[MIN_VAL], yDim[MAX_VAL]);
+		*newx = iRand2(xDim[MIN_VAL], xDim[MAX_VAL]);
+		*newy = iRand2(yDim[MIN_VAL], yDim[MAX_VAL]);
 
 		// If its empty, we're done.
 
@@ -579,7 +580,7 @@ bool NODE_ARRAY::FindRandomEmptyNode2D(IPOINT3D* pos, int plane, int* box) {
 }
 
 bool NODE_ARRAY::TakeClosestEmptyNode(IPOINT3D* newPos, IPOINT3D* pos) {
-	static int searchRadius = SS_MAX(numNodes.x, numNodes.y) / 3;
+	static int searchRadius = MAX(numNodes.x, numNodes.y) / 3;
 
 	// easy out
 	if(GetNode(pos)->IsEmpty()) {
@@ -596,7 +597,7 @@ bool NODE_ARRAY::TakeClosestEmptyNode(IPOINT3D* newPos, IPOINT3D* pos) {
 		// Increase box size
 		DilateBox(box, &numNodes);
 		// start looking in random 2D face of the box
-		int dir = ss_iRand(NUM_DIRS);
+		int dir = iRand(NUM_DIRS);
 		for(int j = 0; j < NUM_DIRS; j++, dir = (++dir == NUM_DIRS) ? 0 : dir) {
 			if(FindRandomEmptyNode2D(newPos, dir, box))
 				return true;
