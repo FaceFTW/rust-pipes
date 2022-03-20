@@ -9,11 +9,11 @@
  *
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <GL/freeglut.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <GL/freeglut.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define WIN_WIDTH 600
 #define WIN_HEIGHT 600
@@ -44,12 +44,11 @@ void draw() {
 
 void keypressCB(unsigned char key, int x, int y) {
 	//do anything to exit
-	if (key) exit(0);
+	if(key) exit(0);
 }
 
-
 int main(int argc, char* argv[]) {
-	int win;	//A window pointer?
+	int win;//A window pointer?
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB);
@@ -66,5 +65,4 @@ int main(int argc, char* argv[]) {
 	glutMainLoop();
 
 	return 0;
-
 }
