@@ -9,7 +9,7 @@
  *
  */
 
-#include "include/gl_init.h"
+#include "include/graphics/gl_init.h"
 
 void initGLMisc() {
 	static float ambient[] = {0.1f, 0.1f, 0.1f, 1.0f};

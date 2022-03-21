@@ -16,6 +16,8 @@
 extern "C" {
 #endif
 
+#include "structs.h"
+
 /**
  * @brief Returns the maximum of two values
  */
@@ -28,7 +30,7 @@ extern "C" {
 
 // macro to round up floating values
 #define ROUND_UP(fval) \
-	((((fval) - (FLOAT) (int) (fval)) > 0.0f) ? (int) ((fval) + 1.0f) : (int) (fval))
+	((((fval) - (float) (int) (fval)) > 0.0f) ? (int) ((fval) + 1.0f) : (int) (fval))
 
 // macros to clamp a value within a range
 #define CLAMP_TO_RANGE(a, lo, hi) ((a < lo) ? lo : ((a > hi) ? hi : a))
@@ -67,6 +69,43 @@ int iRand2(int min, int max);
  */
 float fRand(float min, float max);
 
+/**
+ * @brief rotate circle around x-axis, with edge attached to anchor
+ * @param angle 
+ * @param inPoint 
+ * @param outPoint 
+ * @param num 
+ * @param anchor 
+ */
+void TransformCircle(float angle,
+                     POINT3D* inPoint,
+                     POINT3D* outPoint,
+                     GLint num,
+                     POINT3D* anchor);
+
+/**
+ * @brief 
+ * 
+ * @param p 
+ * @param n 
+ * @param center 
+ * @param num 
+ */
+void CalcNormals(POINT3D* p,
+                 POINT3D* n,
+                 POINT3D* center,
+                 int num);
+
+POINT3D ss_ptZero;
+void xformPoint(POINT3D* ptOut, POINT3D* ptIn, MATRIX*);
+void xformNorm(POINT3D* ptOut, POINT3D* ptIn, MATRIX*);
+void matrixIdent(MATRIX*);
+void matrixRotate(MATRIX* m, double xTheta, double yTheta, double zTheta);
+void matrixTranslate(MATRIX*, double xTrans, double yTrans, double zTrans);
+void matrixMult(MATRIX* m1, MATRIX* m2, MATRIX* m3);
+void calcNorm(POINT3D* norm, POINT3D* p1, POINT3D* p2, POINT3D* p3);
+void normalizeNorm(POINT3D*);
+void normalizeNorms(POINT3D*, unsigned long);
 #ifdef __cplusplus
 }
 #endif

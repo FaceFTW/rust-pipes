@@ -12,8 +12,8 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "constants.h"
-#include "structs.h"
+#include "../constants.h"
+#include "../structs.h"
 
 #ifndef __gl_init_h_
 #define __gl_init_h_

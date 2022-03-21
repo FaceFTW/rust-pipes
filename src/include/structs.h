@@ -74,3 +74,28 @@ typedef struct _ipoint3d {
 	int y;//The y position
 	int z;//The z position
 } IPOINT3D;
+
+/**
+ * @brief Defines a Float Matrix Struct
+ */
+typedef struct _MATRIX {
+	GLfloat M[4][4];
+} MATRIX;
+
+typedef struct strRGBA {
+	GLfloat r;
+	GLfloat g;
+	GLfloat b;
+	GLfloat a;
+} RGBA;
+
+/**
+ * @brief 
+ * 
+ */
+typedef struct _MATERIAL {
+	RGBA ka;
+	RGBA kd;
+	RGBA ks;
+	GLfloat specExp;
+} MATERIAL;

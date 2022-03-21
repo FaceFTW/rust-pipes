@@ -41,6 +41,7 @@ pipes-port/
 obj/
 out/
 build/
+build/*
 
 CMakeFiles/
 CMakeLists.txt.user

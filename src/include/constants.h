@@ -95,4 +95,85 @@ enum {
 #define MIN_VAL 1
 #define MAX_VAL 0
 
+#define ROOT_TWO 1.414213562373f
+
+#define CACHE_SIZE 100
+
+#define PI 3.14159265358979323846f
+// double version of PI
+#define PI_D 3.14159265358979323846264338327950288419716939937510
+#define ONE_OVER_PI (1.0f / PI)
+
+#define ZERO_EPS 0.00000001
+
+// pipe drawing status
+enum {
+	PIPE_ACTIVE,
+	PIPE_STUCK,
+	PIPE_OUT_OF_NODES
+};
+
+// pipe types
+enum {
+	TYPE_NORMAL,
+	TYPE_FLEX_REGULAR,
+	TYPE_FLEX_TURNING
+};
+
+// ways pipe choose directions
+enum {
+	CHOOSE_DIR_RANDOM_WEIGHTED,
+	CHOOSE_DIR_CHASE// when chasing a lead pipe
+};
+
+// ways pipe choose start positions
+enum {
+	CHOOSE_STARTPOS_RANDOM,
+	CHOOSE_STARTPOS_FURTHEST// furthest from last position
+};
+
+/******** materials ********************************/
+
+// 24 tea materials (from teapots app)
+
+#define NUM_TEA_MATERIALS 24
+
+enum {
+	EMERALD = 0,
+	JADE,
+	OBSIDIAN,
+	PEARL,
+	RUBY,
+	TURQUOISE,
+	BRASS,
+	BRONZE,
+	CHROME,
+	COPPER,
+	GOLD,
+	SILVER,
+	BLACK_PLASTIC,
+	CYAN_PLASTIC,
+	GREEN_PLASTIC,
+	RED_PLASTIC,
+	WHITE_PLASTIC,
+	YELLOW_PLASTIC,
+	BLACK_RUBBER,
+	CYAN_RUBBER,
+	GREEN_RUBBER,
+	RED_RUBBER,
+	WHITE_RUBBER,
+	YELLOW_RUBBER
+};
+
+// 'white' materials, for texturing
+
+#define NUM_TEX_MATERIALS 4
+
+enum {
+	BRIGHT_WHITE = NUM_TEA_MATERIALS,
+	WHITE,
+	WARM_WHITE,
+	COOL_WHITE
+};
+
 #endif//__constants_h_

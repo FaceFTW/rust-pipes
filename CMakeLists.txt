@@ -10,6 +10,22 @@ project("gl-pipes")
 
 # Add source to this project's executable.
 
+# Add source files
+file(GLOB_RECURSE SOURCE_FILES 
+	${CMAKE_SOURCE_DIR}/src/*.c
+	${CMAKE_SOURCE_DIR}/src/*.cpp
+	${CMAKE_SOURCE_DIR}/src/graphics/*.c
+	${CMAKE_SOURCE_DIR}/src/graphics/*.cpp)
+	
+	
+# Add header files
+file(GLOB_RECURSE HEADER_FILES 
+	${CMAKE_SOURCE_DIR}/src/*.h
+	${CMAKE_SOURCE_DIR}/src/*.hpp
+	${CMAKE_SOURCE_DIR}/src/graphics/*.h
+	${CMAKE_SOURCE_DIR}/src/graphics/*.hpp
+	)
+
 # Do Lib Stuff
 # OpenGL
 FIND_PACKAGE(OpenGL REQUIRED)
@@ -38,6 +54,10 @@ add_library(OpenGL::OpenGL STATIC IMPORTED)
 set(LIBS ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
 INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR} ${GLUT_INCLUDE_DIR})
 LINK_LIBRARIES(${LIBS})
+
+add_executable(gl-pipes ${SOURCE_FILES} ${HEADER_FILES})
+TARGET_LINK_LIBRARIES(gl-pipes ${LIBS})
+
 
 
 add_executable(gl-pipes-test "src/scratchwork/pipe_test_nox11.cpp")
