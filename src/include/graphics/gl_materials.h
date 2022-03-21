@@ -24,10 +24,10 @@ extern "C" {
  */
 void InitTeaMaterials();
 
-/**
- * @brief Initialize Material structure with data in TexMaterialData (tex materials follow the tea materials in Material)
- */
-void InitTexMaterials();
+// /**
+//  * @brief Initialize Material structure with data in TexMaterialData (tex materials follow the tea materials in Material)
+//  */
+// void InitTexMaterials();
 
 /**
  * @brief Initialize MATERIAL structures with data
@@ -68,21 +68,21 @@ MATERIAL* RandomTeaMaterial(bool bSet);
  */
 int RandomTeaMaterialIndex(bool bSet);
 
-/**
- * @brief Select a random TexMaterial
- * 
- * @param bSet 
- * @return ptr to material
- */
-MATERIAL* RandomTexMaterial(bool bSet);
+// /**
+//  * @brief Select a random TexMaterial
+//  * 
+//  * @param bSet 
+//  * @return ptr to material
+//  */
+// MATERIAL* RandomTexMaterial(bool bSet);
 
-/**
- * @brief Select a random TexMaterial
- * 
- * @param bSet 
- * @return int 
- */
-int RandomTexMaterialIndex(bool bSet);
+// /**
+//  * @brief Select a random TexMaterial
+//  * 
+//  * @param bSet 
+//  * @return int 
+//  */
+// int RandomTexMaterialIndex(bool bSet);
 
 /**
  * @brief Given 2 materials and a count, create an incremental material, such

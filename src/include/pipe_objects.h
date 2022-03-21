@@ -42,8 +42,8 @@ protected:
 
 class PIPE_OBJECT: public OBJECT {
 public:
-	PIPE_OBJECT(OBJECT_BUILD_INFO* state, float length) { Build(state, length, 0.0f, 0.0f); }
-	PIPE_OBJECT(OBJECT_BUILD_INFO* state, float length, float start_s, float end_s) { Build(state, length, start_s, end_s); }
+	PIPE_OBJECT(OBJECT_BUILD_INFO* state, float length) : OBJECT() { Build(state, length, 0.0f, 0.0f); }
+	PIPE_OBJECT(OBJECT_BUILD_INFO* state, float length, float start_s, float end_s) : OBJECT() { Build(state, length, start_s, end_s); }
 
 private:
 	void Build(OBJECT_BUILD_INFO* state, float length, float start_s, float s_end);

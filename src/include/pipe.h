@@ -10,6 +10,9 @@
  */
 
 #include <GL/gl.h>
+#include "global_state.h"
+#include "structs.h"
+
 
 class PIPE {
 public:
@@ -43,7 +46,7 @@ protected:
 	//PIPE(STATE* state);
 	int weightStraight;// current weighting of going straight
 	bool SetStartPos();// starting node position
-	//void ChooseMaterial();
+	void ChooseMaterial();
 	void DrawTeapot();
 	void UpdateCurrentPosition(int dir);
 	void TranslateToCurrentPosition();

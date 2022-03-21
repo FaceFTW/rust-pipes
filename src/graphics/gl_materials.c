@@ -10,6 +10,7 @@
  */
 
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -110,7 +111,9 @@ static GLfloat texMaterialData[NUM_TEX_MATERIALS][10] = {
         0.2f, 0.2f, 0.3f,
         0.8f, 0.9f, 1.0f, 0.8f, 0.9f, 1.0f, 0.5f};
 
-MATERIAL Material[NUM_TEA_MATERIALS + NUM_TEX_MATERIALS];
+// MATERIAL Material[NUM_TEA_MATERIALS + NUM_TEX_MATERIALS];
+
+MATERIAL Material[NUM_TEA_MATERIALS];
 
 // pure black material
 
@@ -138,17 +141,17 @@ static void InitMaterials(MATERIAL* pm, float* pd, int count) {
 
 void InitMaterials() {
 	InitTeaMaterials();
-	InitTexMaterials();
+	// InitTexMaterials();
 }
 
 void InitTeaMaterials() {
 	InitMaterials(Material, teaMaterialData[0], NUM_TEA_MATERIALS);
 }
 
-void InitTexMaterials() {
-	InitMaterials(Material + NUM_TEA_MATERIALS, texMaterialData[0],
-	              NUM_TEX_MATERIALS);
-}
+// void InitTexMaterials() {
+// 	InitMaterials(Material + NUM_TEA_MATERIALS, texMaterialData[0],
+// 	              NUM_TEX_MATERIALS);
+// }
 
 void SetMaterial(MATERIAL* pMat) {
 	glMaterialfv(GL_FRONT, GL_AMBIENT, (GLfloat*) &pMat->ka);
@@ -230,22 +233,22 @@ int RandomTeaMaterialIndex(bool bSet) {
 	return index;
 }
 
-MATERIAL* RandomTexMaterial(bool bSet) {
-	int index;
-	MATERIAL* pMat;
+// MATERIAL* RandomTexMaterial(bool bSet) {
+// 	int index;
+// 	MATERIAL* pMat;
 
-	index = NUM_TEA_MATERIALS + iRand(NUM_TEX_MATERIALS);
-	pMat = &Material[index];
-	if(bSet)
-		SetMaterial(pMat);
-	return pMat;
-}
+// 	index = NUM_TEA_MATERIALS + iRand(NUM_TEX_MATERIALS);
+// 	pMat = &Material[index];
+// 	if(bSet)
+// 		SetMaterial(pMat);
+// 	return pMat;
+// }
 
-int RandomTexMaterialIndex(bool bSet) {
-	int index;
+// int RandomTexMaterialIndex(bool bSet) {
+// 	int index;
 
-	index = NUM_TEA_MATERIALS + iRand(NUM_TEX_MATERIALS);
-	if(bSet)
-		SetMaterial(&Material[index]);
-	return index;
-}
+// 	index = NUM_TEA_MATERIALS + iRand(NUM_TEX_MATERIALS);
+// 	if(bSet)
+// 		SetMaterial(&Material[index]);
+// 	return index;
+// }

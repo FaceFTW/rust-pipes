@@ -50,7 +50,6 @@ public:
 	void KillPipe();
 };
 
-
 // this used for traditional pipe drawing
 
 class PIPE_OBJECT;
@@ -76,6 +75,7 @@ public:
 	//IPOINT2D    texRep[MAX_TEXTURES];
 
 	//VIEW        view;           // viewing parameters
+	GLConfig glCfg;
 	float radius;     // 'reference' pipe radius value
 	NODE_ARRAY* nodes;// for keeping track of draw space
 	// NORMAL_STATE *pNState;
@@ -84,8 +84,8 @@ public:
 	//STATE(BOOL bFlexMode, BOOL bMultiPipes);
 	STATE();
 	~STATE();
-	void Reshape(int width, int height, void* data);
-	void Repaint(LPRECT pRect, void* data);
+	// void Reshape(int width, int height, void* data);
+	// void Repaint(LPRECT pRect, void* data);
 	void Draw(void* data);
 	void Finish(void* data);
 
@@ -126,7 +126,7 @@ private:
 	void ResetView();
 	void FrameReset();
 	void Clear();
-	void ChooseNewLeadPipe();
+	//void ChooseNewLeadPipe();
 	void CompactThreadList();
 	//BOOL        LoadTextureFiles();
 	//BOOL        LoadTextureFiles( TEXFILE *pTexFile, int nTexFiles,
