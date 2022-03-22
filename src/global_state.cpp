@@ -20,6 +20,7 @@
 
 #include "include/constants.h"
 #include "include/global_state.h"
+#include "include/graphics/gl_init.h"
 #include "include/graphics/gl_materials.h"
 #include "include/utils.h"
 
@@ -31,39 +32,9 @@
 // #include "sspipes.h"
 // #include "state.h"
 
-// // default texture resource(s)
-
-// #define DEF_TEX_COUNT 1
-// TEX_RES gTexRes[DEF_TEX_COUNT] = {
-//         {TEX_BMP, IDB_DEFTEX}};
-
-// static void InitTexParams();
-
-/******************************Public*Routine******************************\
-* STATE constructor
-*
-* - global state init
-* - translates variables set from the dialog boxes
-*
-\**************************************************************************/
-
-// STATE::STATE(bool bFlexMode, bool bMultiPipes)
 STATE::STATE() {
 	// various state values
 	resetStatus = RESET_STARTUP_BIT;
-
-	// Put initial hglrc in drawThreads[0]
-	// This RC is also used for dlists and texture objects that are shared
-	// by other RC's
-
-	//shareRC = wglGetCurrentContext();
-	//drawThreads[0].SetRCDC(shareRC, wglGetCurrentDC());
-
-	//bTexture = false;
-	// if(ulSurfStyle == SURFSTYLE_TEX) {
-	// 	if(LoadTextureFiles(gTexFile, gnTextures, &gTexRes[0]))
-	// 		bTexture = true;
-	// } else
 	if(ulSurfStyle == SURFSTYLE_WIREFRAME) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
@@ -71,14 +42,13 @@ STATE::STATE() {
 	// Initialize GL state for the initial RC (sets texture state, so
 	// (must come after LoadTextureFiles())
 
-	GLInit();
+	initGLMisc();
 
 	// set 'reference' radius value
-
 	radius = 1.0f;
 
 	// convert tesselation from fTesselFact(0.0-2.0) to tessLevel(0-MAX_TESS)
-
+	//TODO where does this come from?
 	int tessLevel = (int) (fTesselFact * (MAX_TESS + 1) / 2.0001f);
 	nSlices = (tessLevel + 2) * 4;
 
@@ -94,68 +64,47 @@ STATE::STATE() {
 
 	// Again, since have either NORMAL or FLEX, set maxPipesPerFrame,
 	// maxDrawThreads
-	// if(bMultiPipes)
 	maxDrawThreads = MAX_DRAW_THREADS;
-	// else
-	// 	maxDrawThreads = 1;
 	nDrawThreads = 0;// no active threads yet
 	nPipesDrawn = 0;
 	// maxPipesPerFrame is set in Reset()
 
-	// if( bFlexMode ) {
-	//     drawMode = DRAW_FLEX;
-	//     pFState = new FLEX_STATE( this );
-	//     pNState = NULL;
-	// } else {
-	drawMode = DRAW_NORMAL;
-	//pNState = new STATE(this);
-	// pFState = NULL;
-	// }
-
 	// initialize materials
-
-	// if(bTexture)
-	// 	InitTexMaterials();
-	// else
 	InitTeaMaterials();
 
-	// default draw scheme
-	drawScheme = FRAME_SCHEME_RANDOM;
+		// init joint types from dialog settings
+
+	bCycleJointStyles = 0;
+
+	switch(ulJointType) {
+		case JOINT_ELBOW:
+			jointStyle = ELBOWS;
+			break;
+		case JOINT_BALL:
+			jointStyle = BALLS;
+			break;
+		case JOINT_MIXED:
+			jointStyle = EITHER;
+			break;
+		case JOINT_CYCLE:
+			bCycleJointStyles = 1;
+			jointStyle = EITHER;
+			break;
+		default:
+			break;
+	}
+
+	// Build the objects
+
+	BuildObjects(pState->radius, pState->view.divSize, pState->nSlices,
+	             pState->bTexture, &pState->texRep[0]);
 }
 
-/******************************Public*Routine******************************\
-* STATE destructor
-*
-\**************************************************************************/
-
-/******************************Public*Routine******************************\
-* STATE destructor
-*
-* Some of the objects are always created, so don't have to check if they
-* exist. Others may be NULL.
-\**************************************************************************/
 STATE::~STATE() {
-	// if(pNState)
-	// 	delete pNState;
-	// if(pFState)
-	// 	delete pFState;
 	if(nodes)
 		delete nodes;
-	// if(bTexture) {
-	// 	for(int i = 0; i < nTextures; i++) {
-	// 		DeleteTexture(&texture[i]);
-	// 	}
-	// }
-
-	// Delete any RC's - should be done by ~THREAD, but since common lib
-	// deletes shareRC, have to do it here
 
 	DRAW_THREAD* pdt = &drawThreads[0];
-	for(int i = 0; i < MAX_DRAW_THREADS; i++, pdt++) {
-		// if(pdt->hglrc && (pdt->hglrc != shareRC)) {
-		// 	wglDeleteContext(pdt->hglrc);
-		// }
-	}
 
 	//From NORMAL_STATE
 	delete shortPipe;
@@ -171,166 +120,6 @@ STATE::~STATE() {
 	if(bigBall)
 		delete bigBall;
 }
-
-/******************************Public*Routine******************************\
-* CalcTexRepFactors 
-*
-\**************************************************************************/
-
-// void STATE::CalcTexRepFactors() {
-// 	ISIZE winSize;
-// 	POINT2D texFact;
-
-// 	GetScreenSize(&winSize);
-
-// 	// Figure out repetition factor of texture, based on bitmap size and
-// 	// screen size.
-// 	//
-// 	// We arbitrarily decide to repeat textures that are smaller than
-// 	// 1/8th of screen width or height.
-
-// 	for(int i = 0; i < nTextures; i++) {
-// 		texRep[i].x = texRep[i].y = 1;
-
-// 		if((texFact.x = winSize.width / texture[i].width / 8.0f) >= 1.0f)
-// 			texRep[i].x = (int) (texFact.x + 0.5f);
-
-// 		if((texFact.y = winSize.height / texture[i].height / 8.0f) >= 1.0f)
-// 			texRep[i].y = (int) (texFact.y + 0.5f);
-// 	}
-
-// 	// ! If display list based normal pipes, texture repetition is embedded
-// 	// in the dlists and can't be changed. So use the smallest rep factors.
-
-// 	if(pNState) {
-// 		//put smallest rep factors in texRep[0]; (mf:this is ok for now, as
-// 		// flex pipes and normal pipes don't coexist)
-
-// 		for(i = 1; i < nTextures; i++) {
-// 			if(texRep[i].x < texRep[0].x)
-// 				texRep[0].x = texRep[i].x;
-// 			if(texRep[i].y < texRep[0].y)
-// 				texRep[0].y = texRep[i].y;
-// 		}
-// 	}
-// }
-
-/******************************Public*Routine******************************\
-* LoadTextureFiles
-*
-* - Load user texture files.  If texturing on but no user textures, or
-*   problems loading them, load default texture resource
-*
-\**************************************************************************/
-
-// bool STATE::LoadTextureFiles(TEXFILE* pTexFile, int nTexFiles, TEX_RES* pTexRes) {
-// 	// Set pixel store state
-
-// 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-// 	// Try to load the bmp or rgb file
-
-// 	// i counts successfully loaded textures
-// 	for(int i = 0; nTexFiles; nTexFiles--) {
-// 		if(LoadTextureFile(&pTexFile[i], &texture[i])) {
-// 			// If texture object extension, set tex params here for each object
-// 			if(TextureObjectsEnabled())
-// 				InitTexParams();
-// 			i++;// count another valid texture
-// 		}
-// 	}
-
-// 	// set number of valid textures in state
-// 	nTextures = i;
-
-// 	if(nTextures == 0) {
-// 		// No user textures, or none loaded successfully
-// 		// Load default resource texture(s)
-// 		nTextures = DEF_TEX_COUNT;
-// 		for(i = 0; i < nTextures; i++, pTexRes++) {
-// 			if(!LoadTextureResource(pTexRes, &texture[i])) {
-// 				// shouldn't happen
-// 				return false;
-// 			}
-// 		}
-// 	}
-
-// 	CalcTexRepFactors();
-
-// 	return true;
-// }
-
-// /******************************Public*Routine******************************\
-// * GLInit
-// *
-// * - Sets up GL state
-// * - Called once for every context (rc)
-// *
-// \**************************************************************************/
-
-// void STATE::GLInit() {
-// 	static float ambient[] = {0.1f, 0.1f, 0.1f, 1.0f};
-// 	static float diffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
-// 	static float position[] = {90.0f, 90.0f, 150.0f, 0.0f};
-// 	static float lmodel_ambient[] = {1.0f, 1.0f, 1.0f, 1.0f};
-// 	static float lmodel_ambientTex[] = {0.6f, 0.6f, 0.6f, 0.0f};
-// 	static float back_mat_diffuse[] = {0.0f, 0.0f, 1.0f};
-
-// 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-
-// 	glFrontFace(GL_CCW);
-
-// 	glDepthFunc(GL_LEQUAL);
-// 	glEnable(GL_DEPTH_TEST);
-
-// 	glEnable(GL_AUTO_NORMAL);// needed for GL_MAP2_VERTEX (tea)
-
-// 	// if(bTexture)
-// 	// 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambientTex);
-// 	// else
-// 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
-
-// 	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
-// 	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
-// 	glLightfv(GL_LIGHT0, GL_POSITION, position);
-// 	glEnable(GL_LIGHT0);
-// 	glEnable(GL_LIGHTING);
-
-// 	glCullFace(GL_BACK);
-// 	glEnable(GL_CULL_FACE);
-
-// 	// Set texture modes
-// 	// if(bTexture) {
-// 	// 	glEnable(GL_TEXTURE_2D);
-// 	// 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-// 	// 	InitTexParams();
-// 	// }
-// }
-
-/**************************************************************************\
-* InitTexParams
-*
-* Set texture parameters, globally, or per object if texture object extension
-*
-\**************************************************************************/
-
-// static void
-//         InitTexParams() {
-// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-// 	switch(ulTexQuality) {
-// 		case TEXQUAL_HIGH:
-// 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-// 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-// 			break;
-// 		case TEXQUAL_DEFAULT:
-// 		default:
-// 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-// 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-// 			break;
-// 	}
-// }
 
 /**************************************************************************\
 * Repaint
@@ -358,7 +147,7 @@ STATE::~STATE() {
 // void STATE::Reshape(int width, int height, void* data) {
 // 	if(view.SetWinSize(width, height))
 // 		resetStatus |= RESET_RESIZE_BIT;
-}
+//}
 
 /**************************************************************************\
 * ResetView
@@ -371,21 +160,10 @@ void STATE::ResetView() {
 	IPOINT3D numNodes;
 
 	// Have VIEW calculate the node array size based on view params
-	view.CalcNodeArraySize(&numNodes);
+	calcNodeArraySize(&glCfg, &numNodes);
 
 	// Resize the node array
 	nodes->Resize(&numNodes);
-
-	// Set GL viewing parameters for each active RC
-
-	DRAW_THREAD* pThread = drawThreads;
-
-	for(int i = 0; i < MAX_DRAW_THREADS; i++, pThread++) {
-		if(pThread->HasRC()) {
-			pThread->MakeRCCurrent();
-			view.SetGLView();
-		}
-	}
 }
 
 /**************************************************************************\
@@ -431,18 +209,9 @@ void STATE::FrameReset() {
 
 	// Call any pipe-specific state resets, and get any recommended
 	// pipesPerFrame counts
-
 	this->Reset();
 
-	// if(pNState) {
-	// 	pNState->Reset();
-	// }
-	// if(pFState) {
-	// 	pFState->Reset();
-	// 	xRot = fRand(-5.0f, 5.0f);
-	// 	zRot = fRand(-5.0f, 5.0f);
-	// }
-	maxPipesPerFrame = CalcMaxPipesPerFrame();
+	maxPipesPerFrame = NORMAL_PIPE_COUNT;
 
 	// Set new number of drawing threads
 
@@ -452,11 +221,6 @@ void STATE::FrameReset() {
 
 		// Set # of draw threads
 		nDrawThreads = MIN(maxPipesPerFrame, iRand2(2, maxDrawThreads));
-		// Set chase mode if applicable, every now and then
-		// bool bUseChase = pNState || (pFState && pFState->OKToUseChase());
-		// if(bUseChase && (!iRand(5))) {
-		// 	drawScheme = FRAME_SCHEME_CHASE;
-		// }
 	} else {
 		nDrawThreads = 1;
 	}
@@ -467,91 +231,32 @@ void STATE::FrameReset() {
 	pThread = drawThreads;
 
 	for(i = 0; i < nDrawThreads; i++, pThread++) {
-
-		// Create hglrc if necessary, and init it
-
-		// if(!pThread->HasRC()) {
-		// 	HDC hdc = wglGetCurrentDC();
-		// 	pThread->SetRCDC(wglCreateContext(hdc), hdc);
-		// 	// also need to init each RC
-		// 	pThread->MakeRCCurrent();
-		// 	// Do GL Init for this new RC
-		// 	GLInit();
-
-		// 	// Set viewing params
-		// 	view.SetGLView();
-
-		// 	// Give this rc access to any dlists
-		// 	wglShareLists(shareRC, pThread->GetRC());
-		// } else
-		// 	pThread->MakeRCCurrent();
-
 		// Set up the modeling view
 
 		glLoadIdentity();
-		glTranslatef(0.0f, 0.0f, view.zTrans);
+		glTranslatef(0.0f, 0.0f, glCfg.zTrans);
 
 		// Rotate Scene
-		glRotatef(view.yRot, 0.0f, 1.0f, 0.0f);
+		glRotatef(glCfg.yRot, 0.0f, 1.0f, 0.0f);
 
 		// create approppriate pipe for this thread slot
-
-		// switch(drawMode) {
-		// 	case DRAW_NORMAL:
 		pNewPipe = (PIPE*) new PIPE(this);
-		// break;
-		// 	case DRAW_FLEX:
-		// 		// There are several kinds of FLEX pipes - have FLEX_STATE
-		// 		// decide which one to create
-		// 		pNewPipe = pFState->NewPipe(this);
-		// 		// rotate a bit around x and z as well
-		// 		// If combining NORMAL and FLEX, same rotations must be
-		// 		// applied to both
-		// 		glRotatef(xRot, 1.0f, 0.0f, 0.0f);
-		// 		glRotatef(zRot, 0.0f, 0.0f, 1.0f);
-		// 		break;
-		// }
 		pThread->SetPipe(pNewPipe);
-
-		// if(drawScheme == FRAME_SCHEME_CHASE) {
-		// 	if(i == 0) {
-		// 		// this will be the lead pipe
-		// 		pLeadPipe = pNewPipe;
-		// 		pNewPipe->SetChooseDirectionMethod(CHOOSE_DIR_RANDOM_WEIGHTED);
-		// 	} else {
-		// 		pNewPipe->SetChooseDirectionMethod(CHOOSE_DIR_CHASE);
-		// 	}
-		// }
-
-		// If texturing, pick a random texture for this thread
-
-		// if(bTexture) {
-		// 	int index = PickRandomTexture(i, nTextures);
-		// 	pThread->SetTexture(&texture[index]);
-
-		// 	// Flex pipes need to be informed of the texture, so they
-		// 	// can dynamically calculate various texture params
-		// 	if(pFState)
-		// 		((FLEX_PIPE*) pNewPipe)->SetTexParams(&texture[index], &texRep[index]);
-		// }
+		pNewPipe->SetChooseDirectionMethod(CHOOSE_DIR_CHASE);
 
 		// Launch the pipe (assumed: always more nodes than pipes starting, so
 		// StartPipe cannot fail)
-
 		// ! All pipe setup needs to be done before we call StartPipe, as this
 		// is where the pipe starts drawing
 
 		pThread->StartPipe();
-
-		// if((i == 0) && (drawScheme == FRAME_SCHEME_CHASE))
-		// 	pNewPipe->SetChooseStartPosMethod(CHOOSE_STARTPOS_FURTHEST);
 
 		nPipesDrawn++;
 	}
 
 	// Increment scene rotation for normal reset case
 	if(resetStatus & RESET_BIT)
-		view.IncrementSceneRotation();
+		incrementSceneRotation(&glCfg);
 
 	// clear reset status
 	resetStatus = 0;
@@ -559,23 +264,6 @@ void STATE::FrameReset() {
 #ifdef DO_TIMING
 	Timer(TIMER_START);
 #endif
-}
-
-/**************************************************************************\
-* CalcMaxPipesPerFrame
-*
-\**************************************************************************/
-
-int STATE::CalcMaxPipesPerFrame() {
-	// int nCount = 0, fCount = 0;
-
-	// if(pFState)
-	// 	fCount = pFState->GetMaxPipesPerFrame();
-	// if(pNState)
-	// 	nCount = bTexture ? TEX_PIPE_COUNT : PIPE_COUNT;
-	// return MAX(nCount, fCount);
-
-	return PIPE_COUNT
 }
 
 /**************************************************************************\
@@ -620,30 +308,10 @@ static int
 	return index;
 }
 
-/**************************************************************************\
-* Clear
-*
-* Clear the screen.  Depending on resetStatus, use normal clear or
-* fancy transitional clear.
-\**************************************************************************/
-
 void STATE::Clear() {
-	// clear the screen - any rc will do
-
 	glClear(GL_DEPTH_BUFFER_BIT);
-
-	if(resetStatus & RESET_RESIZE_BIT) {
-		// new window size - recalibrate the transitional clear
-
-		// Calibration is set after a window resize, so window is already black
-		ddClear.CalibrateClear(view.winSize.width, view.winSize.height, 2.0f);
-	} else if(resetStatus & RESET_BIT)
-		// do the normal transitional clear
-		ddClear.Clear(view.winSize.width, view.winSize.height);
-	else {
-		// do a fast one-shot clear
-		glClear(GL_COLOR_BUFFER_BIT);
-	}
+	// do a fast one-shot clear
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 /**************************************************************************\
@@ -689,14 +357,8 @@ void STATE::Draw(void* data) {
 		if(pThread->pPipe->IsStuck()) {
 			if(++nPipesDrawn > maxPipesPerFrame) {
 				// Reaching pipe saturation - kill this pipe thread
-
-				// if((drawScheme == FRAME_SCHEME_CHASE) &&
-				//    (pThread->pPipe == pLeadPipe))
-				// 	bChooseNewLead = true;
-
 				pThread->KillPipe();
 				nKilledThreads++;
-
 			} else {
 				// Start up another pipe
 				if(!pThread->StartPipe())
@@ -719,14 +381,10 @@ void STATE::Draw(void* data) {
 		return;
 	}
 
-	// if(bChooseNewLead) {
-	// 	// We're in 'chase mode' and need to pick a new lead pipe
-	// 	ChooseNewLeadPipe();
-	// }
 
 	// Draw each pipe
 
-	for(i = 0, pThread = drawThreads; i < nDrawThreads; i++, pThread++) {
+	for(int i = 0, pThread = drawThreads[i]; i < nDrawThreads; i++, pThread++) {
 		pThread->DrawPipe();
 #ifdef DO_TIMING
 		pipeCount++;
@@ -774,23 +432,6 @@ void STATE::CompactThreadList() {
 	}
 }
 
-/**************************************************************************\
-*
-* ChooseNewLeadPipe
-*
-* Choose a new lead pipe for chase mode.
-*
-\**************************************************************************/
-
-// void STATE::ChooseNewLeadPipe() {
-// 	// Pick one of the active pipes at random to become the new lead
-
-// 	int iLead = iRand(nDrawThreads);
-// 	pLeadPipe = drawThreads[iLead].pPipe;
-// 	pLeadPipe->SetChooseStartPosMethod(CHOOSE_STARTPOS_FURTHEST);
-// 	pLeadPipe->SetChooseDirectionMethod(CHOOSE_DIR_RANDOM_WEIGHTED);
-// }
-
 /******************************Public*Routine******************************\
 * Finish
 *
@@ -801,199 +442,8 @@ void STATE::Finish(void* data) {
 	delete(STATE*) data;
 }
 
-/**************************************************************************\
-* DRAW_THREAD constructor
-*
-\**************************************************************************/
-
-DRAW_THREAD::DRAW_THREAD() {
-	// hdc = 0;
-	// hglrc = 0;
-	pPipe = NULL;
-	// htex = (HTEXTURE) -1;
-}
-
-/**************************************************************************\
-* DRAW_THREAD destructor
-*
-* Delete any GL contexts
-*
-* - can't Delete shareRC, as this is done by common lib, so had to move
-*   this up to ~STATE
-*
-\**************************************************************************/
-
-DRAW_THREAD::~DRAW_THREAD() {
-}
-
-/**************************************************************************\
-* MakeRCCurrent
-*
-\**************************************************************************/
-
-// void DRAW_THREAD::MakeRCCurrent() {
-// 	if(hglrc != wglGetCurrentContext())
-// 		wglMakeCurrent(hdc, hglrc);
-// }
-
-/**************************************************************************\
-* SetRCDC
-*
-\**************************************************************************/
-
-// void DRAW_THREAD::SetRCDC(HGLRC rc, HDC Hdc) {
-// 	hglrc = rc;
-// 	hdc = Hdc;
-// }
-
-/**************************************************************************\
-* SetPipe
-*
-\**************************************************************************/
-
-void DRAW_THREAD::SetPipe(PIPE* pipe) {
-	pPipe = pipe;
-}
-
-/**************************************************************************\
-* HasRC
-*
-\**************************************************************************/
-
-// bool DRAW_THREAD::HasRC() {
-// 	return (hglrc != 0);
-// }
-
-/**************************************************************************\
-* GetRC
-*
-\**************************************************************************/
-
-// HGLRC
-// DRAW_THREAD::GetRC() {
-// 	return hglrc;
-// }
-
-/**************************************************************************\
-* SetTexture
-*
-* - Set a texture for a thread
-* - Cache the texture index for performance
-\**************************************************************************/
-
-// void DRAW_THREAD::SetTexture(HTEXTURE hnewtex) {
-// 	if(hnewtex != htex) {
-// 		htex = hnewtex;
-// 		SetTexture(htex);
-// 	}
-// }
-
-/**************************************************************************\
-* DrawPipe
-*
-* - Draw pipe in thread slot, according to its type
-*
-\**************************************************************************/
-
-void DRAW_THREAD::DrawPipe() {
-	// MakeRCCurrent();
-
-	// switch(pPipe->type) {
-	// 	case TYPE_NORMAL:
-	// 		break;
-	// 	case TYPE_FLEX_REGULAR:
-	// 		((REGULAR_FLEX_PIPE*) pPipe)->Draw();
-	// 		break;
-	// 	case TYPE_FLEX_TURNING:
-	// 		((TURNING_FLEX_PIPE*) pPipe)->Draw();
-	// 		break;
-	// }
-
-	((PIPE*) pPipe)->Draw();
-	glFlush();
-}
-/**************************************************************************\
-* StartPipe
-*
-* Starts up pipe of the approppriate type.  If can't find an empty node
-* for the pipe to start on, returns false;
-*
-\**************************************************************************/
-
-bool DRAW_THREAD::StartPipe() {
-	// MakeRCCurrent();
-
-	// call pipe-type specific Start function
-
-	// switch(pPipe->type) {
-	// 	case TYPE_NORMAL:
-	// 		break;
-	// 	case TYPE_FLEX_REGULAR:
-	// 		((REGULAR_FLEX_PIPE*) pPipe)->Start();
-	// 		break;
-	// 	case TYPE_FLEX_TURNING:
-	// 		((TURNING_FLEX_PIPE*) pPipe)->Start();
-	// 		break;
-	// }
-
-	((PIPE*) pPipe)->Start();
-	glFlush();
-
-	// check status
-	if(pPipe->NowhereToRun())
-		return false;
-	else
-		return true;
-}
-
-/**************************************************************************\
-* KillPipe
-*
-\**************************************************************************/
-
-void DRAW_THREAD::KillPipe() {
-	// switch(pPipe->type) {
-	// 	case TYPE_NORMAL:
-	// 		break;
-	// 	case TYPE_FLEX_REGULAR:
-	// 		delete(REGULAR_FLEX_PIPE*) pPipe;
-	// 		break;
-	// 	case TYPE_FLEX_TURNING:
-	// 		delete(TURNING_FLEX_PIPE*) pPipe;
-	// 		break;
-	// }
-
-	delete(PIPE*) pPipe;
-	pPipe = NULL;
-}
-
 STATE::STATE(STATE* pState) {
-	// init joint types from dialog settings
 
-	bCycleJointStyles = 0;
-
-	switch(ulJointType) {
-		case JOINT_ELBOW:
-			jointStyle = ELBOWS;
-			break;
-		case JOINT_BALL:
-			jointStyle = BALLS;
-			break;
-		case JOINT_MIXED:
-			jointStyle = EITHER;
-			break;
-		case JOINT_CYCLE:
-			bCycleJointStyles = 1;
-			jointStyle = EITHER;
-			break;
-		default:
-			break;
-	}
-
-	// Build the objects
-
-	BuildObjects(pState->radius, pState->view.divSize, pState->nSlices,
-	             pState->bTexture, &pState->texRep[0]);
 }
 
 /**************************************************************************\

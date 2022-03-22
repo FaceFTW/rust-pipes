@@ -28,9 +28,6 @@ void initGLMisc() {
 
 	glEnable(GL_AUTO_NORMAL);// needed for GL_MAP2_VERTEX (tea)
 
-	// if (bTexture)
-	// 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambientTex);
-	// else
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
@@ -41,13 +38,6 @@ void initGLMisc() {
 
 	glCullFace(GL_BACK);
 	glEnable(GL_CULL_FACE);
-
-	// // Set texture modes
-	// if (bTexture) {
-	// 	glEnable(GL_TEXTURE_2D);
-	// 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	// 	InitTexParams();
-	// }
 }
 
 void initGLView(GLConfig* cfg) {
@@ -91,4 +81,30 @@ bool doViewMath(GLConfig* cfg, int width, int height) {
 	}
 
 	return true;
+}
+
+void incrementSceneRotation(GLConfig* cfg) {
+	cfg->yRot += 9.73156f;
+	if(cfg->yRot >= 360.0f)
+		// prevent overflow
+		cfg->yRot -= 360.0f;
+}
+
+void calcNodeArraySize(GLConfig* cfg, IPOINT3D* pNodeDim) {
+	// if aspect ratio deviates too much from 1, then nodes will get
+	// clipped as view rotates
+
+	if(cfg->winWidth >= cfg->winHeight) {
+		pNodeDim->x = cfg->numDiv - 1;
+		pNodeDim->y = (int) (pNodeDim->x / cfg->aspectRatio);
+		if(pNodeDim->y < 1)
+			pNodeDim->y = 1;
+		pNodeDim->z = pNodeDim->x;
+	} else {
+		pNodeDim->y = cfg->numDiv - 1;
+		pNodeDim->x = (int) (cfg->aspectRatio * pNodeDim->y);
+		if(pNodeDim->x < 1)
+			pNodeDim->x = 1;
+		pNodeDim->z = pNodeDim->y;
+	}
 }

@@ -36,7 +36,7 @@ float fRand(float min, float max) {
 	return min + (diff * (((float) rand()) / ((float) (RAND_MAX))));
 }
 
-void TransformCircle(
+void transformCircle(
         float angle,
         POINT3D* inPoint,
         POINT3D* outPoint,

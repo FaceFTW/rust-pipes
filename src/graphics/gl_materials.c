@@ -9,17 +9,14 @@
  * 
  */
 
+#include "../include/graphics/gl_materials.h"
+#include "../include/constants.h"
+#include <GL/gl.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <sys/types.h>
-//#include <time.h>
-// #include <windows.h>
-#include "../include/constants.h"
-#include "../include/graphics/gl_materials.h"
-#include <GL/gl.h>
 
 // #include "sscommon.h"
 
@@ -232,23 +229,3 @@ int RandomTeaMaterialIndex(bool bSet) {
 		SetMaterial(&Material[index]);
 	return index;
 }
-
-// MATERIAL* RandomTexMaterial(bool bSet) {
-// 	int index;
-// 	MATERIAL* pMat;
-
-// 	index = NUM_TEA_MATERIALS + iRand(NUM_TEX_MATERIALS);
-// 	pMat = &Material[index];
-// 	if(bSet)
-// 		SetMaterial(pMat);
-// 	return pMat;
-// }
-
-// int RandomTexMaterialIndex(bool bSet) {
-// 	int index;
-
-// 	index = NUM_TEA_MATERIALS + iRand(NUM_TEX_MATERIALS);
-// 	if(bSet)
-// 		SetMaterial(&Material[index]);
-// 	return index;
-// }

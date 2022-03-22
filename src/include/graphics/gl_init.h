@@ -40,4 +40,8 @@ void initGLView(GLConfig* cfg);
  * @return false If the view dimensions were the same
  */
 bool doViewMath(GLConfig* cfg, int width, int height);
+
+void incrementSceneRotation(GLConfig* cfg);
+
+void calcNodeArraySize(GLConfig* cfg, IPOINT3D* pNodeDim);
 #endif//__gl_init_h_

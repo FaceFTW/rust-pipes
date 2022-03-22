@@ -77,7 +77,7 @@ float fRand(float min, float max);
  * @param num 
  * @param anchor 
  */
-void TransformCircle(float angle,
+void transformCircle(float angle,
                      POINT3D* inPoint,
                      POINT3D* outPoint,
                      GLint num,
@@ -91,7 +91,7 @@ void TransformCircle(float angle,
  * @param center 
  * @param num 
  */
-void CalcNormals(POINT3D* p,
+void calcNormals(POINT3D* p,
                  POINT3D* n,
                  POINT3D* center,
                  int num);
@@ -106,6 +106,8 @@ void matrixMult(MATRIX* m1, MATRIX* m2, MATRIX* m3);
 void calcNorm(POINT3D* norm, POINT3D* p1, POINT3D* p2, POINT3D* p3);
 void normalizeNorm(POINT3D*);
 void normalizeNorms(POINT3D*, unsigned long);
+
+void
 #ifdef __cplusplus
 }
 #endif
