@@ -62,7 +62,7 @@ void SetMaterialIndex(int index);
 MATERIAL* RandomTeaMaterial(bool bSet);
 
 /**
- * @brief Select a random TeaMaterial
+ * @brief Select a random TeaMaterial by idx
  * @param bSet 
  * @return material index
  */

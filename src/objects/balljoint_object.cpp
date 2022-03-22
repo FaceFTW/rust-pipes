@@ -21,7 +21,7 @@ BalljointObject::BalljointObject(ObjectBuildInfo* state, int notch, float start_
 void BalljointObject::build(ObjectBuildInfo* pBuildInfo, int notch,
                             float s_start, float s_end) {
 	GLfloat ballRadius;
-	GLfloat angle, delta_abuildrtAng, theta;
+	GLfloat angle, delta_a, startAng, theta;
 	GLint numPoints;
 	GLfloat s_delta;
 	POINT3D pi0[CACHE_SIZE];// 2 circles of untransformed points

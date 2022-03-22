@@ -11,34 +11,34 @@
 
 #include "../include/graphics/gl_drawThread.h"
 
-DRAW_THREAD::DRAW_THREAD() {
+DrawThread::DrawThread() {
 	pPipe = nullptr;
 }
 
-DRAW_THREAD::~DRAW_THREAD() {
+DrawThread::~DrawThread() {
 }
 
-void DRAW_THREAD::SetPipe(PIPE* pipe) {
+void DrawThread::setPipe(Pipe* pipe) {
 	pPipe = pipe;
 }
 
-void DRAW_THREAD::DrawPipe() {
-	((PIPE*) pPipe)->Draw();
+void DrawThread::drawPipe() {
+	((Pipe*) pPipe)->draw();
 	glFlush();
 }
 
-bool DRAW_THREAD::StartPipe() {
-	((PIPE*) pPipe)->Start();
+bool DrawThread::startPipe() {
+	((Pipe*) pPipe)->start();
 	glFlush();
 
 	// check status
-	if(pPipe->NowhereToRun())
+	if(pPipe->nowhereToRun())
 		return false;
 	else
 		return true;
 }
 
-void DRAW_THREAD::KillPipe() {
-	delete(PIPE*) pPipe;
+void DrawThread::killPipe() {
+	delete(Pipe*) pPipe;
 	pPipe = nullptr;
 }

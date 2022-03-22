@@ -13,19 +13,19 @@
 // Frame draw schemes
 #include "../pipe.h"
 
-class DRAW_THREAD {
+class DrawThread {
 public:
 	int priority;
 
-	DRAW_THREAD();
+	DrawThread();
 
 	/**
 	 * @brief Delete any GL contexts
-	 * 
 	 */
-	~DRAW_THREAD();
-	PIPE* pPipe;// generic pipe ptr
-	void SetPipe(PIPE* pipe);
+	~DrawThread();
+
+	Pipe* pPipe;// generic pipe ptr
+	void setPipe(Pipe* pipe);
 
 	/**
 	 * @brief Starts up pipe of the approppriate type.  
@@ -33,11 +33,11 @@ public:
 	 * @return true 
 	 * @return false If can't find an empty node for the pipe to start on
 	 */
-	bool StartPipe();
+	bool startPipe();
 
 	/**
 	 * @brief Draw pipe in thread slot, according to its type
 	 */
-	void DrawPipe();
-	void KillPipe();
+	void drawPipe();
+	void killPipe();
 };

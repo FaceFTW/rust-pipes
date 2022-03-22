@@ -11,14 +11,13 @@
 
 #include "include/pipe.h"
 #include "include/graphics/gl_materials.h"
-#include "include/utils.h"
 #include "include/pipe_objects.h"
+#include "include/utils.h"
 
 #include <GL/glut.h>
 
-PIPE::PIPE(STATE* state) {
+Pipe::Pipe(State* state) {
 	pState = state;
-	//bTexture = pState->bTexture;
 	radius = pState->radius;
 	// default direction choosing is random
 	chooseDirMethod = CHOOSE_DIR_RANDOM_WEIGHTED;
@@ -26,121 +25,86 @@ PIPE::PIPE(STATE* state) {
 	weightStraight = 1;
 }
 
-void PIPE::ChooseMaterial() {
-	// if(bTexture)
-	// 	RandomTexMaterial(true);
-	// else
+// Pipe::Pipe(STATE* pState)
+//     : Pipe(pState) {
+
+// 	// type = TYPE_NORMAL;
+// 	// pState = pState->pState;
+
+// 	// choose weighting of going straight
+// 	if(!iRand(20))
+// 		weightStraight = iRand2(MAX_WEIGHT_STRAIGHT / 4, MAX_WEIGHT_STRAIGHT);
+// 	else
+// 		weightStraight = 1 + iRand(4);
+// }
+
+void Pipe::chooseMaterial() {
 	RandomTeaMaterial(true);
 }
 
-/**************************************************************************\
-*
-* DrawTeapot
-*
-\**************************************************************************/
-
-// extern void ResetEvaluator( bool bTexture );
-
-void PIPE::DrawTeapot() {
+void Pipe::drawTeapot() {
 	glFrontFace(GL_CW);
 	glEnable(GL_NORMALIZE);
 	glutSolidTeapot(2.5 * radius);
 	glDisable(GL_NORMALIZE);
 	glFrontFace(GL_CCW);
-	// if( type != TYPE_NORMAL ) {
-	//     // Re-init flex's evaluator state (teapot uses evaluators as well,
-	//     //  and messes up the state).
-	//     ResetEvaluator( bTexture );
-	// }
 }
 
-/******************************Public*Routine******************************\
-* SetChooseDirectionMethod
-\**************************************************************************/
+void Pipe::setChooseStartPosMethod(int method) {
+	chooseStartPosMethod = method;
+}
 
-void PIPE::SetChooseDirectionMethod(int method) {
+void Pipe::setChooseDirectionMethod(int method) {
 	chooseDirMethod = method;
 }
 
-/**************************************************************************\
-*
-* ChooseNewDirection
-*
-* Call direction-finding function based on current method
-* This is a generic entry point that is used by some pipe types
-*
-\**************************************************************************/
-
-int PIPE::ChooseNewDirection() {
+int Pipe::chooseNewDirection() {
 	NODE_ARRAY* nodes = pState->nodes;
 	int bestDirs[NUM_DIRS], nBestDirs;
 
 	// figger out which fn to call
 	switch(chooseDirMethod) {
 		case CHOOSE_DIR_CHASE:
-			if(nBestDirs = GetBestDirsForChase(bestDirs))
-				return nodes->ChoosePreferredDirection(&curPos, lastDir,
+			if(nBestDirs = getBestDirsForChase(bestDirs))
+				return nodes->choosePreferredDirection(&curPos, lastDir,
 				                                       bestDirs, nBestDirs);
 			// else lead pipe must have died, so fall thru:
 		case CHOOSE_DIR_RANDOM_WEIGHTED:
 		default:
-			return nodes->ChooseRandomDirection(&curPos, lastDir, weightStraight);
+			return nodes->chooseRandomDirection(&curPos, lastDir, weightStraight);
 	}
 }
 
-/**************************************************************************\
-*
-* GetBestDirsForChase
-*
-* Find the best directions to take to close in on the lead pipe in chase mode.
-*
-\**************************************************************************/
+int Pipe::getBestDirsForChase(int* bestDirs) {
+	// Figure out best dirs to close in on leadPos
 
-// int PIPE::GetBestDirsForChase(int* bestDirs) {
-// 	// Figure out best dirs to close in on leadPos
+	//mf: will have to 'protect' leadPos with GetLeadPos() for multi-threading
+	IPOINT3D* leadPos = &pState->pLeadPipe->curPos;
+	IPOINT3D delta;
+	int numDirs = 0;
 
-// 	//mf: will have to 'protect' leadPos with GetLeadPos() for multi-threading
-// 	IPOINT3D* leadPos = &pState->pLeadPipe->curPos;
-// 	IPOINT3D delta;
-// 	int numDirs = 0;
+	delta.x = leadPos->x - curPos.x;
+	delta.y = leadPos->y - curPos.y;
+	delta.z = leadPos->z - curPos.z;
 
-// 	delta.x = leadPos->x - curPos.x;
-// 	delta.y = leadPos->y - curPos.y;
-// 	delta.z = leadPos->z - curPos.z;
-
-// 	if(delta.x) {
-// 		numDirs++;
-// 		*bestDirs++ = delta.x > 0 ? PLUS_X : MINUS_X;
-// 	}
-// 	if(delta.y) {
-// 		numDirs++;
-// 		*bestDirs++ = delta.y > 0 ? PLUS_Y : MINUS_Y;
-// 	}
-// 	if(delta.z) {
-// 		numDirs++;
-// 		*bestDirs++ = delta.z > 0 ? PLUS_Z : MINUS_Z;
-// 	}
-// 	// It should be impossible for numDirs = 0 (all deltas = 0), as this
-// 	// means curPos = leadPos
-// 	return numDirs;
-// }
-
-/******************************Public*Routine******************************\
-* SetChooseStartPosMethod
-\**************************************************************************/
-
-void PIPE::SetChooseStartPosMethod(int method) {
-	chooseStartPosMethod = method;
+	if(delta.x) {
+		numDirs++;
+		*bestDirs++ = delta.x > 0 ? PLUS_X : MINUS_X;
+	}
+	if(delta.y) {
+		numDirs++;
+		*bestDirs++ = delta.y > 0 ? PLUS_Y : MINUS_Y;
+	}
+	if(delta.z) {
+		numDirs++;
+		*bestDirs++ = delta.z > 0 ? PLUS_Z : MINUS_Z;
+	}
+	// It should be impossible for numDirs = 0 (all deltas = 0), as this
+	// means curPos = leadPos
+	return numDirs;
 }
 
-/******************************Public*Routine******************************\
-* PIPE::SetStartPos
-*
-* - Find an empty node to start the pipe on
-*
-\**************************************************************************/
-
-bool PIPE::SetStartPos() {
+bool Pipe::setStartPos() {
 	NODE_ARRAY* nodes = pState->nodes;
 
 	switch(chooseStartPosMethod) {
@@ -167,20 +131,11 @@ bool PIPE::SetStartPos() {
 	}
 }
 
-/******************************Public*Routine******************************\
-* PIPE::IsStuck
-\**************************************************************************/
-
-bool PIPE::IsStuck() {
-	return status == PIPE_STUCK;
+bool Pipe::isStuck() {
+	return status == Pipe_STUCK;
 }
 
-/******************************Public*Routine******************************\
-* PIPE::TranslateToCurrentPosition
-*
-\**************************************************************************/
-
-void PIPE::TranslateToCurrentPosition() {
+void Pipe::translateToCurrentPosition() {
 	IPOINT3D numNodes;
 
 	float divSize = pState->glCfg.divSize;
@@ -191,14 +146,7 @@ void PIPE::TranslateToCurrentPosition() {
 	             (curPos.z - (numNodes.z - 1) / 2.0f) * divSize);
 }
 
-/**************************************************************************\
-*
-* UpdateCurrentPosition
-* 
-* Increment current position according to direction taken
-\**************************************************************************/
-
-void PIPE::UpdateCurrentPosition(int newDir) {
+void Pipe::updateCurrentPosition(int newDir) {
 	switch(newDir) {
 		case PLUS_X:
 			curPos.x += 1;
@@ -220,14 +168,6 @@ void PIPE::UpdateCurrentPosition(int newDir) {
 			break;
 	}
 }
-
-/******************************Public*Routine******************************\
-* align_plusz
-*
-* - Aligns the z axis along specified direction
-* - Used for all types of pipes
-*
-\**************************************************************************/
 
 void align_plusz(int newDir) {
 	// align +z along new direction
@@ -252,13 +192,6 @@ void align_plusz(int newDir) {
 			break;
 	}
 }
-
-/**************************************************************************\
-* this array tells you which way the notch will be once you make
-* a turn
-* format: notchTurn[oldDir][newDir][notchVec] 
-*
-\**************************************************************************/
 
 GLint notchTurn[NUM_DIRS][NUM_DIRS][NUM_DIRS] = {
         // oldDir = +x
@@ -307,30 +240,7 @@ GLint notchTurn[NUM_DIRS][NUM_DIRS][NUM_DIRS] = {
 static GLint defCylNotch[NUM_DIRS] =
         {PLUS_Y, PLUS_Y, MINUS_Z, PLUS_Z, PLUS_Y, PLUS_Y};
 
-
-// PIPE::PIPE(STATE* pState)
-//     : PIPE(pState) {
-
-// 	// type = TYPE_NORMAL;
-// 	// pState = pState->pState;
-
-// 	// choose weighting of going straight
-// 	if(!iRand(20))
-// 		weightStraight = iRand2(MAX_WEIGHT_STRAIGHT / 4, MAX_WEIGHT_STRAIGHT);
-// 	else
-// 		weightStraight = 1 + iRand(4);
-// }
-
-/**************************************************************************\
-* Start
-*
-* Start drawing a new normal pipe
-*
-* - Draw a start cap and short pipe in new direction
-*
-\**************************************************************************/
-
-void PIPE::Start() {
+void Pipe::start() {
 	int newDir;
 
 	// Set start position
@@ -341,24 +251,23 @@ void PIPE::Start() {
 	}
 
 	// set a material
-
-	ChooseMaterial();
+	chooseMaterial();
 
 	// push matrix that has initial zTrans and rotation
 	glPushMatrix();
 
 	// Translate to current position
-	TranslateToCurrentPosition();
+	translateToCurrentPosition();
 
 	// Pick a random lastDir
 	lastDir = iRand(NUM_DIRS);
 
-	newDir = ChooseNewDirection();
+	newDir = chooseNewDirection();
 
 	if(newDir == DIR_NONE) {
 		// pipe is stuck at the start node, draw something
 		status = PIPE_STUCK;
-		DrawTeapot();
+		drawTeapot();
 		glPopMatrix();
 		return;
 	} else
@@ -367,7 +276,7 @@ void PIPE::Start() {
 	// set initial notch vector
 	notchVec = defCylNotch[newDir];
 
-	DrawStartCap(newDir);
+	drawStartCap(newDir);
 
 	// move ahead 1.0*r to draw pipe
 	glTranslatef(0.0f, 0.0f, radius);
@@ -378,28 +287,18 @@ void PIPE::Start() {
 
 	glPopMatrix();
 
-	UpdateCurrentPosition(newDir);
+	updateCurrentPosition(newDir);
 
 	lastDir = newDir;
 }
 
-/**************************************************************************\
-* Draw
-*
-* - if turning, draws a joint and a short cylinder, otherwise
-*   draws a long cylinder.
-* - the 'current node' is set as the one we draw thru the NEXT
-*   time around.
-*
-\**************************************************************************/
-
-void PIPE::Draw() {
+void Pipe::draw() {
 	int newDir;
 
-	newDir = ChooseNewDirection();
+	newDir = chooseNewDirection();
 
 	if(newDir == DIR_NONE) {// no empty nodes - nowhere to go
-		DrawEndCap();
+		drawEndCap();
 		status = PIPE_STUCK;
 		return;
 	}
@@ -408,84 +307,44 @@ void PIPE::Draw() {
 	glPushMatrix();
 
 	// Translate to current position
-	TranslateToCurrentPosition();
+	translateToCurrentPosition();
 
 	// draw joint if necessary, and pipe
 
 	if(newDir != lastDir) {// turning! - we have to draw joint
-		DrawJoint(newDir);
+		drawJoint(newDir);
 
 		// draw short pipe
 		align_notch(newDir, notchVec);
-		pState->shortPipe->Draw();
+		pState->shortPipe->draw();
 	} else {// no turn
 		// draw long pipe, from point 1.0*r back
 		align_plusz(newDir);
 		align_notch(newDir, notchVec);
 		glTranslatef(0.0f, 0.0f, -radius);
-		pState->longPipe->Draw();
+		pState->longPipe->draw();
 	}
 
 	glPopMatrix();
 
-	UpdateCurrentPosition(newDir);
-
+	updateCurrentPosition(newDir);
 	lastDir = newDir;
 }
 
-/**************************************************************************\
-* DrawStartCap
-*
-* Cap the start of the pipe with a ball
-*
-\**************************************************************************/
-
-void PIPE::DrawStartCap(int newDir) {
-	// if(bTexture) {
-	// 	align_plusz(newDir);
-	// 	pState->ballCap->Draw();
-	// } else {
-	// draw big ball in default orientation
-	pState->bigBall->Draw();
+void Pipe::drawStartCap(int newDir) {
+	pState->bigBall->draw();
 	align_plusz(newDir);
 }
 
-
-/**************************************************************************\
-* DrawEndCap():
-*
-* - Draws a ball, used to cap end of a pipe
-*
-\**************************************************************************/
-
-void PIPE::DrawEndCap() {
+void Pipe::drawEndCap() {
 	glPushMatrix();
 
 	// Translate to current position
-	TranslateToCurrentPosition();
-
-	// if(bTexture) {
-	// 	glPushMatrix();
-	// 	align_plusz(lastDir);
-	// 	align_notch(lastDir, notchVec);
-	// 	pState->ballCap->Draw();
-	// 	glPopMatrix();
-	// } else
-	pState->bigBall->Draw();
+	translateToCurrentPosition();
+	pState->bigBall->draw();
 
 	glPopMatrix();
 }
-
-/**************************************************************************\
-* ChooseElbow
-*
-* - Decides which elbow to draw
-* - The beginning of each elbow is aligned along +y, and we have
-*   to choose the one with the notch in correct position
-* - The 'primary' start notch (elbow[0]) is in same direction as
-*   newDir, and successive elbows rotate this notch CCW around +y
-*
-\**************************************************************************/
 
 // this array supplies the sequence of elbow notch vectors, given
 //  oldDir and newDir  (0's are don't cares)
@@ -534,7 +393,7 @@ static GLint notchElbDir[NUM_DIRS][NUM_DIRS][4] = {
         iXX, iXX, iXX, iXX,
         iXX, iXX, iXX, iXX};
 
-GLint PIPE::ChooseElbow(int oldDir, int newDir) {
+GLint Pipe::chooseElbow(int oldDir, int newDir) {
 	int i;
 
 	// precomputed table supplies correct elbow orientation
@@ -546,14 +405,7 @@ GLint PIPE::ChooseElbow(int oldDir, int newDir) {
 	return -1;
 }
 
-/**************************************************************************\
-* DrawJoint
-*
-* Draw a joint between 2 pipes
-*
-\**************************************************************************/
-
-void PIPE::DrawJoint(int newDir) {
+void Pipe::drawJoint(int newDir) {
 	int jointType;
 	int iBend;
 
@@ -565,26 +417,9 @@ void PIPE::DrawJoint(int newDir) {
 
 	switch(jointType) {
 		case BALL_JOINT:
-			// if(bTexture) {
-			// 	// use special texture-friendly ballJoints
-
-			// 	align_plusz(newDir);
-			// 	glPushMatrix();
-
-			// 	align_plusy(lastDir, newDir);
-
-			// 	// translate forward 1.0*r along +z to get set for drawing elbow
-			// 	glTranslatef(0.0f, 0.0f, radius);
-			// 	// decide which elbow orientation to use
-			// 	iBend = ChooseElbow(lastDir, newDir);
-			// 	pState->ballJoints[iBend]->Draw();
-
-			// 	glPopMatrix();
-			// } else {
-			// draw big ball in default orientation
-			pState->bigBall->Draw();
+			pState->bigBall->draw();
 			align_plusz(newDir);
-			// }
+
 			// move ahead 1.0*r to draw pipe
 			glTranslatef(0.0f, 0.0f, radius);
 			break;
@@ -594,7 +429,6 @@ void PIPE::DrawJoint(int newDir) {
 
 			// the align_plusy() here will screw up our notch calcs, so
 			//  we push-pop
-
 			glPushMatrix();
 
 			align_plusy(lastDir, newDir);
@@ -602,14 +436,14 @@ void PIPE::DrawJoint(int newDir) {
 			// translate forward 1.0*r along +z to get set for drawing elbow
 			glTranslatef(0.0f, 0.0f, radius);
 			// decide which elbow orientation to use
-			iBend = ChooseElbow(lastDir, newDir);
+			iBend = chooseElbow(lastDir, newDir);
 			if(iBend == -1) {
-#if PIPES_DEBUG
+#if PipeS_DEBUG
 				printf("ChooseElbow() screwed up\n");
 #endif
 				iBend = 0;// recover
 			}
-			pState->elbows[iBend]->Draw();
+			pState->elbows[iBend]->draw();
 
 			glPopMatrix();
 
@@ -618,7 +452,7 @@ void PIPE::DrawJoint(int newDir) {
 
 		default:
 			// Horrors! It's the teapot!
-			DrawTeapot();
+			drawTeapot();
 			align_plusz(newDir);
 			// move ahead 1.0*r to draw pipe
 			glTranslatef(0.0f, 0.0f, radius);

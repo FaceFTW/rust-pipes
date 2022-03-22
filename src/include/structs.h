@@ -12,11 +12,18 @@
 
 #include "constants.h"
 
+struct _GLConfig;
+struct GenConfig;
+struct _point2d;
+struct _ipoint2d;
+struct _point3d;
+struct _ipoint3d;
+
 /**
  * @brief GL View Configuration Vars. 
  * Seemed sensible to place them in a struct and accessed as necessary
  */
-typedef struct GLConfig {
+typedef struct _GLConfig {
 	float viewAngle = FOV;           // field of view angle for height
 	float zNear = Z_NEAR;            // near z clip value
 	float zFar = Z_FAR;              // far z clip value
@@ -32,6 +39,9 @@ typedef struct GLConfig {
 	int winWidth = WIN_WIDTH;        //Window Width
 	int winHeight = WIN_HEIGHT;      //Window Height
 } GLConfig;
+
+typedef struct _GLConfig* GLConfigPtr;
+
 
 /**
  * @brief Struct with general config vars

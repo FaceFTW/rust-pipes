@@ -9,53 +9,116 @@
  * 
  */
 
-#include <GL/gl.h>
 #include "global_state.h"
 #include "structs.h"
+#include <GL/gl.h>
 
-
-class PIPE {
+class Pipe {
 public:
 	int type;
 	IPOINT3D curPos;// current node position of pipe
 
-	STATE* pState;// for state value access
+	State* pState;// for state value access
 
-	void SetChooseDirectionMethod(int method);
-	void SetChooseStartPosMethod(int method);
-	int ChooseNewDirection();
-	bool IsStuck();// if pipe is stuck or not
-	bool NowhereToRun() { return status == PIPE_OUT_OF_NODES; }
-	// NORMAL_STATE* pNState;
-	PIPE(STATE* state);
+	void setChooseStartPosMethod(int method);
 
-	//NORMAL_PIPE(STATE* state);
-	void Start();
-	GLint ChooseElbow(int oldDir, int newDir);
-	void DrawJoint(int newDir);
-	void Draw();//mf: could take param to draw n sections
-	void DrawStartCap(int newDir);
-	void DrawEndCap();
+	void setChooseDirectionMethod(int method);
+
+	/**
+	 * @brief Call direction-finding function based on current method
+	 * @return int 
+	 */
+	int chooseNewDirection();
+	bool isStuck();// if pipe is stuck or not
+	bool nowhereToRun() { return status == PIPE_OUT_OF_NODES; }
+	Pipe();
+	Pipe(State* npState);
+
+	/**
+	 * @brief Start drawing a new normal pipe
+	 * @li Draw a start cap and short pipe in new direction
+	 * 
+	 */
+	void start();
+
+	/**
+	 * @brief Decides which elbow to draw
+	 * @details Beginning of each elbow is aligned along +y, and we have 
+	 * to choose the one with the notch in correct position
+	 * - The 'primary' start notch (elbow[0]) is in same direction as
+	 * newDir, and successive elbows rotate this notch CCW around +y
+	 * 
+	 * @param oldDir 
+	 * @param newDir 
+	 * @return GLint 
+	 */
+	GLint chooseElbow(int oldDir, int newDir);
+
+	/**
+	 * @brief Draw a joint between 2 pipes
+	 * 
+	 * @param newDir 
+	 */
+	void drawJoint(int newDir);
+
+	/**
+	 * @brief If turning, draws a joint and a short cylinder, otherwise draws a long cylinder.
+	 * @details 'current node' is set as the one we draw thru the NEXT time around.
+	 */
+	void draw();//mf: could take param to draw n sections
+
+	/**
+	 * @brief Cap the start of the pipe with a ball
+	 * @param newDir 
+	 */
+	void drawStartCap(int newDir);
+
+	/**
+	 * @brief Draws a ball, used to cap end of a pipe
+	 */
+	void drawEndCap();
 
 protected:
-	//bool bTexture;
 	float radius;// ideal radius (fluctuates for FPIPE)
 	int status;  // ACTIVE/STUCK/STOPPED, etc.
 	int lastDir; // last direction taken by pipe
 	int notchVec;// current notch vector
-	//PIPE(STATE* state);
+
 	int weightStraight;// current weighting of going straight
-	bool SetStartPos();// starting node position
-	void ChooseMaterial();
-	void DrawTeapot();
-	void UpdateCurrentPosition(int dir);
-	void TranslateToCurrentPosition();
+
+	/**
+	 * @brief Find an empty node to start the pipe on
+	 * 
+	 * @return true 
+	 * @return false 
+	 */
+	bool setStartPos();// starting node position
+	void chooseMaterial();
+	void drawTeapot();
+
+	/**
+	 * @brief Increment current position according to direction taken
+	 * @param dir 
+	 */
+	void updateCurrentPosition(int dir);
+	void translateToCurrentPosition();
 
 private:
-	int chooseDirMethod;
 	int chooseStartPosMethod;
-	int GetBestDirsForChase(int* bestDirs);
-};
+	int chooseDirMethod;
 
+	int getBestDirsForChase(int* bestDirs);
+};
+/**
+ * @brief Aligns the z axis along specified direction
+ *  Used for all types of pipes
+ * @param newDir 
+ */
 extern void align_plusz(int newDir);
+
+/**
+ * @brief This array tells you which way the notch will be once you make a turn
+ * Format: notchTurn[oldDir][newDir][notchVec] 
+ * 
+ */
 extern GLint notchTurn[NUM_DIRS][NUM_DIRS][NUM_DIRS];

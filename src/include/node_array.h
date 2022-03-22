@@ -13,8 +13,6 @@
 #ifndef __node_array_h__
 #define __node_array_h__
 
-// #include "sscommon.h"
-// #include "sspipes.h"
 #include "constants.h"
 #include "structs.h"
 #include <GL/gl.h>

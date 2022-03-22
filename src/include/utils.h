@@ -12,9 +12,9 @@
 #ifndef __utils_h_
 #define __utils_h_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// #ifdef __cplusplus
+// extern "C" {
+// #endif
 
 #include "structs.h"
 
@@ -107,9 +107,8 @@ void calcNorm(POINT3D* norm, POINT3D* p1, POINT3D* p2, POINT3D* p3);
 void normalizeNorm(POINT3D*);
 void normalizeNorms(POINT3D*, unsigned long);
 
-void
-#ifdef __cplusplus
-}
-#endif
+// #ifdef __cplusplus
+// }
+// #endif
 
 #endif//__utils_h_

@@ -17,7 +17,12 @@
 #include "constants.h"
 #include "graphics/gl_drawThread.h"
 #include "node_array.h"
+#include "objects/balljoint_object.h"
+#include "objects/elbow_object.h"
+#include "objects/pipe_object.h"
+#include "objects/sphere_object.h"
 #include "pipe.h"
+#include "structs.h"
 
 // Reset status
 
@@ -25,17 +30,9 @@
 #define RESET_NORMAL_BIT (1L << 1)
 #define RESET_RESIZE_BIT (1L << 2)
 #define RESET_REPAINT_BIT (1L << 3)
+#define RESET_BIT (0xF)
 
-// this used for traditional pipe drawing
-
-class PIPE_OBJECT;
-class ELBOW_OBJECT;
-class SPHERE_OBJECT;
-class BALLJOINT_OBJECT;
-
-// // Program existence instance
-
-class STATE {
+class State {
 public:
 	int nSlices;// reference # of slices around a pipe
 	int nTextures;
@@ -49,7 +46,7 @@ public:
 	 * - global state init
 	 * - translates variables set from the dialog boxes
 	 */
-	STATE();
+	State();
 
 	/**
 	 * @brief 
@@ -57,52 +54,97 @@ public:
 	 * exist. Others may be NULL.
 	 * 
 	 */
-	~STATE();
+	~State();
 	// void Reshape(int width, int height, void* data);
 	// void Repaint(LPRECT pRect, void* data);
-	void Draw(void* data);
-	void Finish(void* data);
+	/**
+	 * @brief Top-level pipe drawing routine
+	 * @details Each pipe thread keeps drawing new pipes until we reach maximum number
+	 *   of pipes per frame - then each thread gets killed as soon as it gets
+	 *   stuck.  Once number of drawing threads reaches 0, we start a new
+	 *   frame
+	 * 
+	 * @param data 
+	 */
+	void draw(void* data);
+
+	/**
+* - 
+	 * @brief Called when GL window being closed
+	 * 
+	 * @param data 
+	 */
+	void finish(void* data);
 
 	//NSTATE stuff that I ported Over
 	int jointStyle;
 	int bCycleJointStyles;
 
-	PIPE_OBJECT* shortPipe;
-	PIPE_OBJECT* longPipe;
-	ELBOW_OBJECT* elbows[4];
-	SPHERE_OBJECT* ballCap;
-	SPHERE_OBJECT* bigBall;
-	BALLJOINT_OBJECT* ballJoints[4];
-	void Reset();
-	//    int             GetMaxPipesPerFrame();
-	// void BuildObjects(float radius, float divSize, int nSlices,
-	//                   BOOL bTexture, IPOINT2D* pTexRep);
-	void BuildObjects(float radius, float divSice, int nSlices);
-	int ChooseJointType();
+	PipeObject* shortPipe;
+	PipeObject* longPipe;
+	ElbowObject* elbows[4];
+	SphereObject* ballCap;
+	SphereObject* bigBall;
+	BalljointObject* ballJoints[4];
+
+	/**
+	 * @brief Reset frame attributes for normal pipes.
+	 */
+	void reset();
+
+	/**
+	 * @brief Build all the pipe primitives
+	 * 
+	 * @param radius 
+	 * @param divSice 
+	 * @param nSlices 
+	 */
+	void buildObjects(float radius, float divSice, int nSlices);
+
+	/**
+	 * @brief Decides which type of joint to draw  
+	 * @return int 
+	 */
+	int chooseJointType();
 
 private:
 	int maxPipesPerFrame;// max number of separate pipes/frame
 	int nPipesDrawn;     // number of pipes drawn or drawing in frame
 	int maxDrawThreads;  // max number of concurrently drawing pipes
 	int nDrawThreads;    // number of live threads
-	DRAW_THREAD drawThreads[MAX_DRAW_THREADS];
+	DrawThread drawThreads[MAX_DRAW_THREADS];
 
 	int resetStatus;
 
 	//SS_DIGITAL_DISSOLVE_CLEAR ddClear;
 	//int         bCalibrateClear;
+	void drawValidate();// validation to do before each Draw
 
-	//void        GLInit();
-	void DrawValidate();// validation to do before each Draw
-	void ResetView();
-	void FrameReset();
+	/**
+	 * @brief Called on FrameReset resulting from change in viewing paramters (e.g. from a Resize event).
+	 */
+	void resetView();
+
+	/**
+	 * @brief 
+	 * 
+	 */
+	void frameReset();
 
 	/**
 	 * @brief Clear the screen.
+	 */
+	void clear();
+
+	/**
+	 * @brief Compact the thread list according to number of pipe threads killed
+	 * @details @li The pipes have been killed, but the RC's in each slot are still valid
+ 	 *   and reusable.  So we swap up entries with valid pipes. This means that
+	 *   the ordering of the RC's in the thread list will change during the life
+	 *   of the program.  This should be OK.
 	 * 
 	 */
-	void Clear();
-	void CompactThreadList();
+	void compactThreadList();
 };
 
 #endif// __state_h__

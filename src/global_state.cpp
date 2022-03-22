@@ -22,22 +22,20 @@
 #include "include/global_state.h"
 #include "include/graphics/gl_init.h"
 #include "include/graphics/gl_materials.h"
+#include "include/structs.h"
 #include "include/utils.h"
 
-// #include "dialog.h"
-// #include "eval.h"
-// #include "fpipe.h"
-// #include "npipe.h"
-// #include "pipe.h"
-// #include "sspipes.h"
-// #include "state.h"
+typedef struct _GLConfig GLConfig;
 
-STATE::STATE() {
+
+State::State() {
 	// various state values
 	resetStatus = RESET_STARTUP_BIT;
-	if(ulSurfStyle == SURFSTYLE_WIREFRAME) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	}
+
+	//TODO where this var come from
+	// if(ulSurfStyle == SURFSTYLE_WIREFRAME) {
+	// 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	// }
 
 	// Initialize GL state for the initial RC (sets texture state, so
 	// (must come after LoadTextureFiles())
@@ -49,6 +47,8 @@ STATE::STATE() {
 
 	// convert tesselation from fTesselFact(0.0-2.0) to tessLevel(0-MAX_TESS)
 	//TODO where does this come from?
+	//For now just set fTesselFact to 1
+	float fTesselFact = 1;
 	int tessLevel = (int) (fTesselFact * (MAX_TESS + 1) / 2.0001f);
 	nSlices = (tessLevel + 2) * 4;
 
@@ -59,7 +59,7 @@ STATE::STATE() {
 	// Set drawing mode, and initialize accordingly.  For now, either all normal
 	// or all flex pipes are drawn, but they could be combined later.
 	// Can assume here that if there's any possibility that normal pipes
-	// will be drawn, STATE will be initialized so that dlists are
+	// will be drawn, State will be initialized so that dlists are
 	// built
 
 	// Again, since have either NORMAL or FLEX, set maxPipesPerFrame,
@@ -72,10 +72,13 @@ STATE::STATE() {
 	// initialize materials
 	InitTeaMaterials();
 
-		// init joint types from dialog settings
+	// init joint types from dialog settings
 
 	bCycleJointStyles = 0;
 
+	//TODO where????
+	//For now just init to 
+	int ulJointType = JOINT_CYCLE;
 	switch(ulJointType) {
 		case JOINT_ELBOW:
 			jointStyle = ELBOWS;
@@ -95,18 +98,16 @@ STATE::STATE() {
 	}
 
 	// Build the objects
-
-	BuildObjects(pState->radius, pState->view.divSize, pState->nSlices,
-	             pState->bTexture, &pState->texRep[0]);
+	buildObjects(radius, glCfg.divSize, nSlices);
 }
 
-STATE::~STATE() {
+State::~State() {
 	if(nodes)
 		delete nodes;
 
-	DRAW_THREAD* pdt = &drawThreads[0];
+	DrawThread* pdt = &drawThreads[0];
 
-	//From NORMAL_STATE
+	//From NORMAL_State
 	delete shortPipe;
 	delete longPipe;
 	delete ballCap;
@@ -131,7 +132,7 @@ STATE::~STATE() {
 *
 \**************************************************************************/
 
-// void STATE::Repaint(LPRECT  void* data) {
+// void State::Repaint(LPRECT  void* data) {
 // 	resetStatus |= RESET_REPAINT_BIT;
 // }
 
@@ -144,19 +145,12 @@ STATE::~STATE() {
 // *
 // \**************************************************************************/
 
-// void STATE::Reshape(int width, int height, void* data) {
+// void State::Reshape(int width, int height, void* data) {
 // 	if(view.SetWinSize(width, height))
 // 		resetStatus |= RESET_RESIZE_BIT;
 //}
 
-/**************************************************************************\
-* ResetView
-*
-* Called on FrameReset resulting from change in viewing paramters (e.g. from
-* a Resize event).
-\**************************************************************************/
-
-void STATE::ResetView() {
+void State::resetView() {
 	IPOINT3D numNodes;
 
 	// Have VIEW calculate the node array size based on view params
@@ -166,42 +160,32 @@ void STATE::ResetView() {
 	nodes->Resize(&numNodes);
 }
 
-/**************************************************************************\
-* FrameReset
-*
-* Start a new frame of pipes
-*
-* The resetStatus parameter indicates what triggered the Reset.
-*
-\**************************************************************************/
-
 static int PickRandomTexture(int i, int nTextures);
-
-void STATE::FrameReset() {
+void State::frameReset() {
 	int i;
 	float xRot, zRot;
-	PIPE* pNewPipe;
+	Pipe* pNewPipe;
 
 #ifdef DO_TIMING
 	Timer(TIMER_STOP);
 #endif
 
-	// DBGINFO("Pipes STATE::FrameReset:\n");
+	// DBGINFO("Pipes State::FrameReset:\n");
 
 	// Kill off any active pipes ! (so they can shut down ok)
 
-	DRAW_THREAD* pThread = drawThreads;
+	DrawThread* pThread = drawThreads;
 	for(i = 0; i < nDrawThreads; i++, pThread++) {
-		pThread->KillPipe();
+		pThread->killPipe();
 	}
 	nDrawThreads = 0;
 
 	// Clear the screen
-	Clear();
+	clear();
 
 	// Check for window resize status
 	if(resetStatus & RESET_RESIZE_BIT) {
-		ResetView();
+		resetView();
 	}
 
 	// Reset the node states to empty
@@ -209,7 +193,7 @@ void STATE::FrameReset() {
 
 	// Call any pipe-specific state resets, and get any recommended
 	// pipesPerFrame counts
-	this->Reset();
+	this->reset();
 
 	maxPipesPerFrame = NORMAL_PIPE_COUNT;
 
@@ -240,16 +224,16 @@ void STATE::FrameReset() {
 		glRotatef(glCfg.yRot, 0.0f, 1.0f, 0.0f);
 
 		// create approppriate pipe for this thread slot
-		pNewPipe = (PIPE*) new PIPE(this);
-		pThread->SetPipe(pNewPipe);
-		pNewPipe->SetChooseDirectionMethod(CHOOSE_DIR_CHASE);
+		pNewPipe = (Pipe*) new Pipe(this);
+		pThread->setPipe(pNewPipe);
+		pNewPipe->setChooseDirectionMethod(CHOOSE_DIR_CHASE);
 
 		// Launch the pipe (assumed: always more nodes than pipes starting, so
 		// StartPipe cannot fail)
 		// ! All pipe setup needs to be done before we call StartPipe, as this
 		// is where the pipe starts drawing
 
-		pThread->StartPipe();
+		pThread->startPipe();
 
 		nPipesDrawn++;
 	}
@@ -266,102 +250,38 @@ void STATE::FrameReset() {
 #endif
 }
 
-/**************************************************************************\
-* PickRandomTexture
-*
-* Pick a random texture index from a list.  Remove entry from list as it
-* is picked.  Once all have been picked, or starting a new frame, reset.
-*
-* ! Routine not reentrant, should only be called by the main thread
-* dispatcher (FrameReset)
-\**************************************************************************/
-
-static int
-        PickRandomTexture(int iThread, int nTextures) {
-	if(nTextures == 0)
-		return 0;
-
-	static int pickSet[MAX_TEXTURES] = {0};
-	static int nPicked = 0;
-	int i, index;
-
-	if(iThread == 0)
-		// new frame - force reset
-		nPicked = nTextures;
-
-	// reset condition
-	if(++nPicked > nTextures) {
-		for(i = 0; i < nTextures; i++) pickSet[i] = 0;
-		nPicked = 1;// cuz
-	}
-
-	// Pick a random texture index
-	index = iRand(nTextures);
-	while(pickSet[index]) {
-		// this index has alread been taken, try the next one
-		if(++index >= nTextures)
-			index = 0;
-	}
-	// Hopefully, the above loop will exit :).  This means that we have
-	// found a texIndex that is available
-	pickSet[index] = 1;// mark as taken
-	return index;
-}
-
-void STATE::Clear() {
+void State::clear() {
 	glClear(GL_DEPTH_BUFFER_BIT);
 	// do a fast one-shot clear
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-/**************************************************************************\
-* DrawValidate
-*
-* Validation done before every Draw
-*
-* For now, this just involves checking resetStatus
-*
-\**************************************************************************/
-
-void STATE::DrawValidate() {
+void State::drawValidate() {
 	if(!resetStatus)
 		return;
 
-	FrameReset();
+	frameReset();
 }
 
-/**************************************************************************\
-* Draw
-*
-* - Top-level pipe drawing routine
-* - Each pipe thread keeps drawing new pipes until we reach maximum number
-*   of pipes per frame - then each thread gets killed as soon as it gets
-*   stuck.  Once number of drawing threads reaches 0, we start a new
-*   frame
-*
-\**************************************************************************/
-
-void STATE::Draw(void* data) {
+void State::draw(void* data) {
 	int nKilledThreads = 0;
 	bool bChooseNewLead = false;
 
 	// Validate the draw state
-
-	DrawValidate();
+	drawValidate();
 
 	// Check each pipe's status
-
-	DRAW_THREAD* pThread = drawThreads;
+	DrawThread* pThread = drawThreads;
 
 	for(int i = 0; i < nDrawThreads; i++, pThread++) {
-		if(pThread->pPipe->IsStuck()) {
+		if(pThread->pPipe->isStuck()) {
 			if(++nPipesDrawn > maxPipesPerFrame) {
 				// Reaching pipe saturation - kill this pipe thread
-				pThread->KillPipe();
+				pThread->killPipe();
 				nKilledThreads++;
 			} else {
 				// Start up another pipe
-				if(!pThread->StartPipe())
+				if(!pThread->startPipe())
 					// we won't be able to draw any more pipes this frame
 					// (probably out of nodes)
 					maxPipesPerFrame = nPipesDrawn;
@@ -371,7 +291,7 @@ void STATE::Draw(void* data) {
 
 	// Whenever one or more pipes are killed, compact the thread list
 	if(nKilledThreads) {
-		CompactThreadList();
+		compactThreadList();
 		nDrawThreads -= nKilledThreads;
 	}
 
@@ -381,11 +301,11 @@ void STATE::Draw(void* data) {
 		return;
 	}
 
-
 	// Draw each pipe
 
-	for(int i = 0, pThread = drawThreads[i]; i < nDrawThreads; i++, pThread++) {
-		pThread->DrawPipe();
+	for(int i = 0; i < nDrawThreads; i++) {
+		DrawThread* pThread = &drawThreads[i];
+		pThread->drawPipe();
 #ifdef DO_TIMING
 		pipeCount++;
 #endif
@@ -394,32 +314,20 @@ void STATE::Draw(void* data) {
 	glFlush();
 }
 
-/**************************************************************************\
-*
-* CompactThreadList
-*
-* - Compact the thread list according to number of pipe threads killed
-* - The pipes have been killed, but the RC's in each slot are still valid
-*   and reusable.  So we swap up entries with valid pipes. This means that
-*   the ordering of the RC's in the thread list will change during the life
-*   of the program.  This should be OK.
-*
-\**************************************************************************/
-
 #define SWAP_SLOT(a, b) \
-	DRAW_THREAD pTemp;  \
+	DrawThread pTemp;   \
 	pTemp = *(a);       \
 	*(a) = *(b);        \
 	*(b) = pTemp;
 
-void STATE::CompactThreadList() {
+void State::compactThreadList() {
 	if(nDrawThreads <= 1)
 		// If only one active thread, it must be in slot 0 from previous
 		// compactions - so nothing to do
 		return;
 
 	int iEmpty = 0;
-	DRAW_THREAD* pThread = drawThreads;
+	DrawThread* pThread = drawThreads;
 
 	for(int i = 0; i < nDrawThreads; i++, pThread++) {
 		if(pThread->pPipe) {
@@ -432,93 +340,34 @@ void STATE::CompactThreadList() {
 	}
 }
 
-/******************************Public*Routine******************************\
-* Finish
-*
-* - Called when GL window being closed
-*
-\**************************************************************************/
-void STATE::Finish(void* data) {
-	delete(STATE*) data;
+void State::finish(void* data) {
+	delete(State*) data;
 }
 
-STATE::STATE(STATE* pState) {
-
-}
-
-/**************************************************************************\
-* BuildObjects
-*
-* - Build all the pipe primitives
-* - Different prims are built based on bTexture flag
-*
-\**************************************************************************/
-void STATE::BuildObjects(float radius, float divSize, int nSlices,
-                         bool bTexture, IPOINT2D* texRep) {
-	OBJECT_BUILD_INFO* pBuildInfo = new OBJECT_BUILD_INFO;
+void State::buildObjects(float radius, float divSize, int nSlices) {
+	ObjectBuildInfo* pBuildInfo = new ObjectBuildInfo;
 	pBuildInfo->radius = radius;
 	pBuildInfo->divSize = divSize;
 	pBuildInfo->nSlices = nSlices;
-	pBuildInfo->bTexture = bTexture;
 
-	if(bTexture) {
-		pBuildInfo->texRep = texRep;
-
-		// Calc s texture intersection values
-		float s_max = (float) texRep->y;
-		float s_trans = s_max * 2.0f * radius / divSize;
-
-		// Build short and long pipes
-		shortPipe = new PIPE_OBJECT(pBuildInfo, divSize - 2 * radius,
-		                            s_trans, s_max);
-		longPipe = new PIPE_OBJECT(pBuildInfo, divSize, 0.0f, s_max);
-
-		// Build elbow and ball joints
-		for(int i = 0; i < 4; i++) {
-			elbows[i] = new ELBOW_OBJECT(pBuildInfo, i, 0.0f, s_trans);
-			ballJoints[i] = new BALLJOINT_OBJECT(pBuildInfo, i, 0.0f, s_trans);
-		}
-
-		bigBall = NULL;
-
-		// Build end cap
-
-		float s_start = -texRep->x * (ROOT_TWO - 1.0f) * radius / divSize;
-		float s_end = texRep->x * (2.0f + (ROOT_TWO - 1.0f)) * radius / divSize;
-		// calc compensation value, to prevent negative s coords
-		float comp_s = (int) (-s_start) + 1.0f;
-		s_start += comp_s;
-		s_end += comp_s;
-		ballCap = new SPHERE_OBJECT(pBuildInfo, ROOT_TWO * radius, s_start, s_end);
-
-	} else {
-		// Build pipes, elbows
-		shortPipe = new PIPE_OBJECT(pBuildInfo, divSize - 2 * radius);
-		longPipe = new PIPE_OBJECT(pBuildInfo, divSize);
-		for(int i = 0; i < 4; i++) {
-			elbows[i] = new ELBOW_OBJECT(pBuildInfo, i);
-			ballJoints[i] = NULL;
-		}
-
-		// Build just one ball joint when not texturing.  It is slightly
-		// larger than standard ball joint, to prevent any pipe edges from
-		// 'sticking' out of the ball.
-		bigBall = new SPHERE_OBJECT(pBuildInfo,
-		                            ROOT_TWO * radius / ((float) cos(PI / nSlices)));
-
-		// build end cap
-		ballCap = new SPHERE_OBJECT(pBuildInfo, ROOT_TWO * radius);
+	// Build pipes, elbows
+	shortPipe = new PipeObject(pBuildInfo, divSize - 2 * radius);
+	longPipe = new PipeObject(pBuildInfo, divSize);
+	for(int i = 0; i < 4; i++) {
+		elbows[i] = new ElbowObject(pBuildInfo, i);
+		ballJoints[i] = NULL;
 	}
+
+	// Build just one ball joint when not texturing.  It is slightly
+	// larger than standard ball joint, to prevent any pipe edges from
+	// 'sticking' out of the ball.
+	bigBall = new SphereObject(pBuildInfo, ROOT_TWO * radius / ((float) cos(PI / nSlices)));
+
+	// build end cap
+	ballCap = new SphereObject(pBuildInfo, ROOT_TWO * radius);
 }
 
-/**************************************************************************\
-* Reset
-*
-* Reset frame attributes for normal pipes.
-*
-\**************************************************************************/
-
-void STATE::Reset() {
+void State::reset() {
 	// Set the joint style
 	if(bCycleJointStyles) {
 		if(++(jointStyle) >= NUM_JOINT_STYLES)
@@ -526,16 +375,9 @@ void STATE::Reset() {
 	}
 }
 
-/*-----------------------------------------------------------------------
-|                                                                       |
-|    ChooseJointType                                                    |
-|       - Decides which type of joint to draw                           |
-|                                                                       |
------------------------------------------------------------------------*/
-
 #define BLUE_MOON 153
 
-int STATE::ChooseJointType() {
+int State::chooseJointType() {
 	switch(jointStyle) {
 		case ELBOWS:
 			return ELBOW_JOINT;

@@ -6,7 +6,7 @@
  * @date 2022-03-18
  *
  * @copyright Copyright (c) 2022. Work is based on original work from Microsoft Corp (c) 1994
- *
+ * 
  */
 
 #include "../include/graphics/gl_init.h"
