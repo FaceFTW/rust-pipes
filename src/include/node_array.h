@@ -52,12 +52,12 @@ public:
 	 * @brief Resize the internal array by the specified dimensions
 	 * @param pNewSize The new dimensions of the array
 	 */
-	void Resize(IPOINT3D* pNewSize);//
+	void resize(IPOINT3D* pNewSize);
 
 	/**
 	 * @brief Set all nodes to empty
 	 */
-	void Reset();
+	void reset();
 
 	/**
 	 * @brief Choose randomnly among the possible directions.  
@@ -68,7 +68,7 @@ public:
 	 * @param weight 
 	 * @return int 
 	 */
-	int ChooseRandomDirection(IPOINT3D* pos, int dir, int weight);
+	int chooseRandomDirection(IPOINT3D* pos, int dir, int weight);
 
 	/**
 	 * @brief  Choose randomnly from one of the supplied preferred directions.
@@ -80,7 +80,7 @@ public:
 	 * @param nPrefDirs 
 	 * @return int 
 	 */
-	int ChoosePreferredDirection(IPOINT3D* pos, int dir, int* prefDirs,
+	int choosePreferredDirection(IPOINT3D* pos, int dir, int* prefDirs,
 	                             int nPrefDirs);
 
 	/**
@@ -100,7 +100,7 @@ public:
 	 * @param dir 
 	 * @return int 
 	 */
-	int ChooseNewTurnDirection(IPOINT3D* pos, int dir);
+	int chooseNewTurnDirection(IPOINT3D* pos, int dir);
 
 	/**
 	 * @brief Finds the direction with the most empty nodes in a line 'searchRadius' long.
@@ -109,7 +109,7 @@ public:
 	 * @param pos 
 	 * @return int 
 	 */
-	int FindClearestDirection(IPOINT3D* pos);
+	int findClearestDirection(IPOINT3D* pos);
 
 	/**
 	 * @brief From supplied direction and position, figure out which of 4 possible directions are best to turn in.
@@ -125,7 +125,7 @@ public:
 	 * @param turnDirs 
 	 * @return int 
 	 */
-	int GetBestPossibleTurns(IPOINT3D* pos, int dir, int* turnDirs);
+	int getBestPossibleTurns(IPOINT3D* pos, int dir, int* turnDirs);
 
 	/**
 	 * @brief Search for an empty node to start drawing
@@ -135,7 +135,7 @@ public:
 	 * @return true 
 	 * @return false if couldn't find a node
 	 */
-	bool FindRandomEmptyNode(IPOINT3D* ip3dEmpty);
+	bool findRandomEmptyNode(IPOINT3D* ip3dEmpty);
 
 	/**
 	 * @brief Like FindRandomEmptyNode, but limits search to a 2d plane of the supplied box.
@@ -146,7 +146,7 @@ public:
 	 * @return true 
 	 * @return false 
 	 */
-	bool FindRandomEmptyNode2D(IPOINT3D* pos, int plane, int* box);
+	bool findRandomEmptyNode2D(IPOINT3D* pos, int plane, int* box);
 
 	/**
 	 * @brief Search for an empty node closest to supplied node position
@@ -159,21 +159,21 @@ public:
 	 * @return true 
 	 * @return false if couldn't find a node
 	 */
-	bool TakeClosestEmptyNode(IPOINT3D* newPos, IPOINT3D* pos);
+	bool takeClosestEmptyNode(IPOINT3D* newPos, IPOINT3D* pos);
 
 	/**
 	 * @brief Mark the node as non-empty
 	 * 
 	 * @param pos The node at position pos to mark as non-empty
 	 */
-	void NodeVisited(IPOINT3D* pos);
+	void nodeVisited(IPOINT3D* pos);
 
 	/**
 	 * @brief Get the Node Count object
 	 * 
 	 * @param pos 
 	 */
-	void GetNodeCount(IPOINT3D* pos);
+	void getNodeCount(IPOINT3D* pos);
 
 private:
 	Node* nodes;             // ptr to node array
@@ -191,7 +191,7 @@ private:
 	 * @param pos 
 	 * @param nNode 
 	 */
-	void GetNeighbours(IPOINT3D* pos, Node** nNode);
+	void getNeighbours(IPOINT3D* pos, Node** nNode);
 
 	/**
 	 * @brief Get ptr to node from position
@@ -199,7 +199,7 @@ private:
 	 * @param pos The position of the node
 	 * @return Node* Pointer to the Node object at that position
 	 */
-	Node* GetNode(IPOINT3D* pos);
+	Node* getNode(IPOINT3D* pos);
 
 	/**
 	 * @brief Get ptr to next node from pos and dir
@@ -208,7 +208,7 @@ private:
 	 * @param dir The direction of the next node
 	 * @return Node* Pointer to the next node in the specified direction from the original node
 	 */
-	Node* GetNextNode(IPOINT3D* pos, int dir);
+	Node* getNextNode(IPOINT3D* pos, int dir);
 
 	/**
 	 * @brief Get position of next node from curPos and lastDir
@@ -219,7 +219,7 @@ private:
 	 * @return true if Next Node exists
 	 * @return false if boundary hit or node empty
 	 */
-	bool GetNextNodePos(IPOINT3D* curPos, IPOINT3D* nextPos, int dir);
+	bool getNextNodePos(IPOINT3D* curPos, IPOINT3D* nextPos, int dir);
 
 	/**
 	 * @brief Get list of direction indices of empty node neighbours, and put them in supplied matrix
@@ -228,7 +228,7 @@ private:
 	 * @param nEmpty 
 	 * @return int number of empty node neighbours
 	 */
-	int GetEmptyNeighbours(Node** nNode, int* nEmpty);
+	int getEmptyNeighbours(Node** nNode, int* nEmpty);
 
 	/**
 	 * @brief Get list of direction indices of empty node neighbours, and put them in supplied matrix
@@ -239,7 +239,7 @@ private:
 	 * @param lastDir 
 	 * @return int number of empty node neighbours
 	 */
-	int GetEmptyTurnNeighbours(Node** nNode, int* nEmpty, int lastDir);
+	int getEmptyTurnNeighbours(Node** nNode, int* nEmpty, int lastDir);
 
 	/**
 	 * @brief Sort of like GetEmptyNeighbours, but just gets one neigbour according to supplied dir
@@ -251,7 +251,7 @@ private:
 	 * @param searchRadius Limits Search to specified radius
 	 * @return int Contiguous empty node count
 	 */
-	int GetEmptyNeighboursAlongDir(IPOINT3D* pos, int dir,
+	int getEmptyNeighboursAlongDir(IPOINT3D* pos, int dir,
 	                               int searchRadius);
 };
 
@@ -261,6 +261,6 @@ private:
  * @param box 
  * @param bounds 
  */
-static void DilateBox(int* box, IPOINT3D* bounds);
+static void dilateBox(int* box, IPOINT3D* bounds);
 
 #endif// __node_array_h__

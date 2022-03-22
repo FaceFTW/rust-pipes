@@ -25,7 +25,6 @@
 #include "include/structs.h"
 #include "include/utils.h"
 
-typedef struct _GLConfig GLConfig;
 
 
 State::State() {
@@ -36,10 +35,8 @@ State::State() {
 	// if(ulSurfStyle == SURFSTYLE_WIREFRAME) {
 	// 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	// }
-
 	// Initialize GL state for the initial RC (sets texture state, so
 	// (must come after LoadTextureFiles())
-
 	initGLMisc();
 
 	// set 'reference' radius value
@@ -136,20 +133,6 @@ State::~State() {
 // 	resetStatus |= RESET_REPAINT_BIT;
 // }
 
-// /**************************************************************************\
-// * Reshape
-// *   - called on resize, expose
-// *   - always called on app startup
-// *   - set new window size for VIEW object, and set resetStatus for validation
-// *     at draw time
-// *
-// \**************************************************************************/
-
-// void State::Reshape(int width, int height, void* data) {
-// 	if(view.SetWinSize(width, height))
-// 		resetStatus |= RESET_RESIZE_BIT;
-//}
-
 void State::resetView() {
 	IPOINT3D numNodes;
 
@@ -157,10 +140,10 @@ void State::resetView() {
 	calcNodeArraySize(&glCfg, &numNodes);
 
 	// Resize the node array
-	nodes->Resize(&numNodes);
+	nodes->resize(&numNodes);
 }
 
-static int PickRandomTexture(int i, int nTextures);
+
 void State::frameReset() {
 	int i;
 	float xRot, zRot;
@@ -189,7 +172,7 @@ void State::frameReset() {
 	}
 
 	// Reset the node states to empty
-	nodes->Reset();
+	nodes->reset();
 
 	// Call any pipe-specific state resets, and get any recommended
 	// pipesPerFrame counts
@@ -226,7 +209,7 @@ void State::frameReset() {
 		// create approppriate pipe for this thread slot
 		pNewPipe = (Pipe*) new Pipe(this);
 		pThread->setPipe(pNewPipe);
-		pNewPipe->setChooseDirectionMethod(CHOOSE_DIR_CHASE);
+		pNewPipe->setChooseDirectionMethod(CHOOSE_DIR_RANDOM_WEIGHTED);
 
 		// Launch the pipe (assumed: always more nodes than pipes starting, so
 		// StartPipe cannot fail)

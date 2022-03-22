@@ -9,22 +9,17 @@
  *
  */
 #include <GL/gl.h>
+#ifndef __structs_h_
+#define __structs_h_
 
 #include "constants.h"
-
-struct _GLConfig;
-struct GenConfig;
-struct _point2d;
-struct _ipoint2d;
-struct _point3d;
-struct _ipoint3d;
 
 /**
  * @brief GL View Configuration Vars. 
  * Seemed sensible to place them in a struct and accessed as necessary
  */
 typedef struct _GLConfig {
-	float viewAngle = FOV;           // field of view angle for height
+	float viewAngle = FOV; 			// field of view angle for height
 	float zNear = Z_NEAR;            // near z clip value
 	float zFar = Z_FAR;              // far z clip value
 	float zTrans = Z_TRANS;          // z translation
@@ -41,7 +36,6 @@ typedef struct _GLConfig {
 } GLConfig;
 
 typedef struct _GLConfig* GLConfigPtr;
-
 
 /**
  * @brief Struct with general config vars
@@ -109,3 +103,5 @@ typedef struct _MATERIAL {
 	RGBA ks;
 	GLfloat specExp;
 } MATERIAL;
+
+#endif//__structs_h_

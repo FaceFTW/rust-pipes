@@ -11,6 +11,7 @@
 
 #include "../include/graphics/gl_materials.h"
 #include "../include/constants.h"
+#include "../include/utils.h"
 #include <GL/gl.h>
 #include <math.h>
 #include <stdbool.h>
@@ -138,17 +139,11 @@ static void InitMaterials(MATERIAL* pm, float* pd, int count) {
 
 void InitMaterials() {
 	InitTeaMaterials();
-	// InitTexMaterials();
 }
 
 void InitTeaMaterials() {
 	InitMaterials(Material, teaMaterialData[0], NUM_TEA_MATERIALS);
 }
-
-// void InitTexMaterials() {
-// 	InitMaterials(Material + NUM_TEA_MATERIALS, texMaterialData[0],
-// 	              NUM_TEX_MATERIALS);
-// }
 
 void SetMaterial(MATERIAL* pMat) {
 	glMaterialfv(GL_FRONT, GL_AMBIENT, (GLfloat*) &pMat->ka);

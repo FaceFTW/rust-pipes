@@ -11,19 +11,24 @@ project("gl-pipes")
 # Add source to this project's executable.
 
 # Add source files
-file(GLOB_RECURSE SOURCE_FILES 
+file(GLOB SOURCE_FILES 
 	${CMAKE_SOURCE_DIR}/src/*.c
 	${CMAKE_SOURCE_DIR}/src/*.cpp
 	${CMAKE_SOURCE_DIR}/src/graphics/*.c
-	${CMAKE_SOURCE_DIR}/src/graphics/*.cpp)
+	${CMAKE_SOURCE_DIR}/src/graphics/*.cpp
+	${CMAKE_SOURCE_DIR}/src/objects/*.c
+	${CMAKE_SOURCE_DIR}/src/objects/*.cpp
+	)
 	
 	
 # Add header files
-file(GLOB_RECURSE HEADER_FILES 
-	${CMAKE_SOURCE_DIR}/src/*.h
-	${CMAKE_SOURCE_DIR}/src/*.hpp
-	${CMAKE_SOURCE_DIR}/src/graphics/*.h
-	${CMAKE_SOURCE_DIR}/src/graphics/*.hpp
+file(GLOB HEADER_FILES 
+	${CMAKE_SOURCE_DIR}/src/include/*.h
+	${CMAKE_SOURCE_DIR}/src/include/*.hpp
+	${CMAKE_SOURCE_DIR}/src/include/graphics/*.h
+	${CMAKE_SOURCE_DIR}/src/include/graphics/*.hpp
+	${CMAKE_SOURCE_DIR}/src/include/objects/*.h
+	${CMAKE_SOURCE_DIR}/src/include/objects/*.hpp
 	)
 
 # Do Lib Stuff

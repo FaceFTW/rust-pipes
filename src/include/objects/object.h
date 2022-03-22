@@ -13,6 +13,7 @@
 #define __object_h_
 
 #include <GL/gl.h>
+#include "../structs.h"
 
 typedef struct _ObjectBuildInfo {
 	float radius;
@@ -25,7 +26,7 @@ public:
 	/**
  	* @brief Draw the object by calling its display list
  	*/
-	void Draw() { glCallList(listNum); }
+	void draw() { glCallList(listNum); }
 
 	/**
 	 * @brief Construct a new OBJECT object

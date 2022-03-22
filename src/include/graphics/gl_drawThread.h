@@ -10,8 +10,14 @@
  * 
  */
 
+#ifndef __gl_drawThreads_h_
+#define __gl_drawThreads_h_
+
 // Frame draw schemes
+
 #include "../pipe.h"
+
+class Pipe;
 
 class DrawThread {
 public:
@@ -41,3 +47,5 @@ public:
 	void drawPipe();
 	void killPipe();
 };
+
+#endif //__gl_drawThreads_h_

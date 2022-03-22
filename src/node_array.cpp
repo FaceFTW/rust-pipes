@@ -37,7 +37,7 @@ NODE_ARRAY::~NODE_ARRAY() {
 		delete nodes;
 }
 
-void NODE_ARRAY::Resize(IPOINT3D* pNewSize) {
+void NODE_ARRAY::resize(IPOINT3D* pNewSize) {
 	if((numNodes.x == pNewSize->x) &&
 	   (numNodes.y == pNewSize->y) &&
 	   (numNodes.z == pNewSize->z))
@@ -70,7 +70,7 @@ void NODE_ARRAY::Resize(IPOINT3D* pNewSize) {
 	nodeDirInc[MINUS_Z] = -nodeDirInc[PLUS_Z];
 }
 
-void NODE_ARRAY::Reset() {
+void NODE_ARRAY::reset() {
 	int i;
 	Node* pNode = nodes;
 
@@ -79,11 +79,11 @@ void NODE_ARRAY::Reset() {
 		pNode->MarkAsEmpty();
 }
 
-void NODE_ARRAY::GetNodeCount(IPOINT3D* count) {
+void NODE_ARRAY::getNodeCount(IPOINT3D* count) {
 	*count = numNodes;
 }
 
-int NODE_ARRAY::ChooseRandomDirection(IPOINT3D* pos, int dir, int weightStraight) {
+int NODE_ARRAY::chooseRandomDirection(IPOINT3D* pos, int dir, int weightStraight) {
 	Node* nNode[NUM_DIRS];
 	int numEmpty, newDir;
 	int choice;
@@ -94,7 +94,7 @@ int NODE_ARRAY::ChooseRandomDirection(IPOINT3D* pos, int dir, int weightStraight
 	//           "NODE_ARRAY::ChooseRandomDirection: invalid dir\n");
 
 	// Get the neigbouring nodes
-	GetNeighbours(pos, nNode);
+	getNeighbours(pos, nNode);
 
 	// Get node in straight direction if necessary
 	if(weightStraight && nNode[dir] && nNode[dir]->IsEmpty()) {
@@ -108,7 +108,7 @@ int NODE_ARRAY::ChooseRandomDirection(IPOINT3D* pos, int dir, int weightStraight
 		weightStraight = 0;
 
 	// Get directions of possible turns
-	numEmpty = GetEmptyTurnNeighbours(nNode, emptyDirs, dir);
+	numEmpty = getEmptyTurnNeighbours(nNode, emptyDirs, dir);
 
 	// Make a random choice
 	if((choice = (weightStraight + numEmpty)) == 0)
@@ -126,7 +126,7 @@ int NODE_ARRAY::ChooseRandomDirection(IPOINT3D* pos, int dir, int weightStraight
 	}
 }
 
-int NODE_ARRAY::ChoosePreferredDirection(IPOINT3D* pos, int dir, int* prefDirs,
+int NODE_ARRAY::choosePreferredDirection(IPOINT3D* pos, int dir, int* prefDirs,
                                          int nPrefDirs) {
 	Node* nNode[NUM_DIRS];
 	int numEmpty, newDir;
@@ -138,7 +138,7 @@ int NODE_ARRAY::ChoosePreferredDirection(IPOINT3D* pos, int dir, int* prefDirs,
 	//           "NODE_ARRAY::ChoosePreferredDirection : invalid dir\n");
 
 	// Get the neigbouring nodes
-	GetNeighbours(pos, nNode);
+	getNeighbours(pos, nNode);
 
 	// Create list of directions that are both preferred and empty
 
@@ -160,7 +160,7 @@ int NODE_ARRAY::ChoosePreferredDirection(IPOINT3D* pos, int dir, int* prefDirs,
 	// if no empty preferred dirs, then any empty dirs become preferred
 
 	if(!numEmpty) {
-		numEmpty = GetEmptyNeighbours(nNode, emptyDirs);
+		numEmpty = getEmptyNeighbours(nNode, emptyDirs);
 		if(numEmpty == 0)
 			return DIR_NONE;
 	}
@@ -172,7 +172,7 @@ int NODE_ARRAY::ChoosePreferredDirection(IPOINT3D* pos, int dir, int* prefDirs,
 	return newDir;
 }
 
-int NODE_ARRAY::FindClearestDirection(IPOINT3D* pos) {
+int NODE_ARRAY::findClearestDirection(IPOINT3D* pos) {
 	static Node* neighbNode[NUM_DIRS];
 	static int emptyDirs[NUM_DIRS];
 	int nEmpty, newDir;
@@ -183,14 +183,14 @@ int NODE_ARRAY::FindClearestDirection(IPOINT3D* pos) {
 
 	// Get ptrs to neighbour nodes
 
-	GetNeighbours(pos, neighbNode);
+	getNeighbours(pos, neighbNode);
 
 	// find empty nodes in each direction
 
 	for(i = 0; i < NUM_DIRS; i++) {
 		if(neighbNode[i] && neighbNode[i]->IsEmpty()) {
 			// find number of contiguous empty nodes along this direction
-			nEmpty = GetEmptyNeighboursAlongDir(pos, i, searchRadius);
+			nEmpty = getEmptyNeighboursAlongDir(pos, i, searchRadius);
 			if(nEmpty > maxEmpty) {
 				// we have a new winner
 				count = 0;
@@ -212,7 +212,7 @@ int NODE_ARRAY::FindClearestDirection(IPOINT3D* pos) {
 	return newDir;
 }
 
-int NODE_ARRAY::ChooseNewTurnDirection(IPOINT3D* pos, int dir) {
+int NODE_ARRAY::chooseNewTurnDirection(IPOINT3D* pos, int dir) {
 	int turns[NUM_DIRS], nTurns;
 	IPOINT3D nextPos;
 	int newDir;
@@ -223,12 +223,12 @@ int NODE_ARRAY::ChooseNewTurnDirection(IPOINT3D* pos, int dir) {
 
 	// First, check if next node along current dir is empty
 
-	if(!GetNextNodePos(pos, &nextPos, dir))
+	if(!getNextNodePos(pos, &nextPos, dir))
 		return DIR_NONE;// node out of bounds or not empty
 
 	// Ok, the next node is free - check the 4 possible turns from here
 
-	nTurns = GetBestPossibleTurns(&nextPos, dir, turns);
+	nTurns = getBestPossibleTurns(&nextPos, dir, turns);
 	if(nTurns == 0)
 		return DIR_STRAIGHT;// nowhere to turn, but could go straight
 
@@ -240,16 +240,16 @@ int NODE_ARRAY::ChooseNewTurnDirection(IPOINT3D* pos, int dir) {
 
 	// mark taken nodes
 
-	nextNode = GetNode(&nextPos);
+	nextNode = getNode(&nextPos);
 	nextNode->MarkAsTaken();
 
-	nextNode = GetNextNode(&nextPos, newDir);
+	nextNode = getNextNode(&nextPos, newDir);
 	nextNode->MarkAsTaken();
 
 	return newDir;
 }
 
-int NODE_ARRAY::GetBestPossibleTurns(IPOINT3D* pos, int dir, int* turnDirs) {
+int NODE_ARRAY::getBestPossibleTurns(IPOINT3D* pos, int dir, int* turnDirs) {
 	Node* neighbNode[NUM_DIRS];// ptrs to 6 neighbour nodes
 	int i, count = 0;
 	bool check[NUM_DIRS] = {true, true, true, true, true, true};
@@ -259,7 +259,7 @@ int NODE_ARRAY::GetBestPossibleTurns(IPOINT3D* pos, int dir, int* turnDirs) {
 	// SS_ASSERT((dir >= 0) && (dir < NUM_DIRS),
 	//           "NODE_ARRAY::GetBestPossibleTurns : invalid dir\n");
 
-	GetNeighbours(pos, neighbNode);
+	getNeighbours(pos, neighbNode);
 
 	switch(dir) {
 		case PLUS_X:
@@ -283,7 +283,7 @@ int NODE_ARRAY::GetBestPossibleTurns(IPOINT3D* pos, int dir, int* turnDirs) {
 	for(i = 0; i < NUM_DIRS; i++) {
 		if(check[i] && neighbNode[i] && neighbNode[i]->IsEmpty()) {
 			// find number of contiguous empty nodes along this direction
-			nEmpty = GetEmptyNeighboursAlongDir(pos, i, searchRadius);
+			nEmpty = getEmptyNeighboursAlongDir(pos, i, searchRadius);
 			if(nEmpty > maxEmpty) {
 				// we have a new winner
 				count = 0;
@@ -299,8 +299,8 @@ int NODE_ARRAY::GetBestPossibleTurns(IPOINT3D* pos, int dir, int* turnDirs) {
 	return count;
 }
 
-void NODE_ARRAY::GetNeighbours(IPOINT3D* pos, Node** nNode) {
-	Node* centerNode = GetNode(pos);
+void NODE_ARRAY::getNeighbours(IPOINT3D* pos, Node** nNode) {
+	Node* centerNode = getNode(pos);
 
 	nNode[PLUS_X] = pos->x == (numNodes.x - 1) ? NULL : centerNode + nodeDirInc[PLUS_X];
 	nNode[PLUS_Y] = pos->y == (numNodes.y - 1) ? NULL : centerNode + nodeDirInc[PLUS_Y];
@@ -311,19 +311,19 @@ void NODE_ARRAY::GetNeighbours(IPOINT3D* pos, Node** nNode) {
 	nNode[MINUS_Z] = pos->z == 0 ? NULL : centerNode + nodeDirInc[MINUS_Z];
 }
 
-void NODE_ARRAY::NodeVisited(IPOINT3D* pos) {
-	(GetNode(pos))->MarkAsTaken();
+void NODE_ARRAY::nodeVisited(IPOINT3D* pos) {
+	(getNode(pos))->MarkAsTaken();
 }
 
-Node* NODE_ARRAY::GetNode(IPOINT3D* pos) {
+Node* NODE_ARRAY::getNode(IPOINT3D* pos) {
 	return nodes +
 	        pos->x +
 	        pos->y * numNodes.x +
 	        pos->z * numNodes.x * numNodes.y;
 }
 
-Node* NODE_ARRAY::GetNextNode(IPOINT3D* pos, int dir) {
-	Node* curNode = GetNode(pos);
+Node* NODE_ARRAY::getNextNode(IPOINT3D* pos, int dir) {
+	Node* curNode = getNode(pos);
 
 	// SS_ASSERT((dir >= 0) && (dir < NUM_DIRS),
 	//           "NODE_ARRAY::GetNextNode : invalid dir\n");
@@ -352,14 +352,14 @@ Node* NODE_ARRAY::GetNextNode(IPOINT3D* pos, int dir) {
 	}
 }
 
-bool NODE_ARRAY::GetNextNodePos(IPOINT3D* curPos, IPOINT3D* nextPos, int dir) {
+bool NODE_ARRAY::getNextNodePos(IPOINT3D* curPos, IPOINT3D* nextPos, int dir) {
 	static Node* neighbNode[NUM_DIRS];// ptrs to 6 neighbour nodes
 
 	// SS_ASSERT((dir >= 0) && (dir < NUM_DIRS),
 	//           "NODE_ARRAY::GetNextNodePos : invalid dir\n");
 
 	// don't need to get all neighbours, just one in next direction
-	GetNeighbours(curPos, neighbNode);
+	getNeighbours(curPos, neighbNode);
 
 	*nextPos = *curPos;
 
@@ -396,7 +396,7 @@ bool NODE_ARRAY::GetNextNodePos(IPOINT3D* curPos, IPOINT3D* nextPos, int dir) {
 	return true;
 }
 
-int NODE_ARRAY::GetEmptyNeighbours(Node** nNode, int* nEmpty) {
+int NODE_ARRAY::getEmptyNeighbours(Node** nNode, int* nEmpty) {
 	int i, count = 0;
 
 	for(i = 0; i < NUM_DIRS; i++) {
@@ -406,7 +406,7 @@ int NODE_ARRAY::GetEmptyNeighbours(Node** nNode, int* nEmpty) {
 	return count;
 }
 
-int NODE_ARRAY::GetEmptyTurnNeighbours(Node** nNode, int* nEmpty, int lastDir) {
+int NODE_ARRAY::getEmptyTurnNeighbours(Node** nNode, int* nEmpty, int lastDir) {
 	int i, count = 0;
 
 	for(i = 0; i < NUM_DIRS; i++) {
@@ -419,9 +419,9 @@ int NODE_ARRAY::GetEmptyTurnNeighbours(Node** nNode, int* nEmpty, int lastDir) {
 	return count;
 }
 
-int NODE_ARRAY::GetEmptyNeighboursAlongDir(IPOINT3D* pos, int dir,
+int NODE_ARRAY::getEmptyNeighboursAlongDir(IPOINT3D* pos, int dir,
                                            int searchRadius) {
-	Node* curNode = GetNode(pos);
+	Node* curNode = getNode(pos);
 	int nodeStride;
 	int maxSearch;
 	int count = 0;
@@ -467,7 +467,7 @@ int NODE_ARRAY::GetEmptyNeighboursAlongDir(IPOINT3D* pos, int dir,
 	return count;
 }
 
-bool NODE_ARRAY::FindRandomEmptyNode(IPOINT3D* pos) {
+bool NODE_ARRAY::findRandomEmptyNode(IPOINT3D* pos) {
 	int infLoopDetect = 0;
 
 	while(true) {
@@ -480,8 +480,8 @@ bool NODE_ARRAY::FindRandomEmptyNode(IPOINT3D* pos) {
 
 		// If its empty, we're done.
 
-		if(GetNode(pos)->IsEmpty()) {
-			NodeVisited(pos);
+		if(getNode(pos)->IsEmpty()) {
+			nodeVisited(pos);
 			return true;
 		} else {
 			// Watch out for infinite loops!  After trying for
@@ -495,8 +495,8 @@ bool NODE_ARRAY::FindRandomEmptyNode(IPOINT3D* pos) {
 				for(pos->x = 0; pos->x < numNodes.x; pos->x++)
 					for(pos->y = 0; pos->y < numNodes.y; pos->y++)
 						for(pos->z = 0; pos->z < numNodes.z; pos->z++)
-							if(GetNode(pos)->IsEmpty()) {
-								NodeVisited(pos);
+							if(getNode(pos)->IsEmpty()) {
+								nodeVisited(pos);
 								return true;
 							}
 
@@ -509,7 +509,7 @@ bool NODE_ARRAY::FindRandomEmptyNode(IPOINT3D* pos) {
 	}
 }
 
-bool NODE_ARRAY::FindRandomEmptyNode2D(IPOINT3D* pos, int plane, int* box) {
+bool NODE_ARRAY::findRandomEmptyNode2D(IPOINT3D* pos, int plane, int* box) {
 	int *newx, *newy;
 	int *xDim, *yDim;
 
@@ -553,8 +553,8 @@ bool NODE_ARRAY::FindRandomEmptyNode2D(IPOINT3D* pos, int plane, int* box) {
 
 		// If its empty, we're done.
 
-		if(GetNode(pos)->IsEmpty()) {
-			NodeVisited(pos);
+		if(getNode(pos)->IsEmpty()) {
+			nodeVisited(pos);
 			return true;
 		} else {
 			// Watch out for infinite loops!  After trying for
@@ -567,8 +567,8 @@ bool NODE_ARRAY::FindRandomEmptyNode2D(IPOINT3D* pos, int plane, int* box) {
 
 				for(*newx = xDim[MIN_VAL]; *newx <= xDim[MAX_VAL]; (*newx)++)
 					for(*newy = yDim[MIN_VAL]; *newy <= yDim[MAX_VAL]; (*newy)++)
-						if(GetNode(pos)->IsEmpty()) {
-							NodeVisited(pos);
+						if(getNode(pos)->IsEmpty()) {
+							nodeVisited(pos);
 							return true;
 						}
 
@@ -579,12 +579,12 @@ bool NODE_ARRAY::FindRandomEmptyNode2D(IPOINT3D* pos, int plane, int* box) {
 	}
 }
 
-bool NODE_ARRAY::TakeClosestEmptyNode(IPOINT3D* newPos, IPOINT3D* pos) {
+bool NODE_ARRAY::takeClosestEmptyNode(IPOINT3D* newPos, IPOINT3D* pos) {
 	static int searchRadius = MAX(numNodes.x, numNodes.y) / 3;
 
 	// easy out
-	if(GetNode(pos)->IsEmpty()) {
-		NodeVisited(pos);
+	if(getNode(pos)->IsEmpty()) {
+		nodeVisited(pos);
 		*newPos = *pos;
 		return true;
 	}
@@ -595,20 +595,20 @@ bool NODE_ARRAY::TakeClosestEmptyNode(IPOINT3D* newPos, IPOINT3D* pos) {
 	// do a random search on successively larger search boxes
 	for(int i = 0; i < searchRadius; i++) {
 		// Increase box size
-		DilateBox(box, &numNodes);
+		dilateBox(box, &numNodes);
 		// start looking in random 2D face of the box
 		int dir = iRand(NUM_DIRS);
 		for(int j = 0; j < NUM_DIRS; j++, dir = (++dir == NUM_DIRS) ? 0 : dir) {
-			if(FindRandomEmptyNode2D(newPos, dir, box))
+			if(findRandomEmptyNode2D(newPos, dir, box))
 				return true;
 		}
 	}
 
 	// nothing nearby - grab a random one
-	return FindRandomEmptyNode(newPos);
+	return findRandomEmptyNode(newPos);
 }
 
-static void DilateBox(int* box, IPOINT3D* bounds) {
+static void dilateBox(int* box, IPOINT3D* bounds) {
 	int* min = (int*) &box[MINUS_X];
 	int* max = (int*) &box[PLUS_X];
 	int* boundMax = (int*) bounds;

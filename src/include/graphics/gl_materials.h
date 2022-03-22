@@ -15,9 +15,9 @@
 
 #include "../structs.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// #ifdef __cplusplus
+// extern "C" {
+// #endif
 
 /**
  * @brief Initialize Material structure with data in TeaMaterialData
@@ -90,8 +90,8 @@ void CreateMaterialGradient(MATERIAL* matInc, MATERIAL* startMat,
  */
 void TransitionMaterial(MATERIAL* transMat, MATERIAL* transMatInc);
 
-#ifdef __cplusplus
-}
-#endif
+// #ifdef __cplusplus
+// }
+// #endif
 
 #endif//__gl_material_h_

@@ -9,9 +9,15 @@
  * 
  */
 
+#ifndef __pipe_h_
+#define __pipe_h_
+
 #include "global_state.h"
 #include "structs.h"
+#include "utils.h"
 #include <GL/gl.h>
+
+class State;
 
 class Pipe {
 public:
@@ -107,18 +113,7 @@ private:
 	int chooseStartPosMethod;
 	int chooseDirMethod;
 
-	int getBestDirsForChase(int* bestDirs);
+	// int getBestDirsForChase(int* bestDirs);
 };
-/**
- * @brief Aligns the z axis along specified direction
- *  Used for all types of pipes
- * @param newDir 
- */
-extern void align_plusz(int newDir);
 
-/**
- * @brief This array tells you which way the notch will be once you make a turn
- * Format: notchTurn[oldDir][newDir][notchVec] 
- * 
- */
-extern GLint notchTurn[NUM_DIRS][NUM_DIRS][NUM_DIRS];
+#endif //__pipe_h_

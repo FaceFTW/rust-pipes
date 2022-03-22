@@ -32,6 +32,9 @@
 #define RESET_REPAINT_BIT (1L << 3)
 #define RESET_BIT (0xF)
 
+class Pipe;
+class DrawThread;
+
 class State {
 public:
 	int nSlices;// reference # of slices around a pipe

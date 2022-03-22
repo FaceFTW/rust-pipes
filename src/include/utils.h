@@ -96,7 +96,7 @@ void calcNormals(POINT3D* p,
                  POINT3D* center,
                  int num);
 
-POINT3D ss_ptZero;
+extern POINT3D ss_ptZero;
 void xformPoint(POINT3D* ptOut, POINT3D* ptIn, MATRIX*);
 void xformNorm(POINT3D* ptOut, POINT3D* ptIn, MATRIX*);
 void matrixIdent(MATRIX*);
@@ -106,6 +106,26 @@ void matrixMult(MATRIX* m1, MATRIX* m2, MATRIX* m3);
 void calcNorm(POINT3D* norm, POINT3D* p1, POINT3D* p2, POINT3D* p3);
 void normalizeNorm(POINT3D*);
 void normalizeNorms(POINT3D*, unsigned long);
+
+void align_notch(int newDir, int notch);
+// static GLint defCylNotch[NUM_DIRS];
+// static GLfloat alignNotchRot[NUM_DIRS][NUM_DIRS];
+void align_plusy(int oldDir, int newDir);
+// static float RotZ[NUM_DIRS][NUM_DIRS];
+
+/**
+ * @brief Aligns the z axis along specified direction
+ *  Used for all types of pipes
+ * @param newDir 
+ */
+void align_plusz(int newDir);
+
+/**
+ * @brief This array tells you which way the notch will be once you make a turn
+ * Format: notchTurn[oldDir][newDir][notchVec] 
+ * 
+ */
+// static GLint notchTurn[NUM_DIRS][NUM_DIRS][NUM_DIRS];
 
 // #ifdef __cplusplus
 // }

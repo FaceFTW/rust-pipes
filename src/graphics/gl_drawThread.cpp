@@ -9,7 +9,7 @@
  * 
  */
 
-#include "../include/graphics/gl_drawThread.h"
+#include "../include/global_state.h"
 
 DrawThread::DrawThread() {
 	pPipe = nullptr;

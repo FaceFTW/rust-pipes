@@ -11,6 +11,7 @@
 #include <GL/gl.h>
 #include <math.h>
 
+
 #include "include/utils.h"
 
 int iRand(int max) {
@@ -68,7 +69,7 @@ void transformCircle(
 		xformPoint(outPoint, inPoint, &matrix1);
 	}
 }
-void CalcNormals(POINT3D* p, POINT3D* n, POINT3D* center,
+void calcNormals(POINT3D* p, POINT3D* n, POINT3D* center,
                  int num) {
 	int i;
 
@@ -256,4 +257,144 @@ void normalizeNorms(POINT3D* p, unsigned long cPts) {
 		p->y *= len;
 		p->z *= len;
 	}
+}
+
+GLint notchTurn[NUM_DIRS][NUM_DIRS][NUM_DIRS] = {
+        // oldDir = +x
+        iXX, iXX, iXX, iXX, iXX, iXX,
+        iXX, iXX, iXX, iXX, iXX, iXX,
+        iXX, iXX, MINUS_X, PLUS_X, PLUS_Z, MINUS_Z,
+        iXX, iXX, PLUS_X, MINUS_X, PLUS_Z, MINUS_Z,
+        iXX, iXX, PLUS_Y, MINUS_Y, MINUS_X, PLUS_X,
+        iXX, iXX, PLUS_Y, MINUS_Y, PLUS_X, MINUS_X,
+        // oldDir = -x
+        iXX, iXX, iXX, iXX, iXX, iXX,
+        iXX, iXX, iXX, iXX, iXX, iXX,
+        iXX, iXX, PLUS_X, MINUS_X, PLUS_Z, MINUS_Z,
+        iXX, iXX, MINUS_X, PLUS_X, PLUS_Z, MINUS_Z,
+        iXX, iXX, PLUS_Y, MINUS_Y, PLUS_X, MINUS_X,
+        iXX, iXX, PLUS_Y, MINUS_Y, MINUS_X, PLUS_X,
+        // oldDir = +y
+        MINUS_Y, PLUS_Y, iXX, iXX, PLUS_Z, MINUS_Z,
+        PLUS_Y, MINUS_Y, iXX, iXX, PLUS_Z, MINUS_Z,
+        iXX, iXX, iXX, iXX, iXX, iXX,
+        iXX, iXX, iXX, iXX, iXX, iXX,
+        PLUS_X, MINUS_X, iXX, iXX, MINUS_Y, PLUS_Y,
+        PLUS_X, MINUS_X, iXX, iXX, PLUS_Y, MINUS_Y,
+        // oldDir = -y
+        PLUS_Y, MINUS_Y, iXX, iXX, PLUS_Z, MINUS_Z,
+        MINUS_Y, PLUS_Y, iXX, iXX, PLUS_Z, MINUS_Z,
+        iXX, iXX, iXX, iXX, iXX, iXX,
+        iXX, iXX, iXX, iXX, iXX, iXX,
+        PLUS_X, MINUS_X, iXX, iXX, PLUS_Y, MINUS_Y,
+        PLUS_X, MINUS_X, iXX, iXX, MINUS_Y, PLUS_Y,
+        // oldDir = +z
+        MINUS_Z, PLUS_Z, PLUS_Y, MINUS_Y, iXX, iXX,
+        PLUS_Z, MINUS_Z, PLUS_Y, MINUS_Y, iXX, iXX,
+        PLUS_X, MINUS_X, MINUS_Z, PLUS_Z, iXX, iXX,
+        PLUS_X, MINUS_X, PLUS_Z, MINUS_Z, iXX, iXX,
+        iXX, iXX, iXX, iXX, iXX, iXX,
+        iXX, iXX, iXX, iXX, iXX, iXX,
+        // oldDir = -z
+        PLUS_Z, MINUS_Z, PLUS_Y, MINUS_Y, iXX, iXX,
+        MINUS_Z, PLUS_Z, PLUS_Y, MINUS_Y, iXX, iXX,
+        PLUS_X, MINUS_X, PLUS_Z, MINUS_Z, iXX, iXX,
+        PLUS_X, MINUS_X, MINUS_Z, PLUS_Z, iXX, iXX,
+        iXX, iXX, iXX, iXX, iXX, iXX,
+        iXX, iXX, iXX, iXX, iXX, iXX};
+
+GLint defCylNotch[NUM_DIRS] =
+        {PLUS_Y, PLUS_Y, MINUS_Z, PLUS_Z, PLUS_Y, PLUS_Y};
+
+float RotZ[NUM_DIRS][NUM_DIRS] = {
+        0.0f, 0.0f, 90.0f, 90.0f, 90.0f, -90.0f,
+        0.0f, 0.0f, -90.0f, -90.0f, -90.0f, 90.0f,
+        180.0f, 180.0f, 0.0f, 0.0f, 180.0f, 180.0f,
+        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        -90.0f, 90.0f, 0.0f, 180.0f, 0.0f, 0.0f,
+        90.0f, -90.0f, 180.0f, 0.0f, 0.0f, 0.0f};
+
+/*-----------------------------------------------------------------------
+|                                                                       |
+|    align_plusy( int lastDir, int newDir )                             |
+|       - Assuming +z axis is already aligned with newDir, align        |
+|         +y axis BACK along lastDir                                    |
+|                                                                       |
+-----------------------------------------------------------------------*/
+
+// given a dir, determine how much to rotate cylinder around z to match notches
+// format is [newDir][notchVec]
+
+GLfloat alignNotchRot[NUM_DIRS][NUM_DIRS] = {
+        fXX, fXX, 0.0f, 180.0f, 90.0f, -90.0f,
+        fXX, fXX, 0.0f, 180.0f, -90.0f, 90.0f,
+        -90.0f, 90.0f, fXX, fXX, 180.0f, 0.0f,
+        -90.0f, 90.0f, fXX, fXX, 0.0f, 180.0f,
+        -90.0f, 90.0f, 0.0f, 180.0f, fXX, fXX,
+        90.0f, -90.0f, 0.0f, 180.0f, fXX, fXX};
+
+ void align_plusz(int newDir) {
+	// align +z along new direction
+	switch(newDir) {
+		case PLUS_X:
+			glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
+			break;
+		case MINUS_X:
+			glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
+			break;
+		case PLUS_Y:
+			glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+			break;
+		case MINUS_Y:
+			glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+			break;
+		case PLUS_Z:
+			glRotatef(0.0f, 0.0f, 1.0f, 0.0f);
+			break;
+		case MINUS_Z:
+			glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+			break;
+	}
+}
+
+void align_plusy(int oldDir, int newDir) {
+	GLfloat rotz;
+
+	rotz = RotZ[oldDir][newDir];
+	glRotatef(rotz, 0.0f, 0.0f, 1.0f);
+}
+
+/**************************************************************************\
+* Geometry functions
+\**************************************************************************/
+
+/*-----------------------------------------------------------------------
+|                                                                       |
+|    align_notch( int newDir )                                          |
+|       - a cylinder is notched, and we have to line this up            |
+|         with the previous primitive's notch which is maintained as    |
+|         notchVec.                                                     |
+|       - this adds a rotation around z to achieve this                 |
+|                                                                       |
+-----------------------------------------------------------------------*/
+
+ void align_notch(int newDir, int notch) {
+	GLfloat rotz;
+	GLint curNotch;
+
+	// figure out where notch is presently after +z alignment
+	curNotch = defCylNotch[newDir];
+	// (don't need this now we have lut)
+
+	// look up rotation value in table
+	rotz = alignNotchRot[newDir][notch];
+#if PIPES_DEBUG
+	if(rotz == fXX) {
+		printf("align_notch(): unexpected value\n");
+		return;
+	}
+#endif
+
+	if(rotz != 0.0f)
+		glRotatef(rotz, 0.0f, 0.0f, 1.0f);
 }

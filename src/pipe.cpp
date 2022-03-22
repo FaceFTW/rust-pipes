@@ -11,10 +11,12 @@
 
 #include "include/pipe.h"
 #include "include/graphics/gl_materials.h"
-#include "include/pipe_objects.h"
 #include "include/utils.h"
 
 #include <GL/glut.h>
+
+extern GLint defCylNotch[NUM_DIRS];
+extern GLint notchTurn[NUM_DIRS][NUM_DIRS][NUM_DIRS];
 
 Pipe::Pipe(State* state) {
 	pState = state;
@@ -64,45 +66,45 @@ int Pipe::chooseNewDirection() {
 
 	// figger out which fn to call
 	switch(chooseDirMethod) {
-		case CHOOSE_DIR_CHASE:
-			if(nBestDirs = getBestDirsForChase(bestDirs))
-				return nodes->choosePreferredDirection(&curPos, lastDir,
-				                                       bestDirs, nBestDirs);
-			// else lead pipe must have died, so fall thru:
+		// case CHOOSE_DIR_CHASE:
+		// 	if(nBestDirs = getBestDirsForChase(bestDirs))
+		// 		return nodes->choosePreferredDirection(&curPos, lastDir,
+		// 		                                       bestDirs, nBestDirs);
+		// 	// else lead pipe must have died, so fall thru:
 		case CHOOSE_DIR_RANDOM_WEIGHTED:
 		default:
 			return nodes->chooseRandomDirection(&curPos, lastDir, weightStraight);
 	}
 }
 
-int Pipe::getBestDirsForChase(int* bestDirs) {
-	// Figure out best dirs to close in on leadPos
+// int Pipe::getBestDirsForChase(int* bestDirs) {
+// 	// Figure out best dirs to close in on leadPos
 
-	//mf: will have to 'protect' leadPos with GetLeadPos() for multi-threading
-	IPOINT3D* leadPos = &pState->pLeadPipe->curPos;
-	IPOINT3D delta;
-	int numDirs = 0;
+// 	//mf: will have to 'protect' leadPos with GetLeadPos() for multi-threading
+// 	IPOINT3D* leadPos = &pState->pLeadPipe->curPos;
+// 	IPOINT3D delta;
+// 	int numDirs = 0;
 
-	delta.x = leadPos->x - curPos.x;
-	delta.y = leadPos->y - curPos.y;
-	delta.z = leadPos->z - curPos.z;
+// 	delta.x = leadPos->x - curPos.x;
+// 	delta.y = leadPos->y - curPos.y;
+// 	delta.z = leadPos->z - curPos.z;
 
-	if(delta.x) {
-		numDirs++;
-		*bestDirs++ = delta.x > 0 ? PLUS_X : MINUS_X;
-	}
-	if(delta.y) {
-		numDirs++;
-		*bestDirs++ = delta.y > 0 ? PLUS_Y : MINUS_Y;
-	}
-	if(delta.z) {
-		numDirs++;
-		*bestDirs++ = delta.z > 0 ? PLUS_Z : MINUS_Z;
-	}
-	// It should be impossible for numDirs = 0 (all deltas = 0), as this
-	// means curPos = leadPos
-	return numDirs;
-}
+// 	if(delta.x) {
+// 		numDirs++;
+// 		*bestDirs++ = delta.x > 0 ? PLUS_X : MINUS_X;
+// 	}
+// 	if(delta.y) {
+// 		numDirs++;
+// 		*bestDirs++ = delta.y > 0 ? PLUS_Y : MINUS_Y;
+// 	}
+// 	if(delta.z) {
+// 		numDirs++;
+// 		*bestDirs++ = delta.z > 0 ? PLUS_Z : MINUS_Z;
+// 	}
+// 	// It should be impossible for numDirs = 0 (all deltas = 0), as this
+// 	// means curPos = leadPos
+// 	return numDirs;
+// }
 
 bool Pipe::setStartPos() {
 	NODE_ARRAY* nodes = pState->nodes;
@@ -111,7 +113,7 @@ bool Pipe::setStartPos() {
 
 		case CHOOSE_STARTPOS_RANDOM:
 		default:
-			if(!nodes->FindRandomEmptyNode(&curPos)) {
+			if(!nodes->findRandomEmptyNode(&curPos)) {
 				return false;
 			}
 			return true;
@@ -119,12 +121,12 @@ bool Pipe::setStartPos() {
 		case CHOOSE_STARTPOS_FURTHEST:
 			// find node furthest away from curPos
 			IPOINT3D refPos, numNodes;
-			nodes->GetNodeCount(&numNodes);
+			nodes->getNodeCount(&numNodes);
 			refPos.x = (curPos.x >= (numNodes.x / 2)) ? 0 : numNodes.x - 1;
 			refPos.y = (curPos.y >= (numNodes.y / 2)) ? 0 : numNodes.y - 1;
 			refPos.z = (curPos.z >= (numNodes.z / 2)) ? 0 : numNodes.z - 1;
 
-			if(!nodes->TakeClosestEmptyNode(&curPos, &refPos)) {
+			if(!nodes->takeClosestEmptyNode(&curPos, &refPos)) {
 				return false;
 			}
 			return true;
@@ -132,7 +134,7 @@ bool Pipe::setStartPos() {
 }
 
 bool Pipe::isStuck() {
-	return status == Pipe_STUCK;
+	return status == PIPE_STUCK;
 }
 
 void Pipe::translateToCurrentPosition() {
@@ -140,7 +142,7 @@ void Pipe::translateToCurrentPosition() {
 
 	float divSize = pState->glCfg.divSize;
 	// this requires knowing the size of the node array
-	pState->nodes->GetNodeCount(&numNodes);
+	pState->nodes->getNodeCount(&numNodes);
 	glTranslatef((curPos.x - (numNodes.x - 1) / 2.0f) * divSize,
 	             (curPos.y - (numNodes.y - 1) / 2.0f) * divSize,
 	             (curPos.z - (numNodes.z - 1) / 2.0f) * divSize);
@@ -169,83 +171,12 @@ void Pipe::updateCurrentPosition(int newDir) {
 	}
 }
 
-void align_plusz(int newDir) {
-	// align +z along new direction
-	switch(newDir) {
-		case PLUS_X:
-			glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
-			break;
-		case MINUS_X:
-			glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
-			break;
-		case PLUS_Y:
-			glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
-			break;
-		case MINUS_Y:
-			glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
-			break;
-		case PLUS_Z:
-			glRotatef(0.0f, 0.0f, 1.0f, 0.0f);
-			break;
-		case MINUS_Z:
-			glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
-			break;
-	}
-}
-
-GLint notchTurn[NUM_DIRS][NUM_DIRS][NUM_DIRS] = {
-        // oldDir = +x
-        iXX, iXX, iXX, iXX, iXX, iXX,
-        iXX, iXX, iXX, iXX, iXX, iXX,
-        iXX, iXX, MINUS_X, PLUS_X, PLUS_Z, MINUS_Z,
-        iXX, iXX, PLUS_X, MINUS_X, PLUS_Z, MINUS_Z,
-        iXX, iXX, PLUS_Y, MINUS_Y, MINUS_X, PLUS_X,
-        iXX, iXX, PLUS_Y, MINUS_Y, PLUS_X, MINUS_X,
-        // oldDir = -x
-        iXX, iXX, iXX, iXX, iXX, iXX,
-        iXX, iXX, iXX, iXX, iXX, iXX,
-        iXX, iXX, PLUS_X, MINUS_X, PLUS_Z, MINUS_Z,
-        iXX, iXX, MINUS_X, PLUS_X, PLUS_Z, MINUS_Z,
-        iXX, iXX, PLUS_Y, MINUS_Y, PLUS_X, MINUS_X,
-        iXX, iXX, PLUS_Y, MINUS_Y, MINUS_X, PLUS_X,
-        // oldDir = +y
-        MINUS_Y, PLUS_Y, iXX, iXX, PLUS_Z, MINUS_Z,
-        PLUS_Y, MINUS_Y, iXX, iXX, PLUS_Z, MINUS_Z,
-        iXX, iXX, iXX, iXX, iXX, iXX,
-        iXX, iXX, iXX, iXX, iXX, iXX,
-        PLUS_X, MINUS_X, iXX, iXX, MINUS_Y, PLUS_Y,
-        PLUS_X, MINUS_X, iXX, iXX, PLUS_Y, MINUS_Y,
-        // oldDir = -y
-        PLUS_Y, MINUS_Y, iXX, iXX, PLUS_Z, MINUS_Z,
-        MINUS_Y, PLUS_Y, iXX, iXX, PLUS_Z, MINUS_Z,
-        iXX, iXX, iXX, iXX, iXX, iXX,
-        iXX, iXX, iXX, iXX, iXX, iXX,
-        PLUS_X, MINUS_X, iXX, iXX, PLUS_Y, MINUS_Y,
-        PLUS_X, MINUS_X, iXX, iXX, MINUS_Y, PLUS_Y,
-        // oldDir = +z
-        MINUS_Z, PLUS_Z, PLUS_Y, MINUS_Y, iXX, iXX,
-        PLUS_Z, MINUS_Z, PLUS_Y, MINUS_Y, iXX, iXX,
-        PLUS_X, MINUS_X, MINUS_Z, PLUS_Z, iXX, iXX,
-        PLUS_X, MINUS_X, PLUS_Z, MINUS_Z, iXX, iXX,
-        iXX, iXX, iXX, iXX, iXX, iXX,
-        iXX, iXX, iXX, iXX, iXX, iXX,
-        // oldDir = -z
-        PLUS_Z, MINUS_Z, PLUS_Y, MINUS_Y, iXX, iXX,
-        MINUS_Z, PLUS_Z, PLUS_Y, MINUS_Y, iXX, iXX,
-        PLUS_X, MINUS_X, PLUS_Z, MINUS_Z, iXX, iXX,
-        PLUS_X, MINUS_X, MINUS_Z, PLUS_Z, iXX, iXX,
-        iXX, iXX, iXX, iXX, iXX, iXX,
-        iXX, iXX, iXX, iXX, iXX, iXX};
-
-static GLint defCylNotch[NUM_DIRS] =
-        {PLUS_Y, PLUS_Y, MINUS_Z, PLUS_Z, PLUS_Y, PLUS_Y};
-
 void Pipe::start() {
 	int newDir;
 
 	// Set start position
 
-	if(!SetStartPos()) {
+	if(!setStartPos()) {
 		status = PIPE_OUT_OF_NODES;
 		return;
 	}
@@ -283,7 +214,7 @@ void Pipe::start() {
 
 	// draw short pipe
 	align_notch(newDir, notchVec);
-	pState->shortPipe->Draw();
+	pState->shortPipe->draw();
 
 	glPopMatrix();
 
@@ -409,7 +340,7 @@ void Pipe::drawJoint(int newDir) {
 	int jointType;
 	int iBend;
 
-	jointType = pState->ChooseJointType();
+	jointType = pState->chooseJointType();
 #if PIPES_DEBUG
 	if(newDir == oppositeDir[lastDir])
 		printf("Warning: opposite dir chosen!\n");
@@ -464,75 +395,4 @@ void Pipe::drawJoint(int newDir) {
 	if(notchVec == iXX)
 		printf("notchTurn gave bad value\n");
 #endif
-}
-
-/**************************************************************************\
-* Geometry functions
-\**************************************************************************/
-
-static float RotZ[NUM_DIRS][NUM_DIRS] = {
-        0.0f, 0.0f, 90.0f, 90.0f, 90.0f, -90.0f,
-        0.0f, 0.0f, -90.0f, -90.0f, -90.0f, 90.0f,
-        180.0f, 180.0f, 0.0f, 0.0f, 180.0f, 180.0f,
-        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        -90.0f, 90.0f, 0.0f, 180.0f, 0.0f, 0.0f,
-        90.0f, -90.0f, 180.0f, 0.0f, 0.0f, 0.0f};
-
-/*-----------------------------------------------------------------------
-|                                                                       |
-|    align_plusy( int lastDir, int newDir )                             |
-|       - Assuming +z axis is already aligned with newDir, align        |
-|         +y axis BACK along lastDir                                    |
-|                                                                       |
------------------------------------------------------------------------*/
-
-static void
-        align_plusy(int oldDir, int newDir) {
-	GLfloat rotz;
-
-	rotz = RotZ[oldDir][newDir];
-	glRotatef(rotz, 0.0f, 0.0f, 1.0f);
-}
-
-// given a dir, determine how much to rotate cylinder around z to match notches
-// format is [newDir][notchVec]
-
-static GLfloat alignNotchRot[NUM_DIRS][NUM_DIRS] = {
-        fXX, fXX, 0.0f, 180.0f, 90.0f, -90.0f,
-        fXX, fXX, 0.0f, 180.0f, -90.0f, 90.0f,
-        -90.0f, 90.0f, fXX, fXX, 180.0f, 0.0f,
-        -90.0f, 90.0f, fXX, fXX, 0.0f, 180.0f,
-        -90.0f, 90.0f, 0.0f, 180.0f, fXX, fXX,
-        90.0f, -90.0f, 0.0f, 180.0f, fXX, fXX};
-
-/*-----------------------------------------------------------------------
-|                                                                       |
-|    align_notch( int newDir )                                          |
-|       - a cylinder is notched, and we have to line this up            |
-|         with the previous primitive's notch which is maintained as    |
-|         notchVec.                                                     |
-|       - this adds a rotation around z to achieve this                 |
-|                                                                       |
------------------------------------------------------------------------*/
-
-static void
-        align_notch(int newDir, int notch) {
-	GLfloat rotz;
-	GLint curNotch;
-
-	// figure out where notch is presently after +z alignment
-	curNotch = defCylNotch[newDir];
-	// (don't need this now we have lut)
-
-	// look up rotation value in table
-	rotz = alignNotchRot[newDir][notch];
-#if PIPES_DEBUG
-	if(rotz == fXX) {
-		printf("align_notch(): unexpected value\n");
-		return;
-	}
-#endif
-
-	if(rotz != 0.0f)
-		glRotatef(rotz, 0.0f, 0.0f, 1.0f);
 }
