@@ -16,6 +16,7 @@
 #include <sys/timeb.h>
 #include <sys/types.h>
 #include <time.h>
+#include <GLFW/glfw3.h>
 //#include <windows.h>
 
 #include "include/constants.h"
@@ -25,9 +26,13 @@
 #include "include/structs.h"
 #include "include/utils.h"
 
-
-
 State::State() {
+	//State is constructed after the GL init, so we do all
+	//the GL config here initially
+	//Especially since the struct needs some values
+	doViewMath(&glCfg, WIN_WIDTH, WIN_HEIGHT);
+	initGLView(&glCfg);
+
 	// various state values
 	resetStatus = RESET_STARTUP_BIT;
 
@@ -52,6 +57,14 @@ State::State() {
 	// Allocate basic NODE_ARRAY
 	// NODE_ARRAY size is determined in Reshape (based on window size)
 	nodes = new NODE_ARRAY;
+	
+	//Because the array inits null, we need to determine the size
+	//Create a dimension pointer real quick
+	// IPOINT3D nodeDim;
+	// calcNodeArraySize(&glCfg, &nodeDim);
+	// nodes->resize(&nodeDim);
+	
+	resetView();
 
 	// Set drawing mode, and initialize accordingly.  For now, either all normal
 	// or all flex pipes are drawn, but they could be combined later.
@@ -74,7 +87,7 @@ State::State() {
 	bCycleJointStyles = 0;
 
 	//TODO where????
-	//For now just init to 
+	//For now just init to
 	int ulJointType = JOINT_CYCLE;
 	switch(ulJointType) {
 		case JOINT_ELBOW:
@@ -129,9 +142,9 @@ State::~State() {
 *
 \**************************************************************************/
 
-// void State::Repaint(LPRECT  void* data) {
-// 	resetStatus |= RESET_REPAINT_BIT;
-// }
+void State::repaint(void* data) {
+	resetStatus |= RESET_REPAINT_BIT;
+}
 
 void State::resetView() {
 	IPOINT3D numNodes;
@@ -142,7 +155,6 @@ void State::resetView() {
 	// Resize the node array
 	nodes->resize(&numNodes);
 }
-
 
 void State::frameReset() {
 	int i;
@@ -246,7 +258,7 @@ void State::drawValidate() {
 	frameReset();
 }
 
-void State::draw(void* data) {
+void State::draw() {
 	int nKilledThreads = 0;
 	bool bChooseNewLead = false;
 
@@ -295,6 +307,7 @@ void State::draw(void* data) {
 	}
 
 	glFlush();
+
 }
 
 #define SWAP_SLOT(a, b) \

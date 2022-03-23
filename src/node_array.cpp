@@ -48,9 +48,11 @@ void NODE_ARRAY::resize(IPOINT3D* pNewSize) {
 	int elemCount = numNodes.x * numNodes.y * numNodes.z;
 
 	if(nodes)
-		delete nodes;
+		delete [] nodes;
 
-	nodes = new Node[elemCount];
+	Node* newArr = new Node[elemCount];
+	
+	nodes = newArr;
 
 	//SS_ASSERT(nodes, "NODE_ARRAY::Resize : can't alloc nodes\n");
 
@@ -95,6 +97,10 @@ int NODE_ARRAY::chooseRandomDirection(IPOINT3D* pos, int dir, int weightStraight
 
 	// Get the neigbouring nodes
 	getNeighbours(pos, nNode);
+
+	if (dir < 0 || dir > NUM_DIRS) {
+		dir = 0;
+	}
 
 	// Get node in straight direction if necessary
 	if(weightStraight && nNode[dir] && nNode[dir]->IsEmpty()) {

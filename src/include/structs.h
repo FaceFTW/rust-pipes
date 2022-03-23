@@ -19,7 +19,7 @@
  * Seemed sensible to place them in a struct and accessed as necessary
  */
 typedef struct _GLConfig {
-	float viewAngle = FOV; 			// field of view angle for height
+	float viewAngle = FOV;           // field of view angle for height
 	float zNear = Z_NEAR;            // near z clip value
 	float zFar = Z_FAR;              // far z clip value
 	float zTrans = Z_TRANS;          // z translation
@@ -31,8 +31,8 @@ typedef struct _GLConfig {
 	float worldx = 0;                // view area in world space x
 	float worldy = 0;                // view area in world space y
 	float worldz = 0;                // view area in world space z
-	int winWidth = WIN_WIDTH;        //Window Width
-	int winHeight = WIN_HEIGHT;      //Window Height
+	int winWidth = 0;                //Window Width
+	int winHeight = 0;               //Window Height
 } GLConfig;
 
 typedef struct _GLConfig* GLConfigPtr;

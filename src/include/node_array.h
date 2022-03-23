@@ -24,9 +24,9 @@ public:
 	void MarkAsTaken() { empty = false; }
 	void MarkAsEmpty() { empty = true; }
 	bool IsEmpty() { return empty; }
-
+	// Node(){empty = true;}
 private:
-	GLboolean empty;//Defines if a node is occupied
+	bool empty;//Defines if a node is occupied
 };
 
 /**

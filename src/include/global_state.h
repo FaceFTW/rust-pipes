@@ -58,8 +58,8 @@ public:
 	 * 
 	 */
 	~State();
-	// void Reshape(int width, int height, void* data);
-	// void Repaint(LPRECT pRect, void* data);
+	//void reshape(int width, int height, void* data);
+	void repaint(void* data);
 	/**
 	 * @brief Top-level pipe drawing routine
 	 * @details Each pipe thread keeps drawing new pipes until we reach maximum number
@@ -69,7 +69,7 @@ public:
 	 * 
 	 * @param data 
 	 */
-	void draw(void* data);
+	void draw();
 
 	/**
 * - 
