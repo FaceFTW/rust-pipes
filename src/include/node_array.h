@@ -24,7 +24,8 @@ public:
 	void MarkAsTaken() { empty = false; }
 	void MarkAsEmpty() { empty = true; }
 	bool IsEmpty() { return empty; }
-	// Node(){empty = true;}
+	Node() { empty = true; }
+
 private:
 	bool empty;//Defines if a node is occupied
 };
@@ -176,7 +177,7 @@ public:
 	void getNodeCount(IPOINT3D* pos);
 
 private:
-	Node* nodes;             // ptr to node array
+	Node** nodes;            // ptr to node array
 	int lock;                // semaphore lock for >1 drawing pipes
 	IPOINT3D numNodes;       // x,y,z dimensions of node array
 	int nodeDirInc[NUM_DIRS];// array offset between nodes for each dir

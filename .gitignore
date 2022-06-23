@@ -58,3 +58,5 @@ _deps
 *.ninja
 
 gl-pipes
+
+.cache/

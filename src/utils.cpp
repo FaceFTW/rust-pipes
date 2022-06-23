@@ -11,11 +11,10 @@
 #include <GL/gl.h>
 #include <math.h>
 
-
 #include "include/utils.h"
 
 int iRand(int max) {
-	return (int) (max * (((float) rand()) / ((float) (RAND_MAX + 1))));
+	return rand() % (max + 1);
 }
 
 int iRand2(int min, int max) {
@@ -27,7 +26,7 @@ int iRand2(int min, int max) {
 		max = temp;
 	}
 
-	return min + (int) ((max - min + 1) * (((float) rand()) / ((float) (RAND_MAX + 1))));
+	return min + (rand() % (max - min + 1));
 }
 
 float fRand(float min, float max) {
@@ -333,7 +332,7 @@ GLfloat alignNotchRot[NUM_DIRS][NUM_DIRS] = {
         -90.0f, 90.0f, 0.0f, 180.0f, fXX, fXX,
         90.0f, -90.0f, 0.0f, 180.0f, fXX, fXX};
 
- void align_plusz(int newDir) {
+void align_plusz(int newDir) {
 	// align +z along new direction
 	switch(newDir) {
 		case PLUS_X:
@@ -378,7 +377,7 @@ void align_plusy(int oldDir, int newDir) {
 |                                                                       |
 -----------------------------------------------------------------------*/
 
- void align_notch(int newDir, int notch) {
+void align_notch(int newDir, int notch) {
 	GLfloat rotz;
 	GLint curNotch;
 

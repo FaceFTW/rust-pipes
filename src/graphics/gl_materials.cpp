@@ -146,12 +146,12 @@ void InitTeaMaterials() {
 }
 
 void SetMaterial(MATERIAL* pMat) {
-	glMaterialfv(GL_FRONT, GL_AMBIENT, (GLfloat*) &pMat->ka);
-	glMaterialfv(GL_BACK, GL_AMBIENT, (GLfloat*) &pMat->ka);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, (GLfloat*) &pMat->kd);
-	glMaterialfv(GL_BACK, GL_DIFFUSE, (GLfloat*) &pMat->kd);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat*) &pMat->ks);
-	glMaterialfv(GL_BACK, GL_SPECULAR, (GLfloat*) &pMat->ks);
+	// glMaterialfv(GL_FRONT, GL_AMBIENT, (GLfloat*) &pMat->ka);
+	// glMaterialfv(GL_BACK, GL_AMBIENT, (GLfloat*) &pMat->ka);
+	// glMaterialfv(GL_FRONT, GL_DIFFUSE, (GLfloat*) &pMat->kd);
+	// glMaterialfv(GL_BACK, GL_DIFFUSE, (GLfloat*) &pMat->kd);
+	// glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat*) &pMat->ks);
+	// glMaterialfv(GL_BACK, GL_SPECULAR, (GLfloat*) &pMat->ks);
 	glMaterialf(GL_FRONT, GL_SHININESS, pMat->specExp * 128.0f);
 	glMaterialf(GL_BACK, GL_SHININESS, pMat->specExp * 128.0f);
 }
@@ -206,7 +206,7 @@ void TransitionMaterial(MATERIAL* transMat, MATERIAL* transMatInc) {
 }
 
 MATERIAL* RandomTeaMaterial(bool bSet) {
-	int index;
+	unsigned int index;
 	MATERIAL* pMat;
 
 	index = goodMaterials[iRand(NUM_GOOD_MATERIALS)];

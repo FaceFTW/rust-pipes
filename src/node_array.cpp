@@ -34,7 +34,7 @@ NODE_ARRAY::NODE_ARRAY() {
 
 NODE_ARRAY::~NODE_ARRAY() {
 	if(nodes)
-		delete nodes;
+		delete[] nodes;
 }
 
 void NODE_ARRAY::resize(IPOINT3D* pNewSize) {
@@ -48,20 +48,13 @@ void NODE_ARRAY::resize(IPOINT3D* pNewSize) {
 	int elemCount = numNodes.x * numNodes.y * numNodes.z;
 
 	if(nodes)
-		delete [] nodes;
+		delete[] nodes;
 
-	Node* newArr = new Node[elemCount];
-	
-	nodes = newArr;
-
+	nodes = (Node**) malloc(elemCount * sizeof(Node));
 	//SS_ASSERT(nodes, "NODE_ARRAY::Resize : can't alloc nodes\n");
 
 	// Reset the node states to empty
-
-	int i;
-	Node* pNode = nodes;
-	for(i = 0; i < elemCount; i++, pNode++)
-		pNode->MarkAsEmpty();
+	this->reset();
 
 	// precalculate direction offsets between nodes for speed
 	nodeDirInc[PLUS_X] = 1;
@@ -72,13 +65,13 @@ void NODE_ARRAY::resize(IPOINT3D* pNewSize) {
 	nodeDirInc[MINUS_Z] = -nodeDirInc[PLUS_Z];
 }
 
+// Reset the node states to empty
 void NODE_ARRAY::reset() {
-	int i;
-	Node* pNode = nodes;
+	int elemCount = numNodes.x * numNodes.y * numNodes.z;
 
-	// Reset the node states to empty
-	for(i = 0; i < (numNodes.x) * (numNodes.y) * (numNodes.z); i++, pNode++)
-		pNode->MarkAsEmpty();
+	for(int i = 0; i < elemCount; i++) {
+		*(nodes + i) = new Node();
+	}
 }
 
 void NODE_ARRAY::getNodeCount(IPOINT3D* count) {
@@ -98,7 +91,7 @@ int NODE_ARRAY::chooseRandomDirection(IPOINT3D* pos, int dir, int weightStraight
 	// Get the neigbouring nodes
 	getNeighbours(pos, nNode);
 
-	if (dir < 0 || dir > NUM_DIRS) {
+	if(dir < 0 || dir > NUM_DIRS) {
 		dir = 0;
 	}
 
@@ -322,10 +315,10 @@ void NODE_ARRAY::nodeVisited(IPOINT3D* pos) {
 }
 
 Node* NODE_ARRAY::getNode(IPOINT3D* pos) {
-	return nodes +
-	        pos->x +
-	        pos->y * numNodes.x +
-	        pos->z * numNodes.x * numNodes.y;
+	return *(nodes +
+	         pos->x +
+	         pos->y * numNodes.x +
+	         pos->z * numNodes.x * numNodes.y);
 }
 
 Node* NODE_ARRAY::getNextNode(IPOINT3D* pos, int dir) {

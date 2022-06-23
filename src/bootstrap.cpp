@@ -5,9 +5,9 @@
  * This is mostly written by myself
  * @version 0.1
  * @date 2022-03-21
- * 
+ *
  * @copyright Copyright (c) 2022. Work is based on original work from Microsoft Corp (c) 1994
- * 
+ *
  */
 
 #include "include/global_state.h"
@@ -16,7 +16,7 @@
 #include <GL/glut.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
-
+#include <time.h>
 //Generic Error Callback func
 void error_callback(int error, const char* description) {
 	fprintf(stderr, "Error: %s\n", description);
@@ -28,6 +28,10 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 }
 
 int main(int argc, char* argv[]) {
+
+	//Embrace chaos
+	srand(time(NULL));
+
 	GLFWwindow* window;
 
 	//For teapot drawing
@@ -63,7 +67,7 @@ int main(int argc, char* argv[]) {
 	glfwSwapInterval(1);
 
 	//Make the state before making the window
-	State global;
+	State* global = new State();
 
 	// glEnable(GL_DEPTH_TEST);
 	// glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -86,7 +90,7 @@ int main(int argc, char* argv[]) {
 
 	//Main Loop
 	while(!glfwWindowShouldClose(window)) {
-		global.draw();
+		global->draw();
 
 		glfwSwapBuffers(window);
 		//glfwPollEvents();
