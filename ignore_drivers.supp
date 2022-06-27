@@ -1,0 +1,16 @@
+{
+<driver_addr4>
+   Memcheck:Addr4
+   obj:/usr/lib/wsl/drivers/nvlt.inf_amd64_fcb016f0b5ea7e41/libnvwgf2umx.so
+   obj:/usr/lib/wsl/drivers/nvlt.inf_amd64_fcb016f0b5ea7e41/libnvwgf2umx.so
+   obj:/usr/lib/wsl/drivers/nvlt.inf_amd64_fcb016f0b5ea7e41/libnvwgf2umx.so
+   obj:/usr/lib/wsl/drivers/nvlt.inf_amd64_fcb016f0b5ea7e41/libnvwgf2umx.so
+   obj:/usr/lib/wsl/drivers/nvlt.inf_amd64_fcb016f0b5ea7e41/libnvwgf2umx.so
+   obj:/usr/lib/wsl/drivers/nvlt.inf_amd64_fcb016f0b5ea7e41/libnvwgf2umx.so
+   obj:/usr/lib/wsl/drivers/nvlt.inf_amd64_fcb016f0b5ea7e41/libnvwgf2umx.so
+   obj:/usr/lib/wsl/drivers/nvlt.inf_amd64_fcb016f0b5ea7e41/libnvwgf2umx.so
+   obj:/usr/lib/wsl/drivers/nvlt.inf_amd64_fcb016f0b5ea7e41/libnvwgf2umx.so
+   obj:/usr/lib/wsl/lib/libd3d12core.so
+   obj:/usr/lib/wsl/lib/libd3d12core.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/swrast_dri.so
+}

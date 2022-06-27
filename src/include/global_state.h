@@ -10,6 +10,7 @@
  * @copyright Copyright (c) 2022. Work is based on original work from Microsoft Corp (c) 1994
  * 
  */
+#pragma once
 
 #ifndef __state_h__
 #define __state_h__

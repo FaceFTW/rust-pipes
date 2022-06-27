@@ -79,11 +79,11 @@ void NODE_ARRAY::getNodeCount(IPOINT3D* count) {
 }
 
 int NODE_ARRAY::chooseRandomDirection(IPOINT3D* pos, int dir, int weightStraight) {
-	Node* nNode[NUM_DIRS];
+	Node** nNode = new Node*[NUM_DIRS];
 	int numEmpty, newDir;
 	int choice;
 	Node* straightNode = NULL;
-	int emptyDirs[NUM_DIRS];
+	int* emptyDirs = new int[NUM_DIRS];
 
 	// SS_ASSERT((dir >= 0) && (dir < NUM_DIRS),
 	//           "NODE_ARRAY::ChooseRandomDirection: invalid dir\n");
