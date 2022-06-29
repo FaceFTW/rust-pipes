@@ -12,11 +12,10 @@
 #ifndef __utils_h_
 #define __utils_h_
 
-// #ifdef __cplusplus
-// extern "C" {
-// #endif
 
 #include "structs.h"
+
+typedef unsigned int uint;
 
 /**
  * @brief Returns the maximum of two values
@@ -45,15 +44,15 @@
 
 /**
  * @brief Generates integer random number
- * 
- * @param max Maximum number 
+ *
+ * @param max Maximum number
  * @return int  Random number between 0 and (max-1)
  */
 int iRand(int max);
 
 /**
  * @brief Generates integer random number
- * 
+ *
  * @param min Minimum of Random
  * @param max Maximum of Random
  * @return int Random integer between min and max
@@ -62,7 +61,7 @@ int iRand2(int min, int max);
 
 /**
  * @brief Generates float random number
- * 
+ *
  * @param min Minimum of Random
  * @param max Maximum of Random
  * @return float Random float between min and max
@@ -71,11 +70,11 @@ float fRand(float min, float max);
 
 /**
  * @brief rotate circle around x-axis, with edge attached to anchor
- * @param angle 
- * @param inPoint 
- * @param outPoint 
- * @param num 
- * @param anchor 
+ * @param angle
+ * @param inPoint
+ * @param outPoint
+ * @param num
+ * @param anchor
  */
 void transformCircle(float angle,
                      POINT3D* inPoint,
@@ -84,12 +83,12 @@ void transformCircle(float angle,
                      POINT3D* anchor);
 
 /**
- * @brief 
- * 
- * @param p 
- * @param n 
- * @param center 
- * @param num 
+ * @brief
+ *
+ * @param p
+ * @param n
+ * @param center
+ * @param num
  */
 void calcNormals(POINT3D* p,
                  POINT3D* n,
@@ -116,14 +115,14 @@ void align_plusy(int oldDir, int newDir);
 /**
  * @brief Aligns the z axis along specified direction
  *  Used for all types of pipes
- * @param newDir 
+ * @param newDir
  */
 void align_plusz(int newDir);
 
 /**
  * @brief This array tells you which way the notch will be once you make a turn
- * Format: notchTurn[oldDir][newDir][notchVec] 
- * 
+ * Format: notchTurn[oldDir][newDir][notchVec]
+ *
  */
 // static GLint notchTurn[NUM_DIRS][NUM_DIRS][NUM_DIRS];
 
