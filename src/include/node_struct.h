@@ -18,76 +18,6 @@
 namespace GlPipes {
 
 #pragma region "Global Namespace Defines"
-/******CONSTANTS*******/
-const int NUM_DIR = 6;
-
-/******ENUMS*******/
-typedef enum e_axis { AXIS_X, AXIS_Y, AXIS_Z } Axis;
-typedef enum e_direction {
-	DIR_X_PLUS = 0,
-	DIR_X_MINUS = 1,
-	DIR_Y_PLUS = 2,
-	DIR_Y_MINUS = 3,
-	DIR_Z_PLUS = 4,
-	DIR_Z_MINUS = 5,
-	DIR_NONE
-} Direction;
-
-/******STRUCTS*******/
-typedef struct s_point_t {
-	uint x;
-	uint y;
-	uint z;
-
-	s_point_t(uint _x, uint _y, uint _z) {
-		x = _x;
-		y = _y;
-		z = _z;
-	}
-
-	s_point_t(s_point_t* _point) {
-		x = _point->x;
-		y = _point->y;
-		z = _point->z;
-	}
-
-	//Neighbor Constructor
-	s_point_t(s_point_t* _point, Direction dir) {
-		switch(dir) {
-			case DIR_X_PLUS:
-				x = (_point->x) + 1;
-				y = (_point->y);
-				z = (_point->z);
-				break;
-			case DIR_X_MINUS:
-				x = (_point->x) - 1;
-				y = (_point->y);
-				z = (_point->z);
-				break;
-			case DIR_Y_PLUS:
-				x = (_point->x);
-				y = (_point->y) + 1;
-				z = (_point->z);
-				break;
-			case DIR_Y_MINUS:
-				x = (_point->x);
-				y = (_point->y) - 1;
-				z = (_point->z);
-				break;
-			case DIR_Z_PLUS:
-				x = (_point->x);
-				y = (_point->y);
-				z = (_point->z) + 1;
-				break;
-			case DIR_Z_MINUS:
-				x = (_point->x);
-				y = (_point->y);
-				z = (_point->z) - 1;
-				break;
-		}
-	}
-
-} Point;
 
 /******TYPEDEFS*******/
 template<class T> using NodeVector3 = std::vector<std::vector<std::vector<T*>>>;
@@ -133,7 +63,8 @@ public:
 	 * @param nPrefDirs
 	 * @return int
 	 */
-	Direction choosePreferredDirection(Point* pos, Direction dir, Direction* prefDirs, int nPrefDirs);
+	Direction choosePreferredDirection(Point* pos, Direction dir, Direction* prefDirs,
+	                                   int nPrefDirs);
 
 	/**
 	 * @brief Choose a direction to turn
@@ -148,11 +79,15 @@ public:
 	 * - The turn possibilities are based on the orientation of the current xc, with
 	 *   4 relative directions to seek turns in.
 	 *
+	 ** NOTE: This description is slightly outdated, as it passes in pointers
+	 ** that will effectively be used to define two pipe joints (one PIPE_JOINT, one PIPE_SEG)
+	 *
 	 * @param pos
 	 * @param dir
 	 * @return int
 	 */
-	int chooseNewTurnDirection(IPOINT3D* pos, int dir);
+	Direction chooseNewTurnDirection(Point* pos, Point* jointPos, Point* postTurnPos,
+	                                 Direction prevDir);
 
 	/**
 	 * @brief Finds the direction with the most empty nodes in a line 'searchRadius' long.

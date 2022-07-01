@@ -10,6 +10,7 @@
  */
 #pragma once
 #include "include/node_struct.h"
+#include "include/utils.h"
 #include <cstddef>
 
 using namespace GlPipes;
@@ -132,12 +133,12 @@ int NodeStruct<T>::getEmptyNeighborsAlongDir(Point* pos, Direction dir, int sear
 	Point* curPos = new Point(pos);
 
 	switch(dir) {
-		case PLUS_X: maxSearch = size(AXIS_X) - pos->x - 1; break;
-		case MINUS_X: maxSearch = pos->x; break;
-		case PLUS_Y: maxSearch = size(AXIS_Y) - pos->y - 1; break;
-		case MINUS_Y: maxSearch = pos->y; break;
-		case PLUS_Z: maxSearch = size(AXIS_Z) - pos->z - 1; break;
-		case MINUS_Z: maxSearch = pos->z; break;
+		case DIR_X_PLUS: maxSearch = size(AXIS_X) - pos->x - 1; break;
+		case DIR_X_MINUS: maxSearch = pos->x; break;
+		case DIR_Y_PLUS: maxSearch = size(AXIS_Y) - pos->y - 1; break;
+		case DIR_Y_MINUS: maxSearch = pos->y; break;
+		case DIR_Z_PLUS: maxSearch = size(AXIS_Z) - pos->z - 1; break;
+		case DIR_Z_MINUS: maxSearch = pos->z; break;
 	}
 
 	if(searchRadius > maxSearch) searchRadius = maxSearch;
@@ -230,5 +231,39 @@ template<class T> Direction NodeStruct<T>::choosePreferredDirection(Point* pos, 
 	// Pick a random dir from the empty set
 
 	newDir = emptyDirs[iRand(numEmpty)];
+	return newDir;
+}
+
+//TODO Finish after other methods completed
+template<class T> Direction NodeStruct<T>::chooseNewTurnDirection(Point* pos, Point* jointPos,
+                                                                  Point* postTurnPos,
+                                                                  Direction prevDir) {
+	int turns[NUM_DIRS], nTurns;
+	IPOINT3D nextPos;
+	int newDir;
+	Point* nextNode;
+
+	// First, check if next node along current dir is empty
+	nextNode = getNextNodePos(pos, prevDir);// node out of bounds or not empty
+	if(node_struct[nextNode->x][nextNode->y][nextNode->z]) { return DIR_NONE; }
+
+	// Ok, the next node is free - check the 4 possible turns from here
+	nTurns = getBestPossibleTurns(&nextPos, dir, turns);
+	if(nTurns == 0) return DIR_STRAIGHT;// nowhere to turn, but could go straight
+
+	// randomnly choose one of the possible turns
+	newDir = turns[iRand(nTurns)];
+
+	// SS_ASSERT((newDir >= 0) && (newDir < NUM_DIRS),
+	//           "NODE_ARRAY::ChooseNewTurnDirection : invalid newDir\n");
+
+	// mark taken nodes
+
+	nextNode = getNode(&nextPos);
+	nextNode->MarkAsTaken();
+
+	nextNode = getNextNode(&nextPos, newDir);
+	nextNode->MarkAsTaken();
+
 	return newDir;
 }

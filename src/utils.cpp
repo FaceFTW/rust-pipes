@@ -262,48 +262,48 @@ GLint notchTurn[NUM_DIRS][NUM_DIRS][NUM_DIRS] = {
         // oldDir = +x
         iXX, iXX, iXX, iXX, iXX, iXX,
         iXX, iXX, iXX, iXX, iXX, iXX,
-        iXX, iXX, MINUS_X, PLUS_X, PLUS_Z, MINUS_Z,
-        iXX, iXX, PLUS_X, MINUS_X, PLUS_Z, MINUS_Z,
-        iXX, iXX, PLUS_Y, MINUS_Y, MINUS_X, PLUS_X,
-        iXX, iXX, PLUS_Y, MINUS_Y, PLUS_X, MINUS_X,
+        iXX, iXX, DIR_X_MINUS, DIR_X_PLUS, DIR_Z_PLUS, DIR_Z_MINUS,
+        iXX, iXX, DIR_X_PLUS, DIR_X_MINUS, DIR_Z_PLUS, DIR_Z_MINUS,
+        iXX, iXX, DIR_Y_PLUS, DIR_Y_MINUS, DIR_X_MINUS, DIR_X_PLUS,
+        iXX, iXX, DIR_Y_PLUS, DIR_Y_MINUS, DIR_X_PLUS, DIR_X_MINUS,
         // oldDir = -x
         iXX, iXX, iXX, iXX, iXX, iXX,
         iXX, iXX, iXX, iXX, iXX, iXX,
-        iXX, iXX, PLUS_X, MINUS_X, PLUS_Z, MINUS_Z,
-        iXX, iXX, MINUS_X, PLUS_X, PLUS_Z, MINUS_Z,
-        iXX, iXX, PLUS_Y, MINUS_Y, PLUS_X, MINUS_X,
-        iXX, iXX, PLUS_Y, MINUS_Y, MINUS_X, PLUS_X,
+        iXX, iXX, DIR_X_PLUS, DIR_X_MINUS, DIR_Z_PLUS, DIR_Z_MINUS,
+        iXX, iXX, DIR_X_MINUS, DIR_X_PLUS, DIR_Z_PLUS, DIR_Z_MINUS,
+        iXX, iXX, DIR_Y_PLUS, DIR_Y_MINUS, DIR_X_PLUS, DIR_X_MINUS,
+        iXX, iXX, DIR_Y_PLUS, DIR_Y_MINUS, DIR_X_MINUS, DIR_X_PLUS,
         // oldDir = +y
-        MINUS_Y, PLUS_Y, iXX, iXX, PLUS_Z, MINUS_Z,
-        PLUS_Y, MINUS_Y, iXX, iXX, PLUS_Z, MINUS_Z,
+        DIR_Y_MINUS, DIR_Y_PLUS, iXX, iXX, DIR_Z_PLUS, DIR_Z_MINUS,
+        DIR_Y_PLUS, DIR_Y_MINUS, iXX, iXX, DIR_Z_PLUS, DIR_Z_MINUS,
         iXX, iXX, iXX, iXX, iXX, iXX,
         iXX, iXX, iXX, iXX, iXX, iXX,
-        PLUS_X, MINUS_X, iXX, iXX, MINUS_Y, PLUS_Y,
-        PLUS_X, MINUS_X, iXX, iXX, PLUS_Y, MINUS_Y,
+        DIR_X_PLUS, DIR_X_MINUS, iXX, iXX, DIR_Y_MINUS, DIR_Y_PLUS,
+        DIR_X_PLUS, DIR_X_MINUS, iXX, iXX, DIR_Y_PLUS, DIR_Y_MINUS,
         // oldDir = -y
-        PLUS_Y, MINUS_Y, iXX, iXX, PLUS_Z, MINUS_Z,
-        MINUS_Y, PLUS_Y, iXX, iXX, PLUS_Z, MINUS_Z,
+        DIR_Y_PLUS, DIR_Y_MINUS, iXX, iXX, DIR_Z_PLUS, DIR_Z_MINUS,
+        DIR_Y_MINUS, DIR_Y_PLUS, iXX, iXX, DIR_Z_PLUS, DIR_Z_MINUS,
         iXX, iXX, iXX, iXX, iXX, iXX,
         iXX, iXX, iXX, iXX, iXX, iXX,
-        PLUS_X, MINUS_X, iXX, iXX, PLUS_Y, MINUS_Y,
-        PLUS_X, MINUS_X, iXX, iXX, MINUS_Y, PLUS_Y,
+        DIR_X_PLUS, DIR_X_MINUS, iXX, iXX, DIR_Y_PLUS, DIR_Y_MINUS,
+        DIR_X_PLUS, DIR_X_MINUS, iXX, iXX, DIR_Y_MINUS, DIR_Y_PLUS,
         // oldDir = +z
-        MINUS_Z, PLUS_Z, PLUS_Y, MINUS_Y, iXX, iXX,
-        PLUS_Z, MINUS_Z, PLUS_Y, MINUS_Y, iXX, iXX,
-        PLUS_X, MINUS_X, MINUS_Z, PLUS_Z, iXX, iXX,
-        PLUS_X, MINUS_X, PLUS_Z, MINUS_Z, iXX, iXX,
+        DIR_Z_MINUS, DIR_Z_PLUS, DIR_Y_PLUS, DIR_Y_MINUS, iXX, iXX,
+        DIR_Z_PLUS, DIR_Z_MINUS, DIR_Y_PLUS, DIR_Y_MINUS, iXX, iXX,
+        DIR_X_PLUS, DIR_X_MINUS, DIR_Z_MINUS, DIR_Z_PLUS, iXX, iXX,
+        DIR_X_PLUS, DIR_X_MINUS, DIR_Z_PLUS, DIR_Z_MINUS, iXX, iXX,
         iXX, iXX, iXX, iXX, iXX, iXX,
         iXX, iXX, iXX, iXX, iXX, iXX,
         // oldDir = -z
-        PLUS_Z, MINUS_Z, PLUS_Y, MINUS_Y, iXX, iXX,
-        MINUS_Z, PLUS_Z, PLUS_Y, MINUS_Y, iXX, iXX,
-        PLUS_X, MINUS_X, PLUS_Z, MINUS_Z, iXX, iXX,
-        PLUS_X, MINUS_X, MINUS_Z, PLUS_Z, iXX, iXX,
+        DIR_Z_PLUS, DIR_Z_MINUS, DIR_Y_PLUS, DIR_Y_MINUS, iXX, iXX,
+        DIR_Z_MINUS, DIR_Z_PLUS, DIR_Y_PLUS, DIR_Y_MINUS, iXX, iXX,
+        DIR_X_PLUS, DIR_X_MINUS, DIR_Z_PLUS, DIR_Z_MINUS, iXX, iXX,
+        DIR_X_PLUS, DIR_X_MINUS, DIR_Z_MINUS, DIR_Z_PLUS, iXX, iXX,
         iXX, iXX, iXX, iXX, iXX, iXX,
         iXX, iXX, iXX, iXX, iXX, iXX};
 
 GLint defCylNotch[NUM_DIRS] =
-        {PLUS_Y, PLUS_Y, MINUS_Z, PLUS_Z, PLUS_Y, PLUS_Y};
+        {DIR_Y_PLUS, DIR_Y_PLUS, DIR_Z_MINUS, DIR_Z_PLUS, DIR_Y_PLUS, DIR_Y_PLUS};
 
 float RotZ[NUM_DIRS][NUM_DIRS] = {
         0.0f, 0.0f, 90.0f, 90.0f, 90.0f, -90.0f,
@@ -335,22 +335,22 @@ GLfloat alignNotchRot[NUM_DIRS][NUM_DIRS] = {
 void align_plusz(int newDir) {
 	// align +z along new direction
 	switch(newDir) {
-		case PLUS_X:
+		case DIR_X_PLUS:
 			glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
 			break;
-		case MINUS_X:
+		case DIR_X_MINUS:
 			glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
 			break;
-		case PLUS_Y:
+		case DIR_Y_PLUS:
 			glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
 			break;
-		case MINUS_Y:
+		case DIR_Y_MINUS:
 			glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
 			break;
-		case PLUS_Z:
+		case DIR_Z_PLUS:
 			glRotatef(0.0f, 0.0f, 1.0f, 0.0f);
 			break;
-		case MINUS_Z:
+		case DIR_Z_MINUS:
 			glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
 			break;
 	}
