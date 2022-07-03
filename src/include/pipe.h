@@ -68,7 +68,8 @@ private:
 
 class Pipe {
 public:
-	Pipe();
+	Pipe(Point* startPos);
+	~Pipe();
 
 	void render();
 	void addPipePart(PipePart* part);

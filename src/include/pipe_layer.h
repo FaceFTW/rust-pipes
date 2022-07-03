@@ -12,6 +12,7 @@
 #ifndef __NODE_STRUCT_H_
 #define __NODE_STRUCT_H_
 
+#include "pipe.h"
 #include "utils.h"
 #include <vector>
 
@@ -19,28 +20,38 @@ namespace GlPipes {
 
 #pragma region "Global Namespace Defines"
 
-/******TYPEDEFS*******/
-template<class T> using NodeVector3 = std::vector<std::vector<std::vector<T*>>>;
-template<class T> using NodeVector = std::vector<T>;
-
 #pragma endregion
 
-template<class T> class NodeStruct {
+class PipeLayer {
 public:
-	NodeStruct();// Constructor
-	NodeStruct(Point* size);
-	~NodeStruct();// Destructor
+	PipeLayer();// Constructor
+	PipeLayer(Point* node_size, int numPipes);
+	~PipeLayer();// Destructor
 
-	T& operator()(uint x, uint y, uint z);// Matrix Operator (Reference)
-	T& operator[](Point* pos);
+	/**
+	 * @brief Accesses a Pipe object
+	 *
+	 * @param pipeIdx Index of the pipe in the array
+	 * @return Pipe&
+	 */
+	Pipe*& operator()(int pipeIdx);
+
+	/**
+	 * @brief Accesses a PipePart
+	 *
+	 * @param pos
+	 * @return PipePart&
+	 */
+	PipePart*& operator[](Point* pos);
 
 	Point* size();
 	uint size(Axis d);
 
 	bool isEmpty(Point* pos);
 
+	void generatePipe(int pipeIdx);
+
 	Point** getNeighbors(Point* pos);
-	// NodeVector<T>* getNeighbors(uint x, uint y, uint z);
 
 	/**
 	 * @brief Choose randomnly among the possible directions.
@@ -52,19 +63,6 @@ public:
 	 * @return int
 	 */
 	Direction chooseRandomDirection(Point* pos, Direction dir, int weight);
-
-	/**
-	 * @brief  Choose randomnly from one of the supplied preferred directions.
-	 * If none of these are available, then try and choose any empty direction
-	 *
-	 * @param pos
-	 * @param dir
-	 * @param prefDirs
-	 * @param nPrefDirs
-	 * @return int
-	 */
-	Direction choosePreferredDirection(Point* pos, Direction dir, Direction* prefDirs,
-	                                   int nPrefDirs);
 
 	/**
 	 * @brief Choose a direction to turn
@@ -90,31 +88,6 @@ public:
 	                                 Direction prevDir);
 
 	/**
-	 * @brief Finds the direction with the most empty nodes in a line 'searchRadius' long.
-	 * Does not mark any nodes as taken.
-	 *
-	 * @param pos
-	 * @return int
-	 */
-	int findClearestDirection(IPOINT3D* pos);
-
-	/**
-	 * @brief From supplied direction and position, figure out which of 4 possible directions are best to turn in.
-	 *
-	 * Turns that have the greatest number of empty nodes after the turn are the
-	 * best, since a pipe is less likely to hit a dead end in this case.
-	 * - We only check as far as 'searchRadius' nodes along each dir.
-	 * - Return direction indices of best possible turns in turnDirs, and return
-	 *   count of these turns in fuction return value.
-	 *
-	 * @param pos
-	 * @param dir
-	 * @param turnDirs
-	 * @return int
-	 */
-	int getBestPossibleTurns(IPOINT3D* pos, int dir, int* turnDirs);
-
-	/**
 	 * @brief Search for an empty node to start drawing
 	 * - Marks node as taken (mf: renam fn to ChooseEmptyNode ?
 	 *
@@ -122,18 +95,7 @@ public:
 	 * @return true
 	 * @return false if couldn't find a node
 	 */
-	bool findRandomEmptyNode(IPOINT3D* ip3dEmpty);
-
-	/**
-	 * @brief Like FindRandomEmptyNode, but limits search to a 2d plane of the supplied box.
-	 *
-	 * @param pos
-	 * @param plane
-	 * @param box
-	 * @return true
-	 * @return false
-	 */
-	bool findRandomEmptyNode2D(IPOINT3D* pos, int plane, int* box);
+	Point* findRandomEmptyNode();
 
 	/**
 	 * @brief Search for an empty node closest to supplied node position
@@ -149,17 +111,9 @@ public:
 	bool takeClosestEmptyNode(IPOINT3D* newPos, IPOINT3D* pos);
 
 private:
-	T**** node_struct;// For a 3-dimensional array (better as pointers imho)
+	PipePart**** node_struct;// For a 3-dimensional array (better as pointers imho)
+	Pipe** pipes;
 	Point* node_struct_size;
-
-	/**
-	 * @brief Get ptr to next node from pos and dir
-	 *
-	 * @param pos Position of the Origin Node
-	 * @param dir The direction of the next node
-	 * @return Node* Pointer to the next node in the specified direction from the original node
-	 */
-	// T* getNextNode(Point* pos, Direction dir);
 
 	/**
 	 * @brief Get position of next node from curPos and lastDir
@@ -191,20 +145,8 @@ private:
 	 * @return int number of empty node neighbours
 	 */
 	int getEmptyTurnNeighbors(Point* pos, Direction* emptyDirs, Direction lastDir);
-
-	//TODO Update Docs
-	/**
-	 * @brief Sort of like GetEmptyNeighbours, but just gets one neigbour according to supplied dir
-	 *
-	 * Given a position and direction, find out how many contiguous empty nodes
-	 * there are in that direction.
-	 * @param pos
-	 * @param dir
-	 * @param searchRadius Limits Search to specified radius
-	 * @return int Contiguous empty node count
-	 */
-	int getEmptyNeighborsAlongDir(Point* pos, Direction dir, int searchRadius);
 };
+
 }// namespace GlPipes
 
 #endif
