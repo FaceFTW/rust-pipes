@@ -62,8 +62,13 @@ void PipeLayer::generatePipe(int pipeIdx) {
 	pipes[pipeIdx] = new Pipe(startPos);
 
 	//Choose a random starting direction that is empty
+	Direction startDir = chooseRandomInitialDirection(startPos);
+	if(startDir == DIR_NONE) {
+		return;//Can't do sh*t
+	}
 
 	//Add a Starting Pipe Node
+	pipes[pipeIdx]->addPipePart(new PipePart(startPos, startDir, false));
 
 	//Choose a random number of iterations (minimum 5 to maximum 10 for now)
 	int numIter = iRand2(5, 10);
@@ -150,7 +155,7 @@ Direction PipeLayer::chooseRandomDirection(Point* pos, Direction dir, int weight
 	int numEmpty, choice;
 	Direction newDir;
 	Point* straightNode = NULL;
-	Direction* emptyDirs = new Direction;
+	Direction* emptyDirs = new Direction[NUM_DIRS];
 
 	// Get node in straight direction if necessary
 	if(weight && neighbors[dir] && isEmpty(neighbors[dir])) {
@@ -174,4 +179,23 @@ Direction PipeLayer::chooseRandomDirection(Point* pos, Direction dir, int weight
 		newDir = emptyDirs[choice - weight];
 		return newDir;
 	}
+}
+
+Direction PipeLayer::chooseRandomInitialDirection(Point* pos) {
+	Point** neighbors = getNeighbors(pos);
+	std::vector<Direction>* emptyDir = new std::vector<Direction>();
+	Direction retDir = DIR_NONE;
+
+	//Bit of a brute force method but hey it works
+	for(int i = 0; i < NUM_DIRS; i++) {
+		if(neighbors[i] && isEmpty(neighbors[i])) { emptyDir->push_back((Direction) i); }
+	}
+
+	retDir = emptyDir->at(iRand(emptyDir->size()));
+
+	//Be responsible with your memory!
+	delete[] neighbors;
+	delete emptyDir;
+
+	return retDir;
 }
