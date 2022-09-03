@@ -64,8 +64,6 @@ public:
 	 */
 	Direction chooseRandomDirection(Point* pos, Direction dir, int weight);
 
-	Direction chooseRandomInitialDirection(Point* pos);
-
 	/**
 	 * @brief Choose a direction to turn
 	 * This requires finding a pair of nodes to turn through.  The first node
@@ -98,6 +96,19 @@ public:
 	 * @return false if couldn't find a node
 	 */
 	Point* findRandomEmptyNode();
+
+	/**
+	 * @brief Search for an empty node closest to supplied node position
+	 * - Marks node as taken
+	 * - not completely optimized - if when dilating the box, a side gets
+	 *   clamped against the node array, this side will continue to be searched
+	 *
+	 * @param newPos
+	 * @param pos
+	 * @return true
+	 * @return false if couldn't find a node
+	 */
+	bool takeClosestEmptyNode(IPOINT3D* newPos, IPOINT3D* pos);
 
 private:
 	PipePart**** node_struct;// For a 3-dimensional array (better as pointers imho)

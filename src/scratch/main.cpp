@@ -86,45 +86,39 @@ void draw(GLFWwindow* win) {
 	glLoadIdentity();
 	glOrtho(-1000., 1000., -1000., 1000, -1000, 1000);
 	gluPerspective(40.0, (GLdouble) (640.0 / 480.0), 0.5, 200);
-	// glFlush();
 
 	glMatrixMode(GL_MODELVIEW);
-	// glLoadIdentity();
 	glViewport(0, 0, 640, 480);
-	// glFlush();
 
-	// glColor3f(1.0, 0.0, 0.0);
+	MATERIAL pMat;
 
-	// MATERIAL pMat;
+	pMat.ka.r = 0.0215f;
+	pMat.ka.g = 0.1745f;
+	pMat.ka.b = 0.0215f;
+	pMat.ka.a = 0.5f;
+	pMat.kd.r = 0.07568f;
+	pMat.kd.g = 0.61424f;
+	pMat.kd.b = 0.07568f;
+	pMat.kd.a = 0.5f;
+	pMat.ks.r = 0.633f;
+	pMat.ks.g = 0.727811f;
+	pMat.ks.b = 0.633f;
+	pMat.specExp = 0.6f;
 
-	// pMat.ka.r = 0.0215f;
-	// pMat.ka.g = 0.1745f;
-	// pMat.ka.b = 0.0215f;
-	// pMat.ka.a = 0.5f;
-	// pMat.kd.r = 0.07568f;
-	// pMat.kd.g = 0.61424f;
-	// pMat.kd.b = 0.07568f;
-	// pMat.kd.a = 0.5f;
-	// pMat.ks.r = 0.633f;
-	// pMat.ks.g = 0.727811f;
-	// pMat.ks.b = 0.633f;
-	// pMat.specExp = 0.6f;
-
-	// glMaterialfv(GL_FRONT, GL_AMBIENT, (GLfloat*) &pMat.ka);
-	// glMaterialfv(GL_BACK, GL_AMBIENT, (GLfloat*) &pMat.ka);
-	// glMaterialfv(GL_FRONT, GL_DIFFUSE, (GLfloat*) &pMat.kd);
-	// glMaterialfv(GL_BACK, GL_DIFFUSE, (GLfloat*) &pMat.kd);
-	// glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat*) &pMat.ks);
-	// glMaterialfv(GL_BACK, GL_SPECULAR, (GLfloat*) &pMat.ks);
-	// glMaterialf(GL_FRONT, GL_SHININESS, pMat.specExp * 128.0f);
-	// glMaterialf(GL_BACK, GL_SHININESS, pMat.specExp * 128.0f);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, (GLfloat*) &pMat.ka);
+	glMaterialfv(GL_BACK, GL_AMBIENT, (GLfloat*) &pMat.ka);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, (GLfloat*) &pMat.kd);
+	glMaterialfv(GL_BACK, GL_DIFFUSE, (GLfloat*) &pMat.kd);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat*) &pMat.ks);
+	glMaterialfv(GL_BACK, GL_SPECULAR, (GLfloat*) &pMat.ks);
+	glMaterialf(GL_FRONT, GL_SHININESS, pMat.specExp * 128.0f);
+	glMaterialf(GL_BACK, GL_SHININESS, pMat.specExp * 128.0f);
 
 	glLoadIdentity();
-	glTranslatef(50, -50, -3.0);
+	glTranslatef(0, -100, 0);
 	glRotatef(-40, 1.0, 0.0, 0.0);
-	buildPipe(100.0f);
+	buildPipe(70.0f);
 	glfwSwapBuffers(win);
-	// glFlush();
 }
 
 static void error_callback(int error, const char* description) {
@@ -146,7 +140,7 @@ int main(void) {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-	window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
+	window = glfwCreateWindow(600, 600, "Simple example", NULL, NULL);
 	if(!window) {
 		glfwTerminate();
 		exit(EXIT_FAILURE);

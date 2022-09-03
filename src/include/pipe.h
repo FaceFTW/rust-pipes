@@ -18,7 +18,6 @@
 
 namespace GlPipes {
 
-/******ENUM TYPEDEFS******/
 typedef enum e_pipe_seg_type {
 	PIPE_START,
 	PIPE_SEG,
@@ -31,10 +30,9 @@ typedef enum e_joint_type { JOINT_NORMAL, JOINT_BALL, JOINT_TEAPOT } JointType;
 
 class PipePart {
 public:
-	PipePart(Point* _pos, Direction _dir, bool _isEnd);                        //Assumes PIPE_START
-	PipePart(Point* _pos, Point* _nextPos, Direction _dir);                    //Assumes PIPE_SEG
-	PipePart(Point* _pos, Point* _nextPos, Direction _dir, Direction _turnDir);//Assumes PIPE_JOINT
-	~PipePart();
+	PipePart(Point* pos, Direction dir, bool isEnd);                       //Assumes PIPE_START
+	PipePart(Point* pos, Point* nextPos, Direction dir);                   //Assumes PIPE_SEG
+	PipePart(Point* pos, Point* nextPos, Direction dir, Direction turnDir);//Assumes PIPE_JOINT
 
 	//Getters
 	Point* getPos();
@@ -58,8 +56,8 @@ protected:
 	void drawTeapot();
 
 private:
-	Point* pos;
-	Point* nextPos;
+	Point pos;
+	Point nextPos;
 	Direction dir;
 	Direction turnDir;
 	Direction notchVec;
@@ -79,7 +77,6 @@ public:
 private:
 	int drawList;
 	int numSlices;
-	//TODO did i cause memory issues when forcing vector to use values????
 	std::vector<PipePart>* pipeParts;
 };
 

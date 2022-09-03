@@ -4,17 +4,11 @@
 	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
 	"version": "0.2.0",
 	"configurations": [
-	{
-		"name": "CUDA C++: Launch - GL Pipes Test (No X11)",
-		"type": "cuda-gdb",
-		"request": "launch",
-		"program": "${workspaceFolder}/build/gl-pipes-test"
-	},
 		{
 			"name": "(gdb) Launch",
 			"type": "cppdbg",
 			"request": "launch",
-			"program": "${workspaceFolder}/build/gl-pipes",
+			"program": "${workspaceFolder}/build/glscratchwork",
 			"args": [],
 			"stopAtEntry": false,
 			"cwd": "${fileDirname}",
