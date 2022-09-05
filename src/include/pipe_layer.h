@@ -64,6 +64,8 @@ public:
 	 */
 	Direction chooseRandomDirection(Point* pos, Direction dir, int weight);
 
+	Direction chooseRandomInitialDirection(Point* pos);
+
 	/**
 	 * @brief Choose a direction to turn
 	 * This requires finding a pair of nodes to turn through.  The first node

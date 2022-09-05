@@ -60,13 +60,13 @@ void buildPipe(float length) {
 
 	GLfloat angleStep = 2 * PI / slices;
 
-	glColor3f(1.0, 1.0, 0.0);
-	glBegin(GL_QUAD_STRIP);
+	glColor3f(0.0, 1.0, 0.0);
+	glBegin(GL_LINES);
 	for(j = 0; j < stacks; j++) {
 		zLow = j * length / stacks;
 		zHigh = (j + 1) * length / stacks;
 
-		for(angle = 0.0; angle <= 2 * PI; angle += angleStep) {
+		for(angle = 0.0; angle <= 2 * PI + angleStep; angle += angleStep) {
 			glNormal3f(sin(angle), cos(angle), zNormal);
 			glEdgeFlag(true);
 			glVertex3f(radius * sin(angle), radius * cos(angle), zLow);
@@ -84,40 +84,57 @@ void draw(GLFWwindow* win) {
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(-1000., 1000., -1000., 1000, -1000, 1000);
-	gluPerspective(40.0, (GLdouble) (640.0 / 480.0), 0.5, 200);
+	glOrtho(-100., 100., -100, 100., 0.5, 500);
+	glPushMatrix();
+	gluLookAt(-100, 100, -100, 0, 0, 0, 0, 1, 0);
 
 	glMatrixMode(GL_MODELVIEW);
-	glViewport(0, 0, 640, 480);
 
-	MATERIAL pMat;
+	// MATERIAL pMat;
 
-	pMat.ka.r = 0.0215f;
-	pMat.ka.g = 0.1745f;
-	pMat.ka.b = 0.0215f;
-	pMat.ka.a = 0.5f;
-	pMat.kd.r = 0.07568f;
-	pMat.kd.g = 0.61424f;
-	pMat.kd.b = 0.07568f;
-	pMat.kd.a = 0.5f;
-	pMat.ks.r = 0.633f;
-	pMat.ks.g = 0.727811f;
-	pMat.ks.b = 0.633f;
-	pMat.specExp = 0.6f;
+	// pMat.ka.r = 0.0215f;
+	// pMat.ka.g = 0.1745f;
+	// pMat.ka.b = 0.0215f;
+	// pMat.ka.a = 0.5f;
+	// pMat.kd.r = 0.07568f;
+	// pMat.kd.g = 0.61424f;
+	// pMat.kd.b = 0.07568f;
+	// pMat.kd.a = 0.5f;
+	// pMat.ks.r = 0.633f;
+	// pMat.ks.g = 0.727811f;
+	// pMat.ks.b = 0.633f;
+	// pMat.specExp = 0.6f;
 
-	glMaterialfv(GL_FRONT, GL_AMBIENT, (GLfloat*) &pMat.ka);
-	glMaterialfv(GL_BACK, GL_AMBIENT, (GLfloat*) &pMat.ka);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, (GLfloat*) &pMat.kd);
-	glMaterialfv(GL_BACK, GL_DIFFUSE, (GLfloat*) &pMat.kd);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat*) &pMat.ks);
-	glMaterialfv(GL_BACK, GL_SPECULAR, (GLfloat*) &pMat.ks);
-	glMaterialf(GL_FRONT, GL_SHININESS, pMat.specExp * 128.0f);
-	glMaterialf(GL_BACK, GL_SHININESS, pMat.specExp * 128.0f);
+	// glMaterialfv(GL_FRONT, GL_AMBIENT, (GLfloat*) &pMat.ka);
+	// glMaterialfv(GL_BACK, GL_AMBIENT, (GLfloat*) &pMat.ka);
+	// glMaterialfv(GL_FRONT, GL_DIFFUSE, (GLfloat*) &pMat.kd);
+	// glMaterialfv(GL_BACK, GL_DIFFUSE, (GLfloat*) &pMat.kd);
+	// glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat*) &pMat.ks);
+	// glMaterialfv(GL_BACK, GL_SPECULAR, (GLfloat*) &pMat.ks);
+	// glMaterialf(GL_FRONT, GL_SHININESS, pMat.specExp * 128.0f);
+	// glMaterialf(GL_BACK, GL_SHININESS, pMat.specExp * 128.0f);
+
+	glBegin(GL_LINES);
+
+	glColor3f(1.0, 1.0, 1.0);
+	glVertex3f(-100, 0, 0);
+	glVertex3f(100, 0, 0);
+	glVertex3f(0, -100, 0);
+	glVertex3f(0, 100, 0);
+	glVertex3f(0, 0, -100);
+	glVertex3f(0, 0, 100);
+
+	glEnd();
 
 	glLoadIdentity();
-	glTranslatef(0, -100, 0);
-	glRotatef(-40, 1.0, 0.0, 0.0);
-	buildPipe(70.0f);
+	glRotatef(270, 0, 0, 0.1);
+	glTranslatef(10, 1, 1);
+	buildPipe(100.0f);
+
+	glLoadIdentity();
+	glRotatef(90, 1, 0, 0);
+	glTranslatef(-10, -10, -10);
+	buildPipe(100.0f);
 	glfwSwapBuffers(win);
 }
 
