@@ -19,10 +19,8 @@ set(GL_PIPES_SOURCE
 	${CMAKE_SOURCE_DIR}/src/pipe_layer.cpp
 	${CMAKE_SOURCE_DIR}/src/pipe/pipe.cpp
 	${CMAKE_SOURCE_DIR}/src/pipe/pipe_part.cpp
-	${CMAKE_SOURCE_DIR}/src/pipe/pipe_draw.cpp
-	${CMAKE_SOURCE_DIR}/src/bootstrap.cpp
 	${CMAKE_SOURCE_DIR}/src/gl.c
-	${CMAKE_SOURCE_DIR}
+	# ${CMAKE_SOURCE_DIR}
 )
 
 set(HEADER_FILES

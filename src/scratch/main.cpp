@@ -127,14 +127,15 @@ void draw(GLFWwindow* win) {
 	glEnd();
 
 	glLoadIdentity();
-	glRotatef(270, 0, 0, 0.1);
-	glTranslatef(10, 1, 1);
-	buildPipe(100.0f);
+	glTranslatef(5, 5, 0);
+	glRotatef(270, 0, 0, 0);
+	glPushMatrix();
+	buildPipe(7.0f);
 
 	glLoadIdentity();
+	glTranslatef(-50, -50, -0);
 	glRotatef(90, 1, 0, 0);
-	glTranslatef(-10, -10, -10);
-	buildPipe(100.0f);
+	buildPipe(7.0f);
 	glfwSwapBuffers(win);
 }
 

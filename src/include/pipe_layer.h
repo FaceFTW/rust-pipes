@@ -22,6 +22,21 @@ namespace GlPipes {
 
 #pragma endregion
 
+class Node {
+public:
+	void draw();
+
+protected:
+	Point* pos;
+	// Direction orientation;
+};
+
+class PipeNode: public Node {
+public:
+	PipeNode(Point* pos, Direction dir);
+	void draw();
+};
+
 class PipeLayer {
 public:
 	PipeLayer();// Constructor

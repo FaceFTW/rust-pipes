@@ -48,13 +48,6 @@ public:
 	void setGlMaterial(MATERIAL* mat);
 	void draw();
 
-protected:
-	void drawSphereJoint();
-	void drawPipeSegment();
-	void drawPipeJoint();
-	void drawSphere();
-	void drawTeapot();
-
 private:
 	Point pos;
 	Point nextPos;
