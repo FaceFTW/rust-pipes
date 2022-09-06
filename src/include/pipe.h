@@ -28,6 +28,13 @@ typedef enum e_pipe_seg_type {
 
 typedef enum e_joint_type { JOINT_NORMAL, JOINT_BALL, JOINT_TEAPOT } JointType;
 
+/*********************
+DRAWING FUNCTIONS
+**********************/
+static void buildPipe(float length);
+static void buildSphere();
+static void buildElbow();
+
 class PipePart {
 public:
 	PipePart(Point* pos, Direction dir, bool isEnd);                       //Assumes PIPE_START
@@ -45,7 +52,7 @@ public:
 	void setJointType(JointType _type);
 
 	//Other Methods
-	void setGlMaterial(MATERIAL* mat);
+	// void setGlMaterial(MATERIAL* mat);
 	void draw();
 
 private:

@@ -8,8 +8,8 @@
  * @copyright Copyright (c) 2022. Work is based on original work from Microsoft Corp (c) 1994
  *
  */
-#include "../include/glad/gl.h"
-#include <GL/gl.h>
+#include "../include/glad/glad.h"
+// #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GLFW/glfw3.h>
 #include <cmath>
@@ -51,7 +51,7 @@ void buildPipe(float length) {
 	GLfloat zNormal;
 	GLfloat radius = 5.0f;
 	slices = 16;
-	stacks = (int) std::round(((float) (length / 7.0f) * slices));
+	stacks = (int) std::round(((float) (length / 5.0f) * slices));
 
 	if(slices >= CACHE_SIZE) slices = CACHE_SIZE - 1;
 	if(stacks >= CACHE_SIZE) stacks = CACHE_SIZE - 1;
@@ -60,7 +60,7 @@ void buildPipe(float length) {
 
 	GLfloat angleStep = 2 * PI / slices;
 
-	glColor3f(0.0, 1.0, 0.0);
+	glColor3f(1.0, 1.0, 1.0);
 	glBegin(GL_LINES);
 	for(j = 0; j < stacks; j++) {
 		zLow = j * length / stacks;
@@ -116,26 +116,57 @@ void draw(GLFWwindow* win) {
 
 	glBegin(GL_LINES);
 
-	glColor3f(1.0, 1.0, 1.0);
+	glColor3f(1.0, 0, 0.0);
 	glVertex3f(-100, 0, 0);
 	glVertex3f(100, 0, 0);
+	glColor3f(0.0, 0.0, 1.0);
 	glVertex3f(0, -100, 0);
 	glVertex3f(0, 100, 0);
+	glColor3f(0.0, 1.0, 0.0);
 	glVertex3f(0, 0, -100);
 	glVertex3f(0, 0, 100);
 
 	glEnd();
 
+	///ALONG Z AXIS (fwd/bkd)
+	// glLoadIdentity();
+	// glTranslatef(5, 5, 0);
+	// glRotatef(180, 0, 1, 0);
+	// glPushMatrix();
+	// buildPipe(7.0f);
+
+	// glPopMatrix();
+	// glLoadIdentity();
+	// glTranslatef(5, 5, 7);
+	// glRotatef(180, 0, 1, 0);
+	// buildPipe(7.0f);
+
+	///ALONG Y AXIS (up/down)
+	// glLoadIdentity();
+	// glTranslatef(5, 5, 0);
+	// glRotatef(90, 1, 0, 0);
+	// glPushMatrix();
+	// buildPipe(7.0f);
+
+	// glPopMatrix();
+	// glLoadIdentity();
+	// glTranslatef(5, 12, 0);
+	// glRotatef(90, 1, 0, 0);
+	// buildPipe(7.0f);
+
+	//ALONG X AXIS (L/R)
 	glLoadIdentity();
 	glTranslatef(5, 5, 0);
-	glRotatef(270, 0, 0, 0);
+	glRotatef(90, 0, 1, 0);
 	glPushMatrix();
 	buildPipe(7.0f);
 
+	glPopMatrix();
 	glLoadIdentity();
-	glTranslatef(-50, -50, -0);
-	glRotatef(90, 1, 0, 0);
+	glTranslatef(12, 5, 0);
+	glRotatef(90, 0, 1, 0);
 	buildPipe(7.0f);
+
 	glfwSwapBuffers(win);
 }
 
@@ -167,7 +198,7 @@ int main(void) {
 	glfwSetKeyCallback(window, key_callback);
 
 	glfwMakeContextCurrent(window);
-	gladLoadGL(glfwGetProcAddress);
+	if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) { exit(1); }
 	glDrawBuffer(GL_FRONT_AND_BACK);
 
 	draw(window);

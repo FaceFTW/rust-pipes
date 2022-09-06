@@ -8,8 +8,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 # ########SOURCE/HEADER LISTS#########
 set(GLAD_FILES
-	${CMAKE_SOURCE_DIR}/src/gl.c
-	${CMAKE_SOURCE_DIR}/src/include/glad/gl.h
+	${CMAKE_SOURCE_DIR}/src/glad.c
+	${CMAKE_SOURCE_DIR}/src/include/glad/glad.h
 	${CMAKE_SOURCE_DIR}/src/include/KHR/khrplatform.h
 )
 
@@ -73,7 +73,7 @@ LINK_LIBRARIES(${LIBS})
 add_executable(glscratchwork ${CMAKE_SOURCE_DIR}/src/scratch/main.cpp ${GLAD_FILES})
 target_link_libraries(glscratchwork ${LIBS})
 
-add_executable(gl-pipes ${GL_PIPES_SOURCE})
+add_executable(gl-pipes ${GL_PIPES_SOURCE} ${HEADER_FILES} ${GLAD_FILES})
 TARGET_LINK_LIBRARIES(gl-pipes ${LIBS})
 
 # add_executable(gl-pipes-test "src/scratchwork/pipe_test_nox11.cpp")

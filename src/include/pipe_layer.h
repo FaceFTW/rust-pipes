@@ -18,9 +18,7 @@
 
 namespace GlPipes {
 
-#pragma region "Global Namespace Defines"
-
-#pragma endregion
+#pragma region "Node Defines"
 
 class Node {
 public:
@@ -28,14 +26,36 @@ public:
 
 protected:
 	Point* pos;
-	// Direction orientation;
 };
 
 class PipeNode: public Node {
 public:
-	PipeNode(Point* pos, Direction dir);
+	PipeNode(Point* _pos, Axis _axis);
+	void draw();
+
+protected:
+	Axis axis;
+};
+
+class SphereNode: public Node {
+public:
+	SphereNode(Point* _pos);
 	void draw();
 };
+
+class JointNode: public Node {
+public:
+	JointNode(Point* _pos, Direction _start, Direction _end);
+	void draw();
+
+protected:
+	Direction start;
+	Direction end;
+}
+
+#pragma endregion
+
+;
 
 class PipeLayer {
 public:
@@ -125,7 +145,7 @@ public:
 	 * @return true
 	 * @return false if couldn't find a node
 	 */
-	bool takeClosestEmptyNode(IPOINT3D* newPos, IPOINT3D* pos);
+	// bool takeClosestEmptyNode(IPOINT3D* newPos, IPOINT3D* pos);
 
 private:
 	PipePart**** node_struct;// For a 3-dimensional array (better as pointers imho)
