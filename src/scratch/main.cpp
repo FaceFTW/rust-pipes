@@ -43,34 +43,34 @@ typedef struct _MATERIAL {
 	GLfloat specExp;
 } MATERIAL;
 
-void buildPipe(float length) {
+void buildPipe(double length) {
 	GLint stacks, slices;
 	GLint j;
-	GLfloat angle;
-	GLfloat zLow, zHigh;
-	GLfloat zNormal;
-	GLfloat radius = 5.0f;
+	GLdouble angle;
+	GLdouble zLow, zHigh;
+	GLdouble zNormal;
+	GLdouble radius = 5.0;
 	slices = 16;
-	stacks = (int) std::round(((float) (length / 5.0f) * slices));
+	stacks = (int) std::round(((length / 7.0) * slices));
 
 	if(slices >= CACHE_SIZE) slices = CACHE_SIZE - 1;
 	if(stacks >= CACHE_SIZE) stacks = CACHE_SIZE - 1;
 
 	zNormal = 0.0f;
 
-	GLfloat angleStep = 2 * PI / slices;
+	GLdouble angleStep = 2 * PI / slices;
 
-	glColor3f(1.0, 1.0, 1.0);
+	glColor3d(1.0, 1.0, 1.0);
 	glBegin(GL_LINES);
 	for(j = 0; j < stacks; j++) {
 		zLow = j * length / stacks;
 		zHigh = (j + 1) * length / stacks;
 
 		for(angle = 0.0; angle <= 2 * PI + angleStep; angle += angleStep) {
-			glNormal3f(sin(angle), cos(angle), zNormal);
+			glNormal3d(sin(angle), cos(angle), zNormal);
 			glEdgeFlag(true);
-			glVertex3f(radius * sin(angle), radius * cos(angle), zLow);
-			glVertex3f(radius * sin(angle), radius * cos(angle), zHigh);
+			glVertex3d(radius * sin(angle), radius * cos(angle), zLow);
+			glVertex3d(radius * sin(angle), radius * cos(angle), zHigh);
 		}
 	}
 
@@ -116,56 +116,56 @@ void draw(GLFWwindow* win) {
 
 	glBegin(GL_LINES);
 
-	glColor3f(1.0, 0, 0.0);
-	glVertex3f(-100, 0, 0);
-	glVertex3f(100, 0, 0);
-	glColor3f(0.0, 0.0, 1.0);
-	glVertex3f(0, -100, 0);
-	glVertex3f(0, 100, 0);
-	glColor3f(0.0, 1.0, 0.0);
-	glVertex3f(0, 0, -100);
-	glVertex3f(0, 0, 100);
+	glColor3d(1.0, 0, 0.0);
+	glVertex3d(-100, 0, 0);
+	glVertex3d(100, 0, 0);
+	glColor3d(0.0, 0.0, 1.0);
+	glVertex3d(0, -100, 0);
+	glVertex3d(0, 100, 0);
+	glColor3d(0.0, 1.0, 0.0);
+	glVertex3d(0, 0, -100);
+	glVertex3d(0, 0, 100);
 
 	glEnd();
 
 	///ALONG Z AXIS (fwd/bkd)
 	// glLoadIdentity();
 	// glTranslatef(5, 5, 0);
-	// glRotatef(180, 0, 1, 0);
+	//glRotated(180, 0, 1, 0);
 	// glPushMatrix();
 	// buildPipe(7.0f);
 
 	// glPopMatrix();
 	// glLoadIdentity();
 	// glTranslatef(5, 5, 7);
-	// glRotatef(180, 0, 1, 0);
+	//glRotated(180, 0, 1, 0);
 	// buildPipe(7.0f);
 
 	///ALONG Y AXIS (up/down)
 	// glLoadIdentity();
 	// glTranslatef(5, 5, 0);
-	// glRotatef(90, 1, 0, 0);
+	//glRotated(90, 1, 0, 0);
 	// glPushMatrix();
 	// buildPipe(7.0f);
 
 	// glPopMatrix();
 	// glLoadIdentity();
 	// glTranslatef(5, 12, 0);
-	// glRotatef(90, 1, 0, 0);
+	//glRotated(90, 1, 0, 0);
 	// buildPipe(7.0f);
 
 	//ALONG X AXIS (L/R)
 	glLoadIdentity();
-	glTranslatef(5, 5, 0);
-	glRotatef(90, 0, 1, 0);
+	glTranslated(5, 5, 0);
+	glRotated(90, 0, 1, 0);
 	glPushMatrix();
-	buildPipe(7.0f);
+	buildPipe(7.0);
 
 	glPopMatrix();
 	glLoadIdentity();
-	glTranslatef(12, 5, 0);
-	glRotatef(90, 0, 1, 0);
-	buildPipe(7.0f);
+	glTranslated(12, 5, 0);
+	glRotated(90, 0, 1, 0);
+	buildPipe(7.0);
 
 	glfwSwapBuffers(win);
 }

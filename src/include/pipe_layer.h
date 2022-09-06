@@ -51,11 +51,16 @@ public:
 protected:
 	Direction start;
 	Direction end;
-}
+};
 
 #pragma endregion
 
-;
+/********************************************************
+DRAWING FUNCTIONS
+*********************************************************/
+static void buildPipe(float length);
+static void buildSphere();
+static void buildElbow();
 
 class PipeLayer {
 public:
