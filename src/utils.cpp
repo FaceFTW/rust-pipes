@@ -33,6 +33,10 @@ float fRand(float min, float max) {
 	return min + (diff * (((float) rand()) / ((float) (RAND_MAX))));
 }
 
+/****************************************
+Sphere Maths
+*****************************************/
+
 // void transformCircle(
 //         float angle,
 //         POINT3D* inPoint,

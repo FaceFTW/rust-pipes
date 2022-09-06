@@ -371,6 +371,10 @@ int iRand2(int min, int max);
  */
 float fRand(float min, float max);
 
+/*************************************
+Sphere Maths
+**************************************/
+
 // /**
 //  * @brief rotate circle around x-axis, with edge attached to anchor
 //  * @param angle

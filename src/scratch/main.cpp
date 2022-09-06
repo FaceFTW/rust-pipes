@@ -43,6 +43,38 @@ typedef struct _MATERIAL {
 	GLfloat specExp;
 } MATERIAL;
 
+void buildSphere() {
+
+	GLint i, j;
+	GLint stacks, slices;
+	GLdouble radius;
+
+	//TODO define slices macro
+	slices = 16;
+	stacks = slices;
+	radius = 20.0;
+
+	GLdouble thetaStep = 2 * PI / slices;
+	GLdouble phiStep = PI / stacks;
+
+	glBegin(GL_LINES);
+
+	for(i = 0; i <= stacks; ++i) {
+		GLdouble phiCurrent = (PI / 2) - i * phiStep;
+		GLdouble rCosPhi = radius * cos(phiCurrent);
+		GLdouble rSinPhi = radius * sin(phiCurrent);
+
+		for(int j = 0; j <= slices; ++j) {
+			GLdouble thetaCurrent = j * thetaStep;
+			GLdouble xpos = rCosPhi * cos(thetaCurrent);
+			GLdouble ypos = rCosPhi * sin(thetaCurrent);
+			glNormal3d(xpos, ypos, rSinPhi);//Assumes GL_NORMALIZE
+			glVertex3d(xpos, ypos, rSinPhi);
+		}
+	}
+	glEnd();
+}
+
 void buildPipe(double length) {
 	GLint stacks, slices;
 	GLint j;
@@ -79,6 +111,8 @@ void buildPipe(double length) {
 }
 
 void draw(GLFWwindow* win) {
+	glEnable(GL_NORMALIZE);
+
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -166,6 +200,11 @@ void draw(GLFWwindow* win) {
 	glTranslated(12, 5, 0);
 	glRotated(90, 0, 1, 0);
 	buildPipe(7.0);
+
+	glLoadIdentity();
+	glTranslated(45, 50, 0);
+	glRotated(90, 0, 1, 0);
+	buildSphere();
 
 	glfwSwapBuffers(win);
 }

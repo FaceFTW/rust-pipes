@@ -58,7 +58,7 @@ protected:
 /********************************************************
 DRAWING FUNCTIONS
 *********************************************************/
-static void buildPipe(float length);
+static void buildPipe(double length);
 static void buildSphere();
 static void buildElbow();
 
