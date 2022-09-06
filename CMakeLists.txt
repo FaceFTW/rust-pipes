@@ -23,15 +23,14 @@ set(GL_PIPES_SOURCE
 	${CMAKE_SOURCE_DIR}/src/pipe/pipe.cpp
 	${CMAKE_SOURCE_DIR}/src/pipe/pipe_part.cpp
 	${CMAKE_SOURCE_DIR}/src/nodes.cpp
+	${CMAKE_SOURCE_DIR}/src/pipelist.cpp
 )
 
 set(HEADER_FILES
-
 	${CMAKE_SOURCE_DIR}/src/include/utils.h;
 	${CMAKE_SOURCE_DIR}/src/include/pipe.h;
 	${CMAKE_SOURCE_DIR}/src/include/pipe_layer.h;
 	${CMAKE_SOURCE_DIR}/src/include/graphics/gl_drawThread.h
-	${CMAKE_SOURCE_DIR}/src/include/draw.h
 )
 
 # include_directories(AFTER ${CMAKE_SOURCE_DIR}/include/*)

@@ -56,37 +56,44 @@ protected:
 #pragma endregion
 
 /********************************************************
+VERTEX FUNCTIONS
+*********************************************************/
+static void generatePipeVertexArray(double length);
+static void generateSphereVertexArray();
+static void generateElbowVertexArray();
+;
+/********************************************************
 DRAWING FUNCTIONS
 *********************************************************/
 static void buildPipe(double length);
 static void buildSphere();
 static void buildElbow();
 
+//A wrapper for a 2-depth vector of points
+class PipeList {
+public:
+	PipeList(int pipeCnt);
+	~PipeList();
+
+	std::vector<Point*>*& operator[](int pipe);
+	Point*& operator()(int pipe, int idx);
+
+	void addToPipe(int pipe, Point* point);
+
+private:
+	std::vector<std::vector<Point*>*>* internal;
+};
+
 class PipeLayer {
 public:
-	PipeLayer();// Constructor
 	PipeLayer(Point* node_size, int numPipes);
 	~PipeLayer();// Destructor
 
-	/**
-	 * @brief Accesses a Pipe object
-	 *
-	 * @param pipeIdx Index of the pipe in the array
-	 * @return Pipe&
-	 */
-	Pipe*& operator()(int pipeIdx);
-
-	/**
-	 * @brief Accesses a PipePart
-	 *
-	 * @param pos
-	 * @return PipePart&
-	 */
-	PipePart*& operator[](Point* pos);
+	std::vector<Point*>*& operator()(int pipeIdx);
+	Node*& operator[](Point* pos);
 
 	Point* size();
 	uint size(Axis d);
-
 	bool isEmpty(Point* pos);
 
 	void generatePipe(int pipeIdx);
@@ -152,11 +159,6 @@ public:
 	 */
 	// bool takeClosestEmptyNode(IPOINT3D* newPos, IPOINT3D* pos);
 
-private:
-	PipePart**** node_struct;// For a 3-dimensional array (better as pointers imho)
-	Pipe** pipes;
-	Point* node_struct_size;
-
 	/**
 	 * @brief Get position of next node from curPos and lastDir
 	 *
@@ -187,6 +189,11 @@ private:
 	 * @return int number of empty node neighbours
 	 */
 	int getEmptyTurnNeighbors(Point* pos, Direction* emptyDirs, Direction lastDir);
+
+private:
+	Node**** node_struct;// For a 3-dimensional array (better as pointers imho)
+	PipeList* pipes;
+	Point* node_struct_size;
 };
 
 }// namespace GlPipes

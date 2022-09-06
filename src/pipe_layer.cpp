@@ -16,50 +16,41 @@
 using namespace GlPipes;
 
 /******CONSTRUCTORS/DESTRUCTORS*******/
-PipeLayer::PipeLayer() {
-	node_struct_size = new Point(10, 10, 10);
-	pipes = new Pipe*[6];
-	node_struct = new PipePart***[node_struct_size->x];
 
+PipeLayer::PipeLayer(Point* node_size, int numPipes) {
+	node_struct_size = node_size;
+	//TODO macro or dynamic pipe count
+	pipes = new PipeList(numPipes);
+
+	node_struct = new Node***[node_struct_size->x];
 	for(int i = 0; i < node_struct_size->x; i++) {
-		node_struct[i] = new PipePart**[node_struct_size->y];
+		node_struct[i] = new Node**[node_struct_size->y];
 		for(int j = 0; j < node_struct_size->y; j++) {
-			node_struct[i][j] = new PipePart*[node_struct_size->z];
+			node_struct[i][j] = new Node*[node_struct_size->z];
 		}
 	}
 }
 
-PipeLayer::PipeLayer(Point* node_size, int numPipes) {
-	pipes = new Pipe*[numPipes];
-	node_struct = new PipePart***[node_size->x];
-	node_struct_size = node_size;
-
-	for(int i = 0; i < node_size->x; i++) {
-		node_struct[i] = new PipePart**[node_size->y];
-		for(int j = 0; j < node_size->y; j++) { node_struct[i][j] = new PipePart*[node_size->z]; }
-	}
-}
-
 PipeLayer::~PipeLayer() {
-	//PERF Very inelegant, prob a better way of doing this, but still;
+	//HACK Very inelegant, prob a better way of doing this, but still
 	for(int i = 0; i < node_struct_size->x; i++) {
 		for(int j = 0; j < node_struct_size->y; j++) { delete[] node_struct[i][j]; }
 		delete[] node_struct[i];
 	}
 	delete[] node_struct;
-	delete[] pipes;
+	delete pipes;
 
 	delete node_struct_size;
 }
 
 /******OVERLOADED OPERATORS*******/
-Pipe*& PipeLayer::operator()(int pipeIdx) { return pipes[pipeIdx]; }
+std::vector<Point*>*& PipeLayer::operator()(int pipeIdx) { return (*pipes)[pipeIdx]; }
 
-PipePart*& PipeLayer::operator[](Point* pos) { return node_struct[pos->x][pos->y][pos->z]; }
+Node*& PipeLayer::operator[](Point* pos) { return node_struct[pos->x][pos->y][pos->z]; }
 
 void PipeLayer::generatePipe(int pipeIdx) {
 	Point* startPos = findRandomEmptyNode();
-	pipes[pipeIdx] = new Pipe(startPos);
+	pipes->addToPipe(pipeIdx, startPos);
 
 	//Choose a random starting direction that is empty
 	Direction startDir = chooseRandomInitialDirection(startPos);
@@ -67,8 +58,8 @@ void PipeLayer::generatePipe(int pipeIdx) {
 		return;//Can't do sh*t
 	}
 
-	//Add a Starting Pipe Node
-	pipes[pipeIdx]->addPipePart(new PipePart(startPos, startDir, false));
+	node_struct[startPos->x][startPos->y][startPos->z] =
+	        new PipeNode(startPos, getAxisFromDirection(startDir));
 
 	//Choose a random number of iterations (minimum 5 to maximum 10 for now)
 	int numIter = iRand2(5, 10);

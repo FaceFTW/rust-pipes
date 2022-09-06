@@ -95,37 +95,11 @@ typedef enum e_direction {
 } Direction;
 
 /*****OLD ENUMS******/
-// enum { JOINT_ELBOW = 0, JOINT_BALL, JOINT_MIXED, JOINT_CYCLE, NUM_JOINTTYPES };
-
-// // styles for pipe joints
-// enum { ELBOWS = 0, BALLS, EITHER };
-
-// // joint types
-// enum { ELBOW_JOINT = 0, BALL_JOINT };
-
 // // shchemes for choosing directions
 // enum {
 // 	NORMAL_SCHEME_CHOOSE_DIR_RANDOM,
 // 	NORMAL_SCHEME_CHOOSE_DIR_TURN,
 // 	NORMAL_SCHEME_CHOOSE_DIR_STRAIGHT
-// };
-
-// // pipe drawing status
-// enum { PIPE_ACTIVE, PIPE_STUCK, PIPE_OUT_OF_NODES };
-
-// // pipe types
-// enum { TYPE_NORMAL, TYPE_FLEX_REGULAR, TYPE_FLEX_TURNING };
-
-// // ways pipe choose directions
-// enum {
-// 	CHOOSE_DIR_RANDOM_WEIGHTED,
-// 	CHOOSE_DIR_CHASE// when chasing a lead pipe
-// };
-
-// // ways pipe choose start positions
-// enum {
-// 	CHOOSE_STARTPOS_RANDOM,
-// 	CHOOSE_STARTPOS_FURTHEST// furthest from last position
 // };
 
 // #define NUM_TEA_MATERIALS 24
@@ -217,6 +191,11 @@ typedef struct s_point_t {
 				y = (_point->y);
 				z = (_point->z) - 1;
 				break;
+			default:
+				x = (_point->x);
+				y = (_point->y);
+				z = (_point->z);
+				break;
 		}
 	}
 
@@ -253,40 +232,6 @@ typedef struct s_point_t {
 // typedef struct GenConfig {
 
 // } Config;
-
-// /**
-//  * @brief Defines a point in 2D space with floating-point precision
-//  */
-// typedef struct _point2d {
-// 	GLfloat x;//The x position
-// 	GLfloat y;//The y position
-// } POINT2D;
-
-// /**
-//  * @brief Defines a point in 2D space with integer precision
-//  */
-// typedef struct _ipoint2d {
-// 	int x;//The x position
-// 	int y;//The y position
-// } IPOINT2D;
-
-// /**
-//  * @brief Defines a point in 3D space with floating-point precision
-//  */
-// typedef struct _point3d {
-// 	GLfloat x;//The x position
-// 	GLfloat y;//The y position
-// 	GLfloat z;//The z position
-// } POINT3D;
-
-// /**
-//  * @brief Defines a point in 3D space with integer precision
-//  */
-// typedef struct _ipoint3d {
-// 	int x;//The x position
-// 	int y;//The y position
-// 	int z;//The z position
-// } IPOINT3D;
 
 // /**
 //  * @brief Defines a Float Matrix Struct
@@ -328,10 +273,6 @@ typedef struct s_point_t {
  */
 #define MIN(a, b) (a < b ? a : b)
 
-// macro to round up floating values
-#define ROUND_UP(fval)                                                                             \
-	((((fval) - (float) (int) (fval)) > 0.0f) ? (int) ((fval) + 1.0f) : (int) (fval))
-
 // macros to clamp a value within a range
 #define CLAMP_TO_RANGE(a, lo, hi) ((a < lo) ? lo : ((a > hi) ? hi : a))
 #define CLAMP_TO_RANGE2(a, lo, hi) (a = (a < lo) ? lo : ((a > hi) ? hi : a))
@@ -371,63 +312,7 @@ int iRand2(int min, int max);
  */
 float fRand(float min, float max);
 
-/*************************************
-Sphere Maths
-**************************************/
+Axis getAxisFromDirection(Direction dir);
 
-// /**
-//  * @brief rotate circle around x-axis, with edge attached to anchor
-//  * @param angle
-//  * @param inPoint
-//  * @param outPoint
-//  * @param num
-//  * @param anchor
-//  */
-// void transformCircle(float angle, POINT3D* inPoint, POINT3D* outPoint, GLint num, POINT3D* anchor);
-
-// /**
-//  * @brief
-//  *
-//  * @param p
-//  * @param n
-//  * @param center
-//  * @param num
-//  */
-// void calcNormals(POINT3D* p, POINT3D* n, POINT3D* center, int num);
-
-// extern POINT3D ss_ptZero;
-// void xformPoint(POINT3D* ptOut, POINT3D* ptIn, MATRIX*);
-// void xformNorm(POINT3D* ptOut, POINT3D* ptIn, MATRIX*);
-// void matrixIdent(MATRIX*);
-// void matrixRotate(MATRIX* m, double xTheta, double yTheta, double zTheta);
-// void matrixTranslate(MATRIX*, double xTrans, double yTrans, double zTrans);
-// void matrixMult(MATRIX* m1, MATRIX* m2, MATRIX* m3);
-// void calcNorm(POINT3D* norm, POINT3D* p1, POINT3D* p2, POINT3D* p3);
-// void normalizeNorm(POINT3D*);
-// void normalizeNorms(POINT3D*, unsigned long);
-
-// void align_notch(int newDir, int notch);
-// // static GLint defCylNotch[NUM_DIRS];
-// // static GLfloat alignNotchRot[NUM_DIRS][NUM_DIRS];
-// void align_plusy(int oldDir, int newDir);
-// // static float RotZ[NUM_DIRS][NUM_DIRS];
-
-// /**
-//  * @brief Aligns the z axis along specified direction
-//  *  Used for all types of pipes
-//  * @param newDir
-//  */
-// void align_plusz(int newDir);
-
-/**
- * @brief This array tells you which way the notch will be once you make a turn
- * Format: notchTurn[oldDir][newDir][notchVec]
- *
- */
-// static GLint notchTurn[NUM_DIRS][NUM_DIRS][NUM_DIRS];
-
-// #ifdef __cplusplus
-// }
-// #endif
 #pragma endregion
 #endif//__utils_h_
