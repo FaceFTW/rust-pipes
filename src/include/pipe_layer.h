@@ -97,44 +97,16 @@ public:
 
 	void generatePipe(int pipeIdx);
 
+	int getEmptyNeighbors(Point* pos, Direction* emptyDirs);
+	Point* findRandomEmptyNode();
+	Point* getNextNodePos(Point* curPos, Direction dir);
 	Point** getNeighbors(Point* pos);
-	Direction chooseRandomDirection(Point* pos, Direction dir, int weight);
+	int countAvailableInDirection(Point* pos, Direction dir);
 	Direction chooseRandomInitialDirection(Point* pos);
 	Direction chooseRandomEmptyDirection(Point* pos);
 
-	/**
-	 * @brief Search for an empty node to start drawing
-	 * - Marks node as taken (mf: renam fn to ChooseEmptyNode ?
-	 *
-	 * @param ip3dEmpty Return position of empty node
-	 * @return true
-	 * @return false if couldn't find a node
-	 */
-	Point* findRandomEmptyNode();
-
-	/**
-	 * @brief Get position of next node from curPos and lastDir
-	 *
-	 * @param curPos Pointer to origin node position
-	 * @param dir Direction to find the next node
-	 * @return Pointer to next node position
-	 */
-	Point* getNextNodePos(Point* curPos, Direction dir);
-
-	//TODO evaluate if Needed
-	/**
-	 * @brief Get list of direction indices of empty node neighbours, and put them in supplied matrix
-	 *
-	 * @param FnNode
-	 * @param nEmpty
-	 * @return int number of empty node neighbours
-	 */
-	int getEmptyNeighbors(Point* pos, Direction* emptyDirs);
-
-	int countAvailableInDirection(Point* pos, Direction dir);
-
 private:
-	Node**** node_struct;// For a 3-dimensional array (better as pointers imho)
+	Node**** node_struct;
 	PipeList* pipes;
 	Point* node_struct_size;
 };

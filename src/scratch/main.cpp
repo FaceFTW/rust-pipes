@@ -1,15 +1,4 @@
-/**
- * @file scratch/main.cpp
- * @author Alex "FaceFTW" Westerman
- * @brief A test program to check if I understand how to *not* use X11
- * @version 0.1
- * @date 2022-03-17
- *
- * @copyright Copyright (c) 2022. Work is based on original work from Microsoft Corp (c) 1994
- *
- */
 #include "../include/glad/glad.h"
-// #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GLFW/glfw3.h>
 #include <cmath>
@@ -23,28 +12,7 @@
 #define TEAPOT_SIZE 2.0
 #define PI 3.14159265358979323846f
 
-//Perspective Constants
-#define FOV 90
-#define ASPECT_RATIO 1.0
-#define Z_NEAR 1
-#define Z_FAR 1000
-
-typedef struct strRGBA {
-	GLfloat r;
-	GLfloat g;
-	GLfloat b;
-	GLfloat a;
-} RGBA;
-
-typedef struct _MATERIAL {
-	RGBA ka;
-	RGBA kd;
-	RGBA ks;
-	GLfloat specExp;
-} MATERIAL;
-
 void buildSphere() {
-
 	GLint i, j;
 	GLint stacks, slices;
 	GLdouble radius;
@@ -123,30 +91,6 @@ void draw(GLFWwindow* win) {
 	gluLookAt(-100, 100, -100, 0, 0, 0, 0, 1, 0);
 
 	glMatrixMode(GL_MODELVIEW);
-
-	// MATERIAL pMat;
-
-	// pMat.ka.r = 0.0215f;
-	// pMat.ka.g = 0.1745f;
-	// pMat.ka.b = 0.0215f;
-	// pMat.ka.a = 0.5f;
-	// pMat.kd.r = 0.07568f;
-	// pMat.kd.g = 0.61424f;
-	// pMat.kd.b = 0.07568f;
-	// pMat.kd.a = 0.5f;
-	// pMat.ks.r = 0.633f;
-	// pMat.ks.g = 0.727811f;
-	// pMat.ks.b = 0.633f;
-	// pMat.specExp = 0.6f;
-
-	// glMaterialfv(GL_FRONT, GL_AMBIENT, (GLfloat*) &pMat.ka);
-	// glMaterialfv(GL_BACK, GL_AMBIENT, (GLfloat*) &pMat.ka);
-	// glMaterialfv(GL_FRONT, GL_DIFFUSE, (GLfloat*) &pMat.kd);
-	// glMaterialfv(GL_BACK, GL_DIFFUSE, (GLfloat*) &pMat.kd);
-	// glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat*) &pMat.ks);
-	// glMaterialfv(GL_BACK, GL_SPECULAR, (GLfloat*) &pMat.ks);
-	// glMaterialf(GL_FRONT, GL_SHININESS, pMat.specExp * 128.0f);
-	// glMaterialf(GL_BACK, GL_SHININESS, pMat.specExp * 128.0f);
 
 	glBegin(GL_LINES);
 
