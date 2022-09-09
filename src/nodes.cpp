@@ -1,5 +1,6 @@
 #include "include/glad/glad.h"
 #include "include/pipe_layer.h"
+#include "include/utils.h"
 #include <cmath>
 
 using namespace GlPipes;
@@ -41,9 +42,6 @@ void PipeNode::draw() {
 	buildPipe(14.0);
 }
 
-
-
-
 /********************************************************
 DRAWING FUNCTIONS
 *********************************************************/
@@ -56,9 +54,6 @@ static void GlPipes::buildPipe(double length) {
 	GLdouble radius = 5.0;
 	slices = 16;
 	stacks = (int) std::round(((float) (length / 7.0) * slices));
-
-	if(slices >= CACHE_SIZE) slices = CACHE_SIZE - 1;
-	if(stacks >= CACHE_SIZE) stacks = CACHE_SIZE - 1;
 
 	zNormal = 0.0f;
 
@@ -116,3 +111,52 @@ static void GlPipes::buildSphere() {
 }
 
 static void GlPipes::buildElbow() {}
+
+/********************************************************
+VERTEX FUNCTIONS
+*********************************************************/
+static void generatePipeVertexArray(GLObjectData* obj, double length) {
+	GLint stacks, slices;
+	GLdouble angle;
+	GLdouble zLow, zHigh;
+	GLdouble zNormal;
+	GLdouble radius = 5.0;
+	slices = 16;
+	stacks = (int) std::round(((float) (length / 7.0) * slices));
+
+	zNormal = 0.0f;
+
+	GLdouble angleStep = 2 * PI / slices;
+	int angleStepCount = (2 * PI + angleStep) / angleStep;
+
+	obj->vArraySize = 3 * stacks * angleStepCount * 2;
+	obj->vArray = new GLdouble[obj->vArraySize];
+
+	obj->nArraySize = 3 * stacks * angleStepCount;
+	obj->nArray = new GLdouble[obj->nArraySize];
+
+	for(int i = 0; i < stacks; i++) {
+		zLow = i * length / stacks;
+		zHigh = (i + 1) * length / stacks;
+
+		for(int j = 0; j <= angleStepCount; j++) {
+			GLdouble angle = j * angleStep;
+
+			//Normals
+			obj->nArray[(3 * (i * j))] = sin(angle);
+			obj->nArray[(3 * (i * j)) + 1] = cos(angle);
+			obj->nArray[(3 * (i * j)) + 2] = zNormal;
+
+			//Vertices
+			obj->vArray[(6 * (i * j))] = radius * sin(angle);
+			obj->vArray[(6 * (i * j)) + 1] = radius * cos(angle);
+			obj->vArray[(6 * (i * j)) + 2] = zLow;
+			obj->vArray[(6 * (i * j)) + 3] = radius * sin(angle);
+			obj->vArray[(6 * (i * j)) + 4] = radius * cos(angle);
+			obj->vArray[(6 * (i * j)) + 5] = zHigh;
+		}
+	}
+}
+
+static void generateSphereVertexArray();
+static void generateElbowVertexArray();

@@ -1,10 +1,13 @@
 ﻿cmake_minimum_required(VERSION 3.8)
+
+
+# set(CMAKE_CXX_STANDARD 20)
 cmake_policy(SET CMP0072 NEW)
 project("gl-pipes")
 
 # set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 # if(UNIX)
-# 	add_compile_options(-ldl)
+# add_compile_options(-ldl)
 # endif(UNIX)
 
 # Add source to this project's executable.

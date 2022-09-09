@@ -1,13 +1,3 @@
-/**
- * @file node_struct.cpp
- * @author Alex "FaceFTW" Westerman
- * @brief
- * @version 0.1
- * @date 2022-06-27
- *
- * @copyright Copyright (c) 2022. Work is based on original work from Microsoft Corp (c) 1994
- *
- */
 #pragma once
 #include "include/pipe_layer.h"
 #include "include/utils.h"
@@ -53,27 +43,39 @@ void PipeLayer::generatePipe(int pipeIdx) {
 	pipes->addToPipe(pipeIdx, startPos);
 
 	//Choose a random starting direction that is empty
-	Direction startDir = chooseRandomInitialDirection(startPos);
-	if(startDir == DIR_NONE) {
+	Direction nextDir = chooseRandomInitialDirection(startPos);
+	if(nextDir == DIR_NONE) {
 		return;//Can't do sh*t
 	}
 
 	node_struct[startPos->x][startPos->y][startPos->z] =
-	        new PipeNode(startPos, getAxisFromDirection(startDir));
+	        new PipeNode(startPos, getAxisFromDirection(nextDir));
 
 	//Choose a random number of iterations (minimum 5 to maximum 10 for now)
 	int numIter = iRand2(5, 10);
 
 	for(int i = 0; i < numIter; i++) {
 		//Determine how many nodes are available in that direction
+		int openNodesInDir = countAvailableInDirection(startPos, nextDir);
 
-		//Choose a random number n, 1 < n < available nodes
+		//Choose a random number n, 1 <= n <= available nodes
+		int pipeLength = iRand2(1, openNodesInDir);
 
 		//For n-1 available nodes, create straight pipe segs in dir
 		//Logically, if only one node is available, this will not run
+		for(int j = 0; j < pipeLength - 1; j++) {
+			startPos = getNextNodePos(startPos, nextDir);
+			pipes->addToPipe(pipeIdx, startPos);
+			node_struct[startPos->x][startPos->y][startPos->z] =
+			        new PipeNode(startPos, getAxisFromDirection(nextDir));
+		}
 
 		//For the nth node (is not a loop)
+		new SphereNode(startPos);
+
 		//choose a random empty direction
+		// nextDir = chooseRandomEmptyDirection(startPos);
+
 		//Add a pipe joint that turns to that direction
 	}
 
@@ -110,7 +112,7 @@ Point* PipeLayer::getNextNodePos(Point* curPos, Direction dir) {
 }
 
 Point** PipeLayer::getNeighbors(Point* pos) {
-	Point** neighbors = new Point*[NUM_DIRS];
+	Point** neighbors = new Point*[6];
 	neighbors[DIR_X_PLUS] = getNextNodePos(pos, DIR_X_PLUS);
 	neighbors[DIR_X_MINUS] = getNextNodePos(pos, DIR_X_MINUS);
 	neighbors[DIR_Y_PLUS] = getNextNodePos(pos, DIR_Y_PLUS);
@@ -120,56 +122,18 @@ Point** PipeLayer::getNeighbors(Point* pos) {
 	return neighbors;
 }
 
-int PipeLayer::getEmptyNeighbors(Point* pos, Direction* emptyDirs) {
+int PipeLayer::countAvailableInDirection(Point* pos, Direction dir) {
 	int count = 0;
-
-	for(int i = 0; i < NUM_DIRS; i++) {
-		if(getNextNodePos(pos, (Direction) i)) { emptyDirs[count++] = (Direction) i; }
-	}
-	return count;
-}
-
-int PipeLayer::getEmptyTurnNeighbors(Point* pos, Direction* emptyDirs, Direction lastDir) {
-	int count = 0;
-
-	for(int i = 0; i < NUM_DIRS; i++) {
-		if(getNextNodePos(pos, (Direction) i)) {
-			if(i == (int) lastDir) continue;
-			emptyDirs[count++] = (Direction) i;
+	Point* nextPos = getNextNodePos(pos, dir);
+	while(nextPos != nullptr) {
+		if(isEmpty(nextPos)) {
+			count++;
+			nextPos = getNextNodePos(nextPos, dir);
+		} else {
+			break;
 		}
 	}
 	return count;
-}
-
-Direction PipeLayer::chooseRandomDirection(Point* pos, Direction dir, int weight) {
-	Point** neighbors = getNeighbors(pos);
-	int numEmpty, choice;
-	Direction newDir;
-	Point* straightNode = NULL;
-	Direction* emptyDirs = new Direction[NUM_DIRS];
-
-	// Get node in straight direction if necessary
-	if(weight && neighbors[dir] && isEmpty(neighbors[dir])) {
-		straightNode = neighbors[dir];
-		// if maximum weight, choose and return
-		if(weight == MAX_WEIGHT_STRAIGHT) { return dir; }
-	} else
-		weight = 0;
-
-	// Get directions of possible turns
-	numEmpty = getEmptyTurnNeighbors(pos, emptyDirs, dir);
-
-	// Make a random choice
-	if((choice = (weight + numEmpty)) == 0) return DIR_NONE;
-	choice = iRand(choice);
-
-	if(choice < weight) {
-		return dir;
-	} else {
-		// choose one of the turns
-		newDir = emptyDirs[choice - weight];
-		return newDir;
-	}
 }
 
 Direction PipeLayer::chooseRandomInitialDirection(Point* pos) {
@@ -178,7 +142,7 @@ Direction PipeLayer::chooseRandomInitialDirection(Point* pos) {
 	Direction retDir = DIR_NONE;
 
 	//Bit of a brute force method but hey it works
-	for(int i = 0; i < NUM_DIRS; i++) {
+	for(int i = 0; i < 6; i++) {
 		if(neighbors[i] && isEmpty(neighbors[i])) { emptyDir->push_back((Direction) i); }
 	}
 

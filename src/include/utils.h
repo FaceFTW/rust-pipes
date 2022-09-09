@@ -1,63 +1,33 @@
-/**
- * @file utils.h
- * @author Alex "FaceFTW" Westerman
- * @brief Utility Functions/Defines/Macros
- * @version 0.1
- * @date 2022-03-17
- *
- * @copyright Copyright (c) 2022. Work is based on original work from Microsoft Corp (c) 1994
- *
- */
-
 #pragma once
+#include "glad/glad.h"
+#include <cmath>
+
 #ifndef __utils_h_
 #define __utils_h_
-
-// #include <GL/gl.h>
 
 /******TYPEDEFS********/
 #pragma region "General Typedefs"
 typedef unsigned int uint;
-#pragma endregionF
+#pragma endregion
 
 /******CONSTANTS*******/
 #pragma region "Constants"
 
-const int NUM_DIRS = 6;
-#define WIN_WIDTH 600
-#define WIN_HEIGHT 600
-#define TEAPOT_SIZE 2.0
-#define FOV 90
-#define ASPECT_RATIO 1.0
-#define Z_NEAR 1
-#define Z_FAR 1000
-#define Y_ROT 0.0f
-#define iXX -1
-#define fXX -0.01f
-#define NUM_DIV 16// divisions in window in longest dimension
-#define DIV_SIZE 7.0f
-#define MAX_TEXTURES 8
-#define Z_TRANS -75.0f
-#define VIEW_DIST (-1 * Z_TRANS)
+#if __has_include(<numbers>)
+#include <numbers>
+#define PI std::numbers::pi
+#define ONE_OVER_PI std::numbers::inv_pi
+#define ROOT_TWO std::numbers::sqrt2
+#else
+#define PI 3.14159265358979323846
+#define ONE_OVER_PI 1 / PI
+#define ROOT_TWO 1.41421356237309504880
+#endif
 
 #define TEAPOT_CHANCE 0.1//Will change eventually, just for testing
 #define TURN_CHANCE 0.1  //Will change eventually, just for testing
 
-#define MAX_DRAW_THREADS 4
-
 #define TEAPOT 66
-
-#define MAX_TESS 3
-
-#define NORMAL_PIPE_COUNT 5
-#define NORMAL_TEX_PIPE_COUNT 3
-
-#define NUM_JOINT_STYLES 3
-
-#define NUM_NODE (NUM_DIV - 1)// num nodes in longest dimension
-
-// maximum weighting of going straight for direction choosing functions
-#define MAX_WEIGHT_STRAIGHT 100
 
 // If random search takes longer than twice the total number
 // of nodes, give up the random search.  There may not be any
@@ -65,17 +35,6 @@ const int NUM_DIRS = 6;
 #define INFINITE_LOOP (2 * NUM_NODE * NUM_NODE * NUM_NODE)
 #define MIN_VAL 1
 #define MAX_VAL 0
-
-#define ROOT_TWO 1.414213562373f
-
-#define CACHE_SIZE 100
-
-#define PI 3.14159265358979323846f
-// double version of PI
-#define PI_D 3.14159265358979323846264338327950288419716939937510
-#define ONE_OVER_PI (1.0f / PI)
-
-#define ZERO_EPS 0.00000001
 
 #pragma endregion
 
@@ -201,88 +160,17 @@ typedef struct s_point_t {
 
 } Point;
 
-/******OLD STRUCTS******/
-// /**
-//  * @brief GL View Configuration Vars.
-//  * Seemed sensible to place them in a struct and accessed as necessary
-//  */
-// typedef struct _GLConfig {
-// 	float viewAngle = FOV;           // field of view angle for height
-// 	float zNear = Z_NEAR;            // near z clip value
-// 	float zFar = Z_FAR;              // far z clip value
-// 	float zTrans = Z_TRANS;          // z translation
-// 	float yRot = Y_ROT;              // current yRotation
-// 	float viewDist = -1 * Z_TRANS;   // viewing distance, usually -zTrans
-// 	int numDiv = NUM_DIV;            // # grid divisions in x,y,z
-// 	float divSize = DIV_SIZE;        // distance between divisions
-// 	float aspectRatio = ASPECT_RATIO;// x/y window aspect ratio
-// 	float worldx = 0;                // view area in world space x
-// 	float worldy = 0;                // view area in world space y
-// 	float worldz = 0;                // view area in world space z
-// 	int winWidth = 0;                //Window Width
-// 	int winHeight = 0;               //Window Height
-// } GLConfig;
+// Not using interleaved arrays because *why*
+typedef struct s_gl_object_data_t {
+	GLdouble* vArray;
+	GLint vArraySize;
 
-// typedef struct _GLConfig* GLConfigPtr;
+	GLdouble* nArray;
+	GLint nArraySize;
 
-// /**
-//  * @brief Struct with general config vars
-//  * Planned to be used for cmd args
-//  */
-// typedef struct GenConfig {
+	Point* pos;
 
-// } Config;
-
-// /**
-//  * @brief Defines a Float Matrix Struct
-//  */
-// typedef struct _MATRIX {
-// 	GLfloat M[4][4];
-// } MATRIX;
-
-// typedef struct strRGBA {
-// 	GLfloat r;
-// 	GLfloat g;
-// 	GLfloat b;
-// 	GLfloat a;
-// } RGBA;
-
-// /**
-//  * @brief
-//  *
-//  */
-// typedef struct _MATERIAL {
-// 	RGBA ka;
-// 	RGBA kd;
-// 	RGBA ks;
-// 	GLfloat specExp;
-// } MATERIAL;
-
-#pragma endregion
-
-/******MACRO DEFS******/
-#pragma region "Macro Definitions"
-
-/**
- * @brief Returns the maximum of two values
- */
-#define MAX(a, b) (a > b ? a : b)
-
-/**
- * @brief Returns the minimum of two values
- */
-#define MIN(a, b) (a < b ? a : b)
-
-// macros to clamp a value within a range
-#define CLAMP_TO_RANGE(a, lo, hi) ((a < lo) ? lo : ((a > hi) ? hi : a))
-#define CLAMP_TO_RANGE2(a, lo, hi) (a = (a < lo) ? lo : ((a > hi) ? hi : a))
-
-// degree<->radian macros
-#define ONE_OVER_180 (1.0f / 180.0f)
-#define SS_DEG_TO_RAD(a) ((a * PI) * ONE_OVER_180)
-#define SS_RAD_TO_DEG(a) ((a * 180.0f) * ONE_OVER_PI)
-
-#pragma endregion
+} GLObjectData;
 
 /******METHOD DEFS******/
 #pragma region "Method Declarations"

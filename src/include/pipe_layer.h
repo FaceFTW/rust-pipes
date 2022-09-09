@@ -12,7 +12,6 @@
 #ifndef __NODE_STRUCT_H_
 #define __NODE_STRUCT_H_
 
-#include "pipe.h"
 #include "utils.h"
 #include <vector>
 
@@ -58,7 +57,7 @@ protected:
 /********************************************************
 VERTEX FUNCTIONS
 *********************************************************/
-static void generatePipeVertexArray(double length);
+static void generatePipeVertexArray(GLObjectData* obj, double length);
 static void generateSphereVertexArray();
 static void generateElbowVertexArray();
 ;
@@ -99,42 +98,9 @@ public:
 	void generatePipe(int pipeIdx);
 
 	Point** getNeighbors(Point* pos);
-
-	/**
-	 * @brief Choose randomnly among the possible directions.
-	 * The likelyhood of going straight is controlled by weighting it.
-	 *
-	 * @param pos The output direction? TBD
-	 * @param dir
-	 * @param weight
-	 * @return int
-	 */
 	Direction chooseRandomDirection(Point* pos, Direction dir, int weight);
-
 	Direction chooseRandomInitialDirection(Point* pos);
-
-	/**
-	 * @brief Choose a direction to turn
-	 * This requires finding a pair of nodes to turn through.  The first node
-	 * is in the direction of the turn from the current node, and the second node
-	 * is at right angles to this at the end position.  The prim will not draw
-	 * through the first node, but may sweep close to it, so we have to mark it
-	 * as taken.
-	 *
-	 * - if next node is free, but there are no turns available, return
-	 *   DIR_STRAIGHT, so the caller can decide what to do in this case
-	 * - The turn possibilities are based on the orientation of the current xc, with
-	 *   4 relative directions to seek turns in.
-	 *
-	 ** NOTE: This description is slightly outdated, as it passes in pointers
-	 ** that will effectively be used to define two pipe joints (one PIPE_JOINT, one PIPE_SEG)
-	 *
-	 * @param pos
-	 * @param dir
-	 * @return int
-	 */
-	Direction chooseNewTurnDirection(Point* pos, Point* jointPos, Point* postTurnPos,
-	                                 Direction prevDir);
+	Direction chooseRandomEmptyDirection(Point* pos);
 
 	/**
 	 * @brief Search for an empty node to start drawing
@@ -145,19 +111,6 @@ public:
 	 * @return false if couldn't find a node
 	 */
 	Point* findRandomEmptyNode();
-
-	/**
-	 * @brief Search for an empty node closest to supplied node position
-	 * - Marks node as taken
-	 * - not completely optimized - if when dilating the box, a side gets
-	 *   clamped against the node array, this side will continue to be searched
-	 *
-	 * @param newPos
-	 * @param pos
-	 * @return true
-	 * @return false if couldn't find a node
-	 */
-	// bool takeClosestEmptyNode(IPOINT3D* newPos, IPOINT3D* pos);
 
 	/**
 	 * @brief Get position of next node from curPos and lastDir
@@ -178,17 +131,7 @@ public:
 	 */
 	int getEmptyNeighbors(Point* pos, Direction* emptyDirs);
 
-	//TODO Update Docs
-	/**
-	 * @brief Get list of direction indices of empty node neighbours, and put them in supplied matrix
-	 * Don't include going straight
-	 *
-	 * @param nNode
-	 * @param nEmpty
-	 * @param lastDir
-	 * @return int number of empty node neighbours
-	 */
-	int getEmptyTurnNeighbors(Point* pos, Direction* emptyDirs, Direction lastDir);
+	int countAvailableInDirection(Point* pos, Direction dir);
 
 private:
 	Node**** node_struct;// For a 3-dimensional array (better as pointers imho)
