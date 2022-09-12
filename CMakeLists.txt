@@ -30,10 +30,15 @@ endif(NOT OPENGL_FOUND)
 
 message(STATUS "Found OpenGL Base")
 
-find_package(PkgConfig REQUIRED)
-pkg_search_module(GLFW REQUIRED glfw3)
+# ##########GLFW BUILD###########
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
-set(LIBS ${OPENGL_LIBRARIES} ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS})
+add_subdirectory(${CMAKE_SOURCE_DIR}/glfw)
+include_directories(${CMAKE_SOURCE_DIR}/glfw/include)
+
+set(LIBS ${OPENGL_LIBRARIES} glfw ${CMAKE_DL_LIBS})
 include_directories(${OPENGL_INCLUDE_DIR} ${GLFW_INCLUDE_DIRS})
 LINK_LIBRARIES(${LIBS})
 
