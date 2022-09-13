@@ -6,23 +6,21 @@
 #define __utils_h_
 
 /******TYPEDEFS********/
-#pragma region "General Typedefs"
 typedef unsigned int uint;
-#pragma endregion
 
 /******CONSTANTS*******/
 #pragma region "Constants"
 
-#if __has_include(<numbers>)
-#include <numbers>
-#define PI std::numbers::pi
-#define ONE_OVER_PI std::numbers::inv_pi
-#define ROOT_TWO std::numbers::sqrt2
-#else
+// #if __has_include(<numbers>)
+// #include <numbers>
+// #define PI std::numbers::pi
+// #define ONE_OVER_PI std::numbers::inv_pi
+// #define ROOT_TWO std::numbers::sqrt2
+// #else
 #define PI 3.14159265358979323846
 #define ONE_OVER_PI 1 / PI
 #define ROOT_TWO 1.41421356237309504880
-#endif
+// #endif
 
 #define TEAPOT_CHANCE 0.1//Will change eventually, just for testing
 #define TURN_CHANCE 0.1  //Will change eventually, just for testing
@@ -190,15 +188,6 @@ int iRand(int max);
  * @return int Random integer between min and max
  */
 int iRand2(int min, int max);
-
-/**
- * @brief Generates float random number
- *
- * @param min Minimum of Random
- * @param max Maximum of Random
- * @return float Random float between min and max
- */
-float fRand(float min, float max);
 
 Axis getAxisFromDirection(Direction dir);
 

@@ -2,6 +2,8 @@
 cmake_policy(SET CMP0072 NEW)
 project("gl-pipes")
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
 # ########SOURCE/HEADER LISTS#########
 set(GLAD_FILES
 	${CMAKE_SOURCE_DIR}/src/glad.c
@@ -17,8 +19,9 @@ set(GL_PIPES_SOURCE
 )
 
 set(HEADER_FILES
-	${CMAKE_SOURCE_DIR}/src/include/utils.h;
-	${CMAKE_SOURCE_DIR}/src/include/pipe_layer.h;
+	${CMAKE_SOURCE_DIR}/src/include/utils.h
+	${CMAKE_SOURCE_DIR}/src/include/nodes.h
+	${CMAKE_SOURCE_DIR}/src/include/pipe_layer.h
 )
 
 # #######FIND LIBRARIES#######

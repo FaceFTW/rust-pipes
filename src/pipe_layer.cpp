@@ -1,5 +1,6 @@
 #pragma once
 #include "include/pipe_layer.h"
+#include "include/nodes.h"
 #include "include/utils.h"
 #include <cstddef>
 
@@ -43,7 +44,7 @@ void PipeLayer::generatePipe(int pipeIdx) {
 	pipes->addToPipe(pipeIdx, startPos);
 
 	//Choose a random starting direction that is empty
-	Direction nextDir = chooseRandomInitialDirection(startPos);
+	Direction nextDir = chooseRandomDirection(startPos);
 	if(nextDir == DIR_NONE) {
 		return;//Can't do sh*t
 	}
@@ -71,16 +72,21 @@ void PipeLayer::generatePipe(int pipeIdx) {
 		}
 
 		//For the nth node (is not a loop)
-		new SphereNode(startPos);
+		// new SphereNode(startPos);
+		startPos = getNextNodePos(startPos, nextDir);
 
 		//choose a random empty direction
-		// nextDir = chooseRandomEmptyDirection(startPos);
+		Direction currentDir = nextDir;
+		nextDir = chooseRandomDirection(startPos);
 
 		//Add a pipe joint that turns to that direction
+		pipes->addToPipe(pipeIdx, startPos);
+		node_struct[startPos->x][startPos->y][startPos->z] =
+		        new JointNode(startPos, currentDir, nextDir);
 	}
 
 	//Pop the last node, replace it with a Pipe Ending Node
-
+	new SphereNode(startPos);
 	//Profit
 }
 
@@ -136,7 +142,7 @@ int PipeLayer::countAvailableInDirection(Point* pos, Direction dir) {
 	return count;
 }
 
-Direction PipeLayer::chooseRandomInitialDirection(Point* pos) {
+Direction PipeLayer::chooseRandomDirection(Point* pos) {
 	Point** neighbors = getNeighbors(pos);
 	std::vector<Direction>* emptyDir = new std::vector<Direction>();
 	Direction retDir = DIR_NONE;

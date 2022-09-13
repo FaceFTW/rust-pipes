@@ -1,9 +1,11 @@
+#include "include/nodes.h"
 #include "include/glad/glad.h"
-#include "include/pipe_layer.h"
 #include "include/utils.h"
 #include <cmath>
 
 using namespace GlPipes;
+
+#define NODE_SCALE 14.0
 
 PipeNode::PipeNode(Point* _pos, Axis _axis) {
 	pos = _pos;

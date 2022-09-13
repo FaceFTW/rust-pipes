@@ -1,72 +1,11 @@
-/**
- * @file node_struct.h
- * @author Alex "FaceFTW" Westerman
- * @brief A new and improved structure
- * @version 0.1
- * @date 2022-06-27
- *
- * @copyright Copyright (c) 2022. Work is based on original work from Microsoft Corp (c) 1994
- *
- */
+#ifndef __PIPELAYER_H_
+#define __PIPELAYER_H_
 
-#ifndef __NODE_STRUCT_H_
-#define __NODE_STRUCT_H_
-
+#include "nodes.h"
 #include "utils.h"
 #include <vector>
 
 namespace GlPipes {
-
-#pragma region "Node Defines"
-
-class Node {
-public:
-	void draw();
-
-protected:
-	Point* pos;
-};
-
-class PipeNode: public Node {
-public:
-	PipeNode(Point* _pos, Axis _axis);
-	void draw();
-
-protected:
-	Axis axis;
-};
-
-class SphereNode: public Node {
-public:
-	SphereNode(Point* _pos);
-	void draw();
-};
-
-class JointNode: public Node {
-public:
-	JointNode(Point* _pos, Direction _start, Direction _end);
-	void draw();
-
-protected:
-	Direction start;
-	Direction end;
-};
-
-#pragma endregion
-
-/********************************************************
-VERTEX FUNCTIONS
-*********************************************************/
-static void generatePipeVertexArray(GLObjectData* obj, double length);
-static void generateSphereVertexArray();
-static void generateElbowVertexArray();
-;
-/********************************************************
-DRAWING FUNCTIONS
-*********************************************************/
-static void buildPipe(double length);
-static void buildSphere();
-static void buildElbow();
 
 //A wrapper for a 2-depth vector of points
 class PipeList {
@@ -102,7 +41,7 @@ public:
 	Point* getNextNodePos(Point* curPos, Direction dir);
 	Point** getNeighbors(Point* pos);
 	int countAvailableInDirection(Point* pos, Direction dir);
-	Direction chooseRandomInitialDirection(Point* pos);
+	Direction chooseRandomDirection(Point* pos);
 	Direction chooseRandomEmptyDirection(Point* pos);
 
 private:
