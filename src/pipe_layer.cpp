@@ -1,4 +1,3 @@
-#pragma once
 #include "include/pipe_layer.h"
 #include "include/nodes.h"
 #include "include/utils.h"
@@ -33,9 +32,8 @@ PipeLayer::~PipeLayer() {
 
 	delete node_struct_size;
 }
-
 /******OVERLOADED OPERATORS*******/
-std::vector<Point*>*& PipeLayer::operator()(int pipeIdx) { return (*pipes)[pipeIdx]; }
+std::vector<Point>*& PipeLayer::operator()(int pipeIdx) { return (*pipes)[pipeIdx]; }
 
 Node*& PipeLayer::operator[](Point* pos) { return node_struct[pos->x][pos->y][pos->z]; }
 
@@ -80,14 +78,26 @@ void PipeLayer::generatePipe(int pipeIdx) {
 		nextDir = chooseRandomDirection(startPos);
 
 		//Add a pipe joint that turns to that direction
+		//TODO change to jointnode when ready
 		pipes->addToPipe(pipeIdx, startPos);
 		node_struct[startPos->x][startPos->y][startPos->z] =
-		        new JointNode(startPos, currentDir, nextDir);
+		        new PipeNode(startPos, getAxisFromDirection(currentDir));
 	}
 
 	//Pop the last node, replace it with a Pipe Ending Node
 	new SphereNode(startPos);
 	//Profit
+}
+
+Point* PipeLayer::size() { return node_struct_size; }
+
+uint PipeLayer::size(Axis d) {
+	switch(d) {
+
+		case AXIS_X: return node_struct_size->x;
+		case AXIS_Y: return node_struct_size->y;
+		case AXIS_Z: return node_struct_size->z;
+	}
 }
 
 bool PipeLayer::isEmpty(Point* pos) { return node_struct[pos->x][pos->y][pos->z] != NULL; }
@@ -115,6 +125,18 @@ Point* PipeLayer::getNextNodePos(Point* curPos, Direction dir) {
 		case DIR_NONE: break;
 	}
 	return nullptr;
+}
+
+Point* PipeLayer::findRandomEmptyNode() {
+	Point* pos = new Point(0, 0, 0);
+
+	do {
+		pos->x = iRand(node_struct_size->x);
+		pos->y = iRand(node_struct_size->y);
+		pos->z = iRand(node_struct_size->z);
+	} while(!isEmpty(pos));
+
+	return pos;
 }
 
 Point** PipeLayer::getNeighbors(Point* pos) {
@@ -159,4 +181,18 @@ Direction PipeLayer::chooseRandomDirection(Point* pos) {
 	delete emptyDir;
 
 	return retDir;
+}
+
+void PipeLayer::outputPipePath(int pipeIdx) { pipes->outputPipePath(pipeIdx); }
+
+void PipeLayer::drawPipe(int pipeIdx) {
+	auto pipe = (*pipes)[pipeIdx];
+	auto iter = std::begin(*pipe);
+	auto end = std::end(*pipe);
+
+	while(iter != end) {
+		Node* nodePtr = node_struct[iter->x][iter->y][iter->z];
+		nodePtr->draw();
+		iter++;
+	}
 }

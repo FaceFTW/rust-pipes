@@ -14,11 +14,13 @@ PipeNode::PipeNode(Point* _pos, Axis _axis) {
 
 SphereNode::SphereNode(Point* _pos) { pos = _pos; }
 
-JointNode::JointNode(Point* _pos, Direction _start, Direction _end) {
-	pos = _pos;
-	start = _start;
-	end = _end;
-}
+// JointNode::JointNode(Point* _pos, Direction _start, Direction _end) {
+// 	pos = _pos;
+// 	start = _start;
+// 	end = _end;
+// }
+
+void Node::draw() {}
 
 void PipeNode::draw() {
 	//Apply Transforms based on node position
@@ -112,7 +114,7 @@ static void GlPipes::buildSphere() {
 	glEnd();
 }
 
-static void GlPipes::buildElbow() {}
+// static void GlPipes::buildElbow() {}
 
 /********************************************************
 VERTEX FUNCTIONS
@@ -160,5 +162,5 @@ static void generatePipeVertexArray(GLObjectData* obj, double length) {
 	}
 }
 
-static void generateSphereVertexArray();
-static void generateElbowVertexArray();
+// static void generateSphereVertexArray();
+// static void generateElbowVertexArray();

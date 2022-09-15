@@ -6,7 +6,7 @@ namespace GlPipes {
 
 class Node {
 public:
-	void draw();
+	virtual void draw() = 0;
 
 protected:
 	Point* pos;
@@ -27,24 +27,24 @@ public:
 	void draw();
 };
 
-class JointNode: public Node {
-public:
-	JointNode(Point* _pos, Direction _start, Direction _end);
-	void draw();
+// class JointNode: public Node {
+// public:
+// 	JointNode(Point* _pos, Direction _start, Direction _end);
+// 	void draw();
 
-protected:
-	Direction start;
-	Direction end;
-};
+// protected:
+// 	Direction start;
+// 	Direction end;
+// };
 
-class CapNode: public Node {
-public:
-	CapNode(Point* _post, Direction _ext);
-	void draw();
+// class CapNode: public Node {
+// public:
+// 	CapNode(Point* _post, Direction _ext);
+// 	void draw();
 
-protected:
-	Direction ext;//Defines direction of pipe out of cap
-};
+// protected:
+// 	Direction ext;//Defines direction of pipe out of cap
+// };
 
 #pragma endregion
 

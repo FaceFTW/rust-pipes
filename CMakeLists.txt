@@ -48,5 +48,8 @@ LINK_LIBRARIES(${LIBS})
 add_executable(glscratchwork ${CMAKE_SOURCE_DIR}/src/scratch/main.cpp ${GLAD_FILES})
 target_link_libraries(glscratchwork ${LIBS})
 
+add_executable(pipelayer_test ${CMAKE_SOURCE_DIR}/src/scratch/pipelayer_test.cpp ${GL_PIPES_SOURCE} ${HEADER_FILES} ${GLAD_FILES})
+target_link_libraries(pipelayer_test ${LIBS})
+
 add_executable(gl-pipes ${GL_PIPES_SOURCE} ${HEADER_FILES} ${GLAD_FILES})
 TARGET_LINK_LIBRARIES(gl-pipes ${LIBS})

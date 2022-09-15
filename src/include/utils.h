@@ -1,6 +1,7 @@
 #pragma once
 #include "glad/glad.h"
 #include <cmath>
+#include <iostream>
 
 #ifndef __utils_h_
 #define __utils_h_
@@ -154,6 +155,11 @@ typedef struct s_point_t {
 				z = (_point->z);
 				break;
 		}
+	}
+
+	friend std::ostream& operator<<(std::ostream& os, s_point_t point) {
+		os << '[' << point.x << ", " << point.y << ", " << point.z << ", " << ']';
+		return os;
 	}
 
 } Point;

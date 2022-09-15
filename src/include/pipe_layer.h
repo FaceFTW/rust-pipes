@@ -13,13 +13,15 @@ public:
 	PipeList(int pipeCnt);
 	~PipeList();
 
-	std::vector<Point*>*& operator[](int pipe);
-	Point*& operator()(int pipe, int idx);
+	std::vector<Point>*& operator[](int pipe);
+	Point& operator()(int pipe, int idx);
 
 	void addToPipe(int pipe, Point* point);
+	void outputPipePath(int pipe);
 
 private:
-	std::vector<std::vector<Point*>*>* internal;
+	std::vector<Point>** internal;
+	int pipeCnt;
 };
 
 class PipeLayer {
@@ -27,7 +29,7 @@ public:
 	PipeLayer(Point* node_size, int numPipes);
 	~PipeLayer();// Destructor
 
-	std::vector<Point*>*& operator()(int pipeIdx);
+	std::vector<Point>*& operator()(int pipeIdx);
 	Node*& operator[](Point* pos);
 
 	Point* size();
@@ -35,6 +37,8 @@ public:
 	bool isEmpty(Point* pos);
 
 	void generatePipe(int pipeIdx);
+	void outputPipePath(int pipeIdx);
+	void drawPipe(int pipeIdx);
 
 	int getEmptyNeighbors(Point* pos, Direction* emptyDirs);
 	Point* findRandomEmptyNode();
@@ -42,7 +46,6 @@ public:
 	Point** getNeighbors(Point* pos);
 	int countAvailableInDirection(Point* pos, Direction dir);
 	Direction chooseRandomDirection(Point* pos);
-	Direction chooseRandomEmptyDirection(Point* pos);
 
 private:
 	Node**** node_struct;
