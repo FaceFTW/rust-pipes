@@ -7,9 +7,9 @@ namespace GlPipes {
 class Node {
 public:
 	virtual void draw() = 0;
-
+	Node(Point* _pos);
 protected:
-	Point* pos;
+	Point pos;
 };
 
 class PipeNode: public Node {

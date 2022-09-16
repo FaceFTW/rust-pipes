@@ -7,12 +7,11 @@ using namespace GlPipes;
 
 #define NODE_SCALE 14.0
 
-PipeNode::PipeNode(Point* _pos, Axis _axis) {
-	pos = _pos;
-	axis = _axis;
-}
+Node::Node(Point* _pos) { pos = {_pos->x, _pos->y, _pos->z}; }
 
-SphereNode::SphereNode(Point* _pos) { pos = _pos; }
+PipeNode::PipeNode(Point* _pos, Axis _axis) : Node::Node(_pos) { axis = _axis; }
+
+SphereNode::SphereNode(Point* _pos) : Node::Node(_pos) {}
 
 // JointNode::JointNode(Point* _pos, Direction _start, Direction _end) {
 // 	pos = _pos;
@@ -44,6 +43,10 @@ void PipeNode::draw() {
 	}
 	//TODO ad pipelength macro
 	buildPipe(14.0);
+}
+
+void SphereNode::draw() {
+	//TODO Add proper drawing code
 }
 
 /********************************************************

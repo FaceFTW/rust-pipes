@@ -104,6 +104,12 @@ typedef struct s_point_t {
 	uint y;
 	uint z;
 
+	s_point_t() {
+		x = 0;
+		y = 0;
+		z = 0;
+	}
+
 	s_point_t(uint _x, uint _y, uint _z) {
 		x = _x;
 		y = _y;
