@@ -162,7 +162,6 @@ typedef struct s_point_t {
 				break;
 		}
 	}
-
 	friend std::ostream& operator<<(std::ostream& os, s_point_t point) {
 		os << '[' << point.x << ", " << point.y << ", " << point.z << ", " << ']';
 		return os;

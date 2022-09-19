@@ -121,7 +121,7 @@ Point PipeLayer::getNextNodePos(Point curPos, Direction dir) {
 			break;
 		case DIR_NONE: break;
 	}
-	return nullptr;
+	return curPos;
 }
 
 Point PipeLayer::findRandomEmptyNode() {
@@ -148,17 +148,26 @@ Point* PipeLayer::getNeighbors(Point pos) {
 }
 
 int PipeLayer::countAvailableInDirection(Point pos, Direction dir) {
-	int count = 0;
-	Point nextPos = getNextNodePos(pos, dir);
-	while(nextPos != NULL) {
-		if(isEmpty(nextPos)) {
-			count++;
-			nextPos = getNextNodePos(nextPos, dir);
-		} else {
-			break;
-		}
+	int maxWalk = 0;
+	switch(dir) {
+		case DIR_X_PLUS: maxWalk = node_struct_size.x - pos.x; break;
+		case DIR_X_MINUS: maxWalk = pos.x; break;
+		case DIR_Y_PLUS: maxWalk = node_struct_size.y - pos.y; break;
+		case DIR_Y_MINUS: maxWalk = pos.y; break;
+		case DIR_Z_PLUS: maxWalk = node_struct_size.z - pos.z; break;
+		case DIR_Z_MINUS: maxWalk = pos.z; break;
+		case DIR_NONE: break;
 	}
-	return count;
+	int nodeCount = 0;
+	Point testNode = pos;
+
+	for(int i = 0; i < maxWalk; i++) {
+		testNode = getNextNodePos(testNode, dir);
+		if(!isEmpty(&testNode)) { break; }
+		nodeCount++;
+	}
+	return nodeCount;
+	;
 }
 
 Direction PipeLayer::chooseRandomDirection(Point pos) {
@@ -168,7 +177,7 @@ Direction PipeLayer::chooseRandomDirection(Point pos) {
 
 	//Bit of a brute force method but hey it works
 	for(int i = 0; i < 6; i++) {
-		if(neighbors[i] && isEmpty(neighbors[i])) { emptyDir->push_back((Direction) i); }
+		if(isEmpty(&neighbors[i])) { emptyDir->push_back((Direction) i); }
 	}
 
 	retDir = emptyDir->at(iRand(emptyDir->size()));
@@ -183,8 +192,8 @@ void PipeLayer::outputPipePath(int pipeIdx) { pipes->outputPipePath(pipeIdx); }
 
 void PipeLayer::drawPipe(int pipeIdx) {
 	auto pipe = (*pipes)[pipeIdx];
-	auto iter = std::begin(*pipe);
-	auto end = std::end(*pipe);
+	auto iter = std::begin(pipe);
+	auto end = std::end(pipe);
 
 	while(iter != end) {
 		Node* nodePtr = node_struct[iter->x][iter->y][iter->z];

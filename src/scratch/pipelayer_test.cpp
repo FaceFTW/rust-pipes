@@ -5,7 +5,7 @@
 
 int main(void) {
 
-	Point* bounds = new Point(10, 10, 10);
+	Point bounds = {10, 10, 10};
 	GlPipes::PipeLayer* pipelayer = new GlPipes::PipeLayer(bounds, 3);
 
 	pipelayer->generatePipe(0);

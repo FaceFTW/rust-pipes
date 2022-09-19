@@ -3,7 +3,7 @@
 
 #include "include/utils.h"
 
-int iRand(int max) { return rand() % (max + 1); }
+int iRand(int max) { return rand() % (max); }
 
 int iRand2(int min, int max) {
 	if(min == max) return min;
@@ -13,7 +13,7 @@ int iRand2(int min, int max) {
 		max = temp;
 	}
 
-	return min + (rand() % (max - min + 1));
+	return min + (rand() % (max - min));
 }
 
 Axis getAxisFromDirection(Direction dir) {
