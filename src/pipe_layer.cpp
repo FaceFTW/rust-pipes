@@ -55,8 +55,8 @@ void PipeLayer::generatePipe(int pipeIdx) {
 		int openNodesInDir = countAvailableInDirection(startPos, nextDir);
 
 		//Choose a random number n, 1 <= n <= available nodes
-		int pipeLength = iRand2(1, openNodesInDir);
-
+		int pipeLength = 1;
+		if(openNodesInDir > 1) { pipeLength = iRand2(1, openNodesInDir); }
 		//For n-1 available nodes, create straight pipe segs in dir
 		//Logically, if only one node is available, this will not run
 		for(int j = 0; j < pipeLength - 1; j++) {
@@ -95,9 +95,10 @@ uint PipeLayer::size(Axis d) {
 		case AXIS_Y: return node_struct_size.y;
 		case AXIS_Z: return node_struct_size.z;
 	}
+	return 0;
 }
 
-bool PipeLayer::isEmpty(Point* pos) { return node_struct[pos->x][pos->y][pos->z] != NULL; }
+bool PipeLayer::isEmpty(Point* pos) { return node_struct[pos->x][pos->y][pos->z] == NULL; }
 
 Point PipeLayer::getNextNodePos(Point curPos, Direction dir) {
 	switch(dir) {

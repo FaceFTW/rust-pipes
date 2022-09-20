@@ -21,7 +21,7 @@ std::vector<Point>& PipeList::operator[](int pipeIdx) { return internal[pipeIdx]
 Point& PipeList::operator()(int pipeIdx, int idx) { return internal[pipeIdx].at(idx); }
 
 /******PUBLIC METHODS*******/
-void PipeList::addToPipe(int pipeIdx, Point* point) { internal[pipeIdx].push_back(point); }
+void PipeList::addToPipe(int pipeIdx, Point* point) { internal[pipeIdx].push_back(*point); }
 
 void PipeList::outputPipePath(int pipe) {
 	auto iter = std::begin(internal[pipe]);

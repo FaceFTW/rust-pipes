@@ -1,6 +1,6 @@
 #pragma once
 #include "glad/glad.h"
-#include <cmath>
+// #include <cmath>
 #include <iostream>
 
 #ifndef __utils_h_

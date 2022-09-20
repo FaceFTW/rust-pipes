@@ -2,9 +2,17 @@
 cmake_policy(SET CMP0072 NEW)
 project("gl-pipes")
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG" )
+# set(CMAKE_CXX_STANDARD_REQUIRED 11)
 # ########SOURCE/HEADER LISTS#########
+
+set(PCG_FILES
+	${CMAKE_SOURCE_DIR}/pcg/pcg_basic.c
+	${CMAKE_SOURCE_DIR}/pcg/pcg_basic.h
+)
+
 set(GLAD_FILES
 	${CMAKE_SOURCE_DIR}/src/glad.c
 	${CMAKE_SOURCE_DIR}/src/include/glad/glad.h
@@ -41,7 +49,11 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(${CMAKE_SOURCE_DIR}/glfw)
 include_directories(${CMAKE_SOURCE_DIR}/glfw/include)
 
-set(LIBS ${OPENGL_LIBRARIES} glfw ${CMAKE_DL_LIBS})
+#############PCG BUILD############
+add_library(libpcg STATIC ${PCG_FILES})
+include_directories(${CMAKE_SOURCE_DIR}/pcg)
+
+set(LIBS ${OPENGL_LIBRARIES} glfw ${CMAKE_DL_LIBS} libpcg)
 include_directories(${OPENGL_INCLUDE_DIR} ${GLFW_INCLUDE_DIRS})
 LINK_LIBRARIES(${LIBS})
 

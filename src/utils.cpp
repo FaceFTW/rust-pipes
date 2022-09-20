@@ -1,19 +1,24 @@
 
-#include <math.h>
-
 #include "include/utils.h"
+#include <pcg_basic.h>
 
-int iRand(int max) { return rand() % (max); }
+using namespace std;
+int iRand(int max) {
+#ifdef DEBUG
+	cerr << "iRand Invoked";
+#endif
+	return pcg32_boundedrand(max);
+}
 
+//Assume max > min
 int iRand2(int min, int max) {
-	if(min == max) return min;
-	else if(max < min) {
-		int temp = min;
-		min = max;
-		max = temp;
-	}
 
-	return min + (rand() % (max - min));
+#ifdef DEBUG
+	cerr << "iRand2 Invoked";
+#endif
+
+	int diff = max - min;
+	return min + pcg32_boundedrand(diff);
 }
 
 Axis getAxisFromDirection(Direction dir) {
