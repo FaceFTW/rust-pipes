@@ -62,5 +62,9 @@ static void buildPipe(double length);
 static void buildSphere();
 static void buildElbow();
 
+/********************************************************
+PIPE DRAWING TRANSFORMS
+*********************************************************/
+
 }// namespace GlPipes
 #endif

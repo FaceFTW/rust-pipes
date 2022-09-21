@@ -26,21 +26,14 @@ void PipeNode::draw() {
 	//Pipe Length represents a "bounding box of where the pipe can be placed"
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	//change used matrix based on axis
+
+	//Apply bounding Box transform
 	switch(axis) {
-		case AXIS_X:
-			glTranslated(0, 0, 0);
-			glRotated(0, 0, 0, 0);
-			break;
-		case AXIS_Y:
-			glTranslated(0, 0, 0);
-			glRotated(0, 0, 0, 0);
-			break;
-		case AXIS_Z:
-			glTranslated(0, 0, 0);
-			glRotated(0, 0, 0, 0);
-			break;
+		case AXIS_X: glRotated(-90, 0, 1, 0); break;
+		case AXIS_Y: glRotated(90, 1, 0, 0); break;
+		case AXIS_Z: break;//Apparently doesn't need rotation
 	}
+
 	//TODO ad pipelength macro
 	buildPipe(14.0);
 }
