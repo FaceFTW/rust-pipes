@@ -22,24 +22,48 @@ SphereNode::SphereNode(Point* _pos) : Node::Node(_pos) {}
 void Node::draw() {}
 
 void PipeNode::draw() {
-	//Apply Transforms based on node position
-	//Pipe Length represents a "bounding box of where the pipe can be placed"
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+	//Apply Base Coordinate Transform (1 node = 14 u)
+	glTranslated(14 * pos.x, 14 * pos.y, 14 * pos.z);
+	glPushMatrix();
+
 	//Apply bounding Box transform
+	glLoadIdentity();
 	switch(axis) {
 		case AXIS_X: glRotated(-90, 0, 1, 0); break;
 		case AXIS_Y: glRotated(90, 1, 0, 0); break;
-		case AXIS_Z: break;//Apparently doesn't need rotation
+		case AXIS_Z: glTranslated(0, 0, 14); break;
 	}
+	glTranslated(7, 7, -14);
+	glPushMatrix();
 
-	//TODO ad pipelength macro
 	buildPipe(14.0);
+
+	//Reset Stack
+	glPopMatrix();
+	glPopMatrix();
 }
 
 void SphereNode::draw() {
-	//TODO Add proper drawing code
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	//Apply Base Coordinate Transform (1 node = 14 u)
+	glTranslated(14 * pos.x, 14 * pos.y, 14 * pos.z);
+	glPushMatrix();
+
+	//Apply bounding Box transform
+	glLoadIdentity();
+	glTranslated(7, 7, 7);//Thank god its a uniform solid
+	glPushMatrix();
+
+	buildSphere();
+
+	//Reset Stack
+	glPopMatrix();
+	glPopMatrix();
 }
 
 /********************************************************
