@@ -34,10 +34,10 @@ public:
 	Node*& operator[](Point* pos);
 
 	Point* size();
-	uint size(Axis d);
+	unsigned int size(Axis d);
 	bool isEmpty(Point* pos);
 
-	void generatePipe(int pipeIdx);
+	void generatePipe(int pipeIdx, DrawConfig* cfg);
 	void outputPipePath(int pipeIdx);
 	void drawPipe(int pipeIdx);
 

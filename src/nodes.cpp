@@ -7,11 +7,16 @@ using namespace GlPipes;
 
 #define NODE_SCALE 14.0
 
-Node::Node(Point* _pos) { pos = {_pos->x, _pos->y, _pos->z}; }
+Node::Node(Point* _pos, DrawConfig* _cfg) {
+	pos = {_pos->x, _pos->y, _pos->z};
+	cfg = _cfg;
+}
 
-PipeNode::PipeNode(Point* _pos, Axis _axis) : Node::Node(_pos) { axis = _axis; }
+PipeNode::PipeNode(Point* _pos, Axis _axis, DrawConfig* _cfg) : Node::Node(_pos, _cfg) {
+	axis = _axis;
+}
 
-SphereNode::SphereNode(Point* _pos) : Node::Node(_pos) {}
+SphereNode::SphereNode(Point* _pos, DrawConfig* _cfg) : Node::Node(_pos, _cfg) {}
 
 // JointNode::JointNode(Point* _pos, Direction _start, Direction _end) {
 // 	pos = _pos;
@@ -39,7 +44,7 @@ void PipeNode::draw() {
 	glTranslated(7, 7, -14);
 	glPushMatrix();
 
-	buildPipe(14.0);
+	buildPipe(cfg);
 
 	//Reset Stack
 	glPopMatrix();
@@ -59,7 +64,7 @@ void SphereNode::draw() {
 	glTranslated(7, 7, 7);//Thank god its a uniform solid
 	glPushMatrix();
 
-	buildSphere();
+	buildSphere(cfg);
 
 	//Reset Stack
 	glPopMatrix();
@@ -69,31 +74,23 @@ void SphereNode::draw() {
 /********************************************************
 DRAWING FUNCTIONS
 *********************************************************/
-static void GlPipes::buildPipe(double length) {
-	GLint stacks, slices;
-	GLint j;
-	GLdouble angle;
-	GLdouble zLow, zHigh;
-	GLdouble zNormal;
-	GLdouble radius = 5.0;
-	slices = 16;
-	stacks = (int) std::round(((float) (length / 7.0) * slices));
+static void GlPipes::buildPipe(DrawConfig* cfg) {
+	GLdouble zLow, zHigh, zNormal = 0.0;
+	int stacks = (int) std::round(((float) (cfg->pipeLength / 7.0) * cfg->pipeSlices));
 
-	zNormal = 0.0f;
-
-	GLdouble angleStep = 2 * PI / slices;
+	GLdouble angleStep = 2 * PI / cfg->pipeSlices;
 
 	glColor3f(1.0, 1.0, 1.0);
 	glBegin(GL_LINES);
-	for(j = 0; j < stacks; j++) {
-		zLow = j * length / stacks;
-		zHigh = (j + 1) * length / stacks;
+	for(int i = 0; i < stacks; i++) {
+		zLow = i * cfg->pipeLength / stacks;
+		zHigh = (i + 1) * cfg->pipeLength / stacks;
 
-		for(angle = 0.0; angle <= 2 * PI + angleStep; angle += angleStep) {
+		for(GLdouble angle = 0.0; angle <= 2 * PI + angleStep; angle += angleStep) {
 			glNormal3f(sin(angle), cos(angle), zNormal);
 			glEdgeFlag(true);
-			glVertex3f(radius * sin(angle), radius * cos(angle), zLow);
-			glVertex3f(radius * sin(angle), radius * cos(angle), zHigh);
+			glVertex3f(cfg->pipeRadius * sin(angle), cfg->pipeRadius * cos(angle), zLow);
+			glVertex3f(cfg->pipeRadius * sin(angle), cfg->pipeRadius * cos(angle), zHigh);
 		}
 	}
 
@@ -103,27 +100,18 @@ static void GlPipes::buildPipe(double length) {
 
 //It's been a while since I had to do this much geometry
 //Shoutouts to http://www.songho.ca/opengl/gl_sphere.html
-static void GlPipes::buildSphere() {
-	GLint i, j;
-	GLint stacks, slices;
-	GLdouble radius;
-
-	//TODO define slices macro
-	slices = 16;
-	stacks = slices;
-	radius = 5.0;
-
-	GLdouble thetaStep = 2 * PI / slices;
-	GLdouble phiStep = PI / stacks;
+static void GlPipes::buildSphere(DrawConfig* cfg) {
+	GLdouble thetaStep = 2 * PI / cfg->sphereSlices;
+	GLdouble phiStep = PI / cfg->sphereStacks;
 
 	glBegin(GL_TRIANGLE_FAN);
 
-	for(i = 0; i <= stacks; ++i) {
+	for(int i = 0; i <= cfg->sphereStacks; ++i) {
 		GLdouble phiCurrent = (PI / 2) - i * phiStep;
-		GLdouble rCosPhi = radius * cos(phiCurrent);
-		GLdouble rSinPhi = radius * sin(phiCurrent);
+		GLdouble rCosPhi = cfg->sphereRadius * cos(phiCurrent);
+		GLdouble rSinPhi = cfg->sphereRadius * sin(phiCurrent);
 
-		for(int j = 0; j <= slices; ++j) {
+		for(int j = 0; j <= cfg->sphereSlices; ++j) {
 			GLdouble thetaCurrent = j * thetaStep;
 			GLdouble xpos = rCosPhi * cos(thetaCurrent);
 			GLdouble ypos = rCosPhi * sin(thetaCurrent);
@@ -139,48 +127,48 @@ static void GlPipes::buildSphere() {
 /********************************************************
 VERTEX FUNCTIONS
 *********************************************************/
-static void generatePipeVertexArray(GLObjectData* obj, double length) {
-	GLint stacks, slices;
-	GLdouble angle;
-	GLdouble zLow, zHigh;
-	GLdouble zNormal;
-	GLdouble radius = 5.0;
-	slices = 16;
-	stacks = (int) std::round(((float) (length / 7.0) * slices));
+// static void generatePipeVertexArray(GLObjectData* obj, double length) {
+// 	GLint stacks, slices;
+// 	GLdouble angle;
+// 	GLdouble zLow, zHigh;
+// 	GLdouble zNormal;
+// 	GLdouble radius = 5.0;
+// 	slices = 16;
+// 	stacks = (int) std::round(((float) (length / 7.0) * slices));
 
-	zNormal = 0.0f;
+// 	zNormal = 0.0f;
 
-	GLdouble angleStep = 2 * PI / slices;
-	int angleStepCount = (2 * PI + angleStep) / angleStep;
+// 	GLdouble angleStep = 2 * PI / slices;
+// 	int angleStepCount = (2 * PI + angleStep) / angleStep;
 
-	obj->vArraySize = 3 * stacks * angleStepCount * 2;
-	obj->vArray = new GLdouble[obj->vArraySize];
+// 	obj->vArraySize = 3 * stacks * angleStepCount * 2;
+// 	obj->vArray = new GLdouble[obj->vArraySize];
 
-	obj->nArraySize = 3 * stacks * angleStepCount;
-	obj->nArray = new GLdouble[obj->nArraySize];
+// 	obj->nArraySize = 3 * stacks * angleStepCount;
+// 	obj->nArray = new GLdouble[obj->nArraySize];
 
-	for(int i = 0; i < stacks; i++) {
-		zLow = i * length / stacks;
-		zHigh = (i + 1) * length / stacks;
+// 	for(int i = 0; i < stacks; i++) {
+// 		zLow = i * length / stacks;
+// 		zHigh = (i + 1) * length / stacks;
 
-		for(int j = 0; j <= angleStepCount; j++) {
-			GLdouble angle = j * angleStep;
+// 		for(int j = 0; j <= angleStepCount; j++) {
+// 			GLdouble angle = j * angleStep;
 
-			//Normals
-			obj->nArray[(3 * (i * j))] = sin(angle);
-			obj->nArray[(3 * (i * j)) + 1] = cos(angle);
-			obj->nArray[(3 * (i * j)) + 2] = zNormal;
+// 			//Normals
+// 			obj->nArray[(3 * (i * j))] = sin(angle);
+// 			obj->nArray[(3 * (i * j)) + 1] = cos(angle);
+// 			obj->nArray[(3 * (i * j)) + 2] = zNormal;
 
-			//Vertices
-			obj->vArray[(6 * (i * j))] = radius * sin(angle);
-			obj->vArray[(6 * (i * j)) + 1] = radius * cos(angle);
-			obj->vArray[(6 * (i * j)) + 2] = zLow;
-			obj->vArray[(6 * (i * j)) + 3] = radius * sin(angle);
-			obj->vArray[(6 * (i * j)) + 4] = radius * cos(angle);
-			obj->vArray[(6 * (i * j)) + 5] = zHigh;
-		}
-	}
-}
+// 			//Vertices
+// 			obj->vArray[(6 * (i * j))] = radius * sin(angle);
+// 			obj->vArray[(6 * (i * j)) + 1] = radius * cos(angle);
+// 			obj->vArray[(6 * (i * j)) + 2] = zLow;
+// 			obj->vArray[(6 * (i * j)) + 3] = radius * sin(angle);
+// 			obj->vArray[(6 * (i * j)) + 4] = radius * cos(angle);
+// 			obj->vArray[(6 * (i * j)) + 5] = zHigh;
+// 		}
+// 	}
+// }
 
 // static void generateSphereVertexArray();
 // static void generateElbowVertexArray();

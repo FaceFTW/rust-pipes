@@ -34,7 +34,7 @@ std::vector<Point>& PipeLayer::operator()(int pipeIdx) { return (*pipes)[pipeIdx
 
 Node*& PipeLayer::operator[](Point* pos) { return node_struct[pos->x][pos->y][pos->z]; }
 
-void PipeLayer::generatePipe(int pipeIdx) {
+void PipeLayer::generatePipe(int pipeIdx, DrawConfig* cfg) {
 	Point startPos = findRandomEmptyNode();
 	pipes->addToPipe(pipeIdx, &startPos);
 
@@ -45,7 +45,7 @@ void PipeLayer::generatePipe(int pipeIdx) {
 	}
 
 	node_struct[startPos.x][startPos.y][startPos.z] =
-	        new PipeNode(&startPos, getAxisFromDirection(nextDir));
+	        new PipeNode(&startPos, getAxisFromDirection(nextDir), cfg);
 
 	//Choose a random number of iterations (minimum 5 to maximum 10 for now)
 	int numIter = iRand2(5, 10);
@@ -63,7 +63,7 @@ void PipeLayer::generatePipe(int pipeIdx) {
 			startPos = getNextNodePos(startPos, nextDir);
 			pipes->addToPipe(pipeIdx, &startPos);
 			node_struct[startPos.x][startPos.y][startPos.z] =
-			        new PipeNode(&startPos, getAxisFromDirection(nextDir));
+			        new PipeNode(&startPos, getAxisFromDirection(nextDir), cfg);
 		}
 
 		//For the nth node (is not a loop)
@@ -78,19 +78,18 @@ void PipeLayer::generatePipe(int pipeIdx) {
 		//TODO change to jointnode when ready
 		pipes->addToPipe(pipeIdx, &startPos);
 		node_struct[startPos.x][startPos.y][startPos.z] =
-		        new PipeNode(&startPos, getAxisFromDirection(currentDir));
+		        new PipeNode(&startPos, getAxisFromDirection(currentDir), cfg);
 	}
 
 	//Pop the last node, replace it with a Pipe Ending Node
-	new SphereNode(&startPos);
+	new SphereNode(&startPos, cfg);
 	//Profit
 }
 
 Point* PipeLayer::size() { return &node_struct_size; }
 
-uint PipeLayer::size(Axis d) {
+unsigned int PipeLayer::size(Axis d) {
 	switch(d) {
-
 		case AXIS_X: return node_struct_size.x;
 		case AXIS_Y: return node_struct_size.y;
 		case AXIS_Z: return node_struct_size.z;

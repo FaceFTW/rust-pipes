@@ -3,20 +3,11 @@
 #include <pcg_basic.h>
 
 using namespace std;
-int iRand(int max) {
-#ifdef DEBUG
-	cerr << "iRand Invoked";
-#endif
-	return pcg32_boundedrand(max);
-}
+
+int iRand(int max) { return pcg32_boundedrand(max); }
 
 //Assume max > min
 int iRand2(int min, int max) {
-
-#ifdef DEBUG
-	cerr << "iRand2 Invoked";
-#endif
-
 	int diff = max - min;
 	return min + pcg32_boundedrand(diff);
 }

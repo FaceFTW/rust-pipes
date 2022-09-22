@@ -1,13 +1,31 @@
 #pragma once
 #include "glad/glad.h"
-// #include <cmath>
+#include <cstdint>
 #include <iostream>
 
 #ifndef __utils_h_
 #define __utils_h_
 
-/******TYPEDEFS********/
-typedef unsigned int uint;
+/******CONFIG STRUCT*******/
+//HACK Not sure how safe this is in practice
+//TODO investigate because I may be doing an oopsie
+//TODO Consider shrinking types to reduce struct size
+typedef struct s_appConfig {
+	int totalPipes;    //Total number of pipes to build
+	int minIter;       //Minimum number of iterations when generating a pipe
+	int maxIter;       //Maximum number of iterations when generating a pipe
+	int nodeStructSize;//Assume uniform dimensions for now
+} AppConfig;
+
+typedef struct s_drawConfig {
+	double pipeLength;//Float length of the pipe
+	int pipeSlices;//Number of length slices used for pipe nodes (larger -> more circular precision)
+	int pipeRadius;
+	int sphereSlices;
+	int sphereStacks;
+	int sphereRadius;
+
+} DrawConfig;
 
 /******CONSTANTS*******/
 #pragma region "Constants"
@@ -23,17 +41,7 @@ typedef unsigned int uint;
 #define ROOT_TWO 1.41421356237309504880
 // #endif
 
-#define TEAPOT_CHANCE 0.1//Will change eventually, just for testing
-#define TURN_CHANCE 0.1  //Will change eventually, just for testing
-
 #define TEAPOT 66
-
-// If random search takes longer than twice the total number
-// of nodes, give up the random search.  There may not be any
-// empty nodes.
-#define INFINITE_LOOP (2 * NUM_NODE * NUM_NODE * NUM_NODE)
-#define MIN_VAL 1
-#define MAX_VAL 0
 
 #pragma endregion
 
@@ -52,57 +60,15 @@ typedef enum e_direction {
 	DIR_NONE
 } Direction;
 
-/*****OLD ENUMS******/
-// // shchemes for choosing directions
-// enum {
-// 	NORMAL_SCHEME_CHOOSE_DIR_RANDOM,
-// 	NORMAL_SCHEME_CHOOSE_DIR_TURN,
-// 	NORMAL_SCHEME_CHOOSE_DIR_STRAIGHT
-// };
-
-// #define NUM_TEA_MATERIALS 24
-// enum {
-// 	EMERALD = 0,
-// 	JADE,
-// 	OBSIDIAN,
-// 	PEARL,
-// 	RUBY,
-// 	TURQUOISE,
-// 	BRASS,
-// 	BRONZE,
-// 	CHROME,
-// 	COPPER,
-// 	GOLD,
-// 	SILVER,
-// 	BLACK_PLASTIC,
-// 	CYAN_PLASTIC,
-// 	GREEN_PLASTIC,
-// 	RED_PLASTIC,
-// 	WHITE_PLASTIC,
-// 	YELLOW_PLASTIC,
-// 	BLACK_RUBBER,
-// 	CYAN_RUBBER,
-// 	GREEN_RUBBER,
-// 	RED_RUBBER,
-// 	WHITE_RUBBER,
-// 	YELLOW_RUBBER
-// };
-
-// // 'white' materials, for texturing
-
-// #define NUM_TEX_MATERIALS 4
-
-// enum { BRIGHT_WHITE = NUM_TEA_MATERIALS, WHITE, WARM_WHITE, COOL_WHITE };
-
 #pragma endregion
 
 /******STRUCTS*******/
 #pragma region "Struct Typedefs"
 
 typedef struct s_point_t {
-	uint x;
-	uint y;
-	uint z;
+	unsigned int x;
+	unsigned int y;
+	unsigned int z;
 
 	s_point_t() {
 		x = 0;
@@ -110,16 +76,10 @@ typedef struct s_point_t {
 		z = 0;
 	}
 
-	s_point_t(uint _x, uint _y, uint _z) {
+	s_point_t(unsigned int _x, unsigned int _y, unsigned int _z) {
 		x = _x;
 		y = _y;
 		z = _z;
-	}
-
-	s_point_t(s_point_t* _point) {
-		x = _point->x;
-		y = _point->y;
-		z = _point->z;
 	}
 
 	//Neighbor Constructor
@@ -169,37 +129,11 @@ typedef struct s_point_t {
 
 } Point;
 
-// Not using interleaved arrays because *why*
-typedef struct s_gl_object_data_t {
-	GLdouble* vArray;
-	GLint vArraySize;
-
-	GLdouble* nArray;
-	GLint nArraySize;
-
-	Point* pos;
-
-} GLObjectData;
-
 /******METHOD DEFS******/
 #pragma region "Method Declarations"
-/**
- * @brief Generates integer random number
- *
- * @param max Maximum number
- * @return int  Random number between 0 and (max-1)
- */
+
 int iRand(int max);
-
-/**
- * @brief Generates integer random number
- *
- * @param min Minimum of Random
- * @param max Maximum of Random
- * @return int Random integer between min and max
- */
 int iRand2(int min, int max);
-
 Axis getAxisFromDirection(Direction dir);
 
 #pragma endregion

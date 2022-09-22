@@ -7,14 +7,16 @@ namespace GlPipes {
 class Node {
 public:
 	virtual void draw() = 0;
-	Node(Point* _pos);
+	Node(Point* _pos, DrawConfig* _cfg);
+
 protected:
 	Point pos;
+	DrawConfig* cfg;
 };
 
 class PipeNode: public Node {
 public:
-	PipeNode(Point* _pos, Axis _axis);
+	PipeNode(Point* _pos, Axis _axis, DrawConfig* _cfg);
 	void draw();
 
 protected:
@@ -23,7 +25,7 @@ protected:
 
 class SphereNode: public Node {
 public:
-	SphereNode(Point* _pos);
+	SphereNode(Point* _pos, DrawConfig* _cfg);
 	void draw();
 };
 
@@ -51,15 +53,15 @@ public:
 /********************************************************
 VERTEX FUNCTIONS
 *********************************************************/
-static void generatePipeVertexArray(GLObjectData* obj, double length);
-static void generateSphereVertexArray();
-static void generateElbowVertexArray();
+// static void generatePipeVertexArray(GLObjectData* obj, double length);
+// static void generateSphereVertexArray();
+// static void generateElbowVertexArray();
 ;
 /********************************************************
 DRAWING FUNCTIONS
 *********************************************************/
-static void buildPipe(double length);
-static void buildSphere();
+static void buildPipe(DrawConfig* cfg);
+static void buildSphere(DrawConfig* cfg);
 static void buildElbow();
 
 /********************************************************
