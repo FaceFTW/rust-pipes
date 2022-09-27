@@ -18,6 +18,7 @@ set(GLAD_FILES
 	${CMAKE_SOURCE_DIR}/src/include/glad/glad.h
 	${CMAKE_SOURCE_DIR}/src/include/KHR/khrplatform.h
 )
+include_directories(${CMAKE_SOURCE_DIR}/src/include)
 
 set(GL_PIPES_SOURCE
 	${CMAKE_SOURCE_DIR}/src/utils.cpp

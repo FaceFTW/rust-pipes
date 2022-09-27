@@ -23,3 +23,15 @@ Axis getAxisFromDirection(Direction dir) {
 		default: return AXIS_X;//should never happen
 	}
 }
+
+Direction invertDirection(Direction dir) {
+	switch(dir) {
+		case DIR_X_PLUS: return DIR_X_MINUS;
+		case DIR_X_MINUS: return DIR_X_PLUS;
+		case DIR_Y_PLUS: return DIR_Y_MINUS;
+		case DIR_Y_MINUS: return DIR_Y_PLUS;
+		case DIR_Z_PLUS: return DIR_Z_MINUS;
+		case DIR_Z_MINUS: return DIR_Z_PLUS;
+		default: return DIR_NONE;
+	}
+}

@@ -65,7 +65,7 @@ void draw(GLFWwindow* win) {
 	glLoadIdentity();
 	glOrtho(-50., 50., -50, 50., 0.5, 500);
 	glPushMatrix();
-	gluLookAt(-50, -50, 50, 0, 0, 0, 0, 1, 0);
+	gluLookAt(-50, -50, -50, 0, 0, 0, 0, 1, 0);
 
 	glMatrixMode(GL_MODELVIEW);
 	drawAxes();
@@ -76,9 +76,11 @@ void draw(GLFWwindow* win) {
 
 	GlPipes::JointNode testJoint =
 	        GlPipes::JointNode(&testPoint, Direction::DIR_X_PLUS, Direction::DIR_Y_MINUS, &cfg);
-
 	testJoint.draw();
 
+	testPoint.x = 1;
+	testJoint = GlPipes::JointNode(&testPoint, Direction::DIR_X_PLUS, Direction::DIR_Z_PLUS, &cfg);
+	testJoint.draw();
 	glfwSwapBuffers(win);
 }
 

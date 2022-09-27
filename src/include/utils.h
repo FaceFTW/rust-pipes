@@ -135,6 +135,7 @@ typedef struct s_point_t {
 int iRand(int max);
 int iRand2(int min, int max);
 Axis getAxisFromDirection(Direction dir);
+Direction invertDirection(Direction dir);
 
 #pragma endregion
 #endif//__utils_h_

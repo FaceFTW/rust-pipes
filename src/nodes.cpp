@@ -79,7 +79,10 @@ void JointNode::draw() {
 	glTranslated(14 * pos.x, 14 * pos.y, 14 * pos.z);
 	glPushMatrix();
 
-	buildElbow(cfg, start, end);
+	//fix end direction perspective (going out not in)
+	Direction endInv = invertDirection(end);
+
+	buildElbow(cfg, start, endInv);
 
 	glPopMatrix();
 }
@@ -139,20 +142,21 @@ static void GlPipes::buildElbow(DrawConfig* cfg, Direction start, Direction end)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+	//Draw Pipes
+	buildHalfPipe(cfg, start);
+	buildHalfPipe(cfg, end);
+
 	//Draw Sphere
+	//Order matters as we utilize occlusion to hide intersected parts of the pipe
 	glLoadIdentity();
 	glTranslated(7, 7, 7);//Thank god its a uniform solid
 	glPushMatrix();
 	buildSphere(cfg);
 	glPopMatrix();
-
-	buildHalfPipe(cfg, start);
-	buildHalfPipe(cfg, end);
 }
 
 static void GlPipes::buildHalfPipe(DrawConfig* cfg, Direction dir) {
 
-	//Draw StartPipe
 	glLoadIdentity();
 	switch(dir) {
 		case DIR_X_PLUS: glRotated(-90, 0, 1, 0); break;
