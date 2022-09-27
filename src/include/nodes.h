@@ -29,15 +29,15 @@ public:
 	void draw();
 };
 
-// class JointNode: public Node {
-// public:
-// 	JointNode(Point* _pos, Direction _start, Direction _end);
-// 	void draw();
+class JointNode: public Node {
+public:
+	JointNode(Point* _pos, Direction _start, Direction _end, DrawConfig* _cfg);
+	void draw();
 
-// protected:
-// 	Direction start;
-// 	Direction end;
-// };
+protected:
+	Direction start;
+	Direction end;
+};
 
 // class CapNode: public Node {
 // public:
@@ -62,7 +62,9 @@ DRAWING FUNCTIONS
 *********************************************************/
 static void buildPipe(DrawConfig* cfg);
 static void buildSphere(DrawConfig* cfg);
-static void buildElbow();
+static void buildElbow(DrawConfig* cfg, Direction start, Direction end);
+static void buildHalfPipe(DrawConfig* cfg, Direction dir);
+;
 
 /********************************************************
 PIPE DRAWING TRANSFORMS

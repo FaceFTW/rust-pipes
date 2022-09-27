@@ -18,11 +18,11 @@ PipeNode::PipeNode(Point* _pos, Axis _axis, DrawConfig* _cfg) : Node::Node(_pos,
 
 SphereNode::SphereNode(Point* _pos, DrawConfig* _cfg) : Node::Node(_pos, _cfg) {}
 
-// JointNode::JointNode(Point* _pos, Direction _start, Direction _end) {
-// 	pos = _pos;
-// 	start = _start;
-// 	end = _end;
-// }
+JointNode::JointNode(Point* _pos, Direction _start, Direction _end, DrawConfig* _cfg)
+    : Node::Node(_pos, _cfg) {
+	start = _start;
+	end = _end;
+}
 
 void Node::draw() {}
 
@@ -71,6 +71,18 @@ void SphereNode::draw() {
 	glPopMatrix();
 }
 
+void JointNode::draw() {
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	//Apply Base Coordinate Transform (1 node = 14 u)
+	glTranslated(14 * pos.x, 14 * pos.y, 14 * pos.z);
+	glPushMatrix();
+
+	buildElbow(cfg, start, end);
+
+	glPopMatrix();
+}
 /********************************************************
 DRAWING FUNCTIONS
 *********************************************************/
@@ -122,8 +134,55 @@ static void GlPipes::buildSphere(DrawConfig* cfg) {
 	glEnd();
 }
 
-// static void GlPipes::buildElbow() {}
+//Assumes Base Transform has occured in JointNode::draw()
+static void GlPipes::buildElbow(DrawConfig* cfg, Direction start, Direction end) {
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
+	//Draw Sphere
+	glLoadIdentity();
+	glTranslated(7, 7, 7);//Thank god its a uniform solid
+	glPushMatrix();
+	buildSphere(cfg);
+	glPopMatrix();
+
+	buildHalfPipe(cfg, start);
+	buildHalfPipe(cfg, end);
+}
+
+static void GlPipes::buildHalfPipe(DrawConfig* cfg, Direction dir) {
+
+	//Draw StartPipe
+	glLoadIdentity();
+	switch(dir) {
+		case DIR_X_PLUS: glRotated(-90, 0, 1, 0); break;
+		case DIR_X_MINUS:
+			glRotated(-90, 0, 1, 0);
+			glTranslated(0, 0, -7);
+			break;
+		case DIR_Y_PLUS: glRotated(90, 1, 0, 0); break;
+		case DIR_Y_MINUS:
+			glRotated(90, 1, 0, 0);
+			glTranslated(0, 0, -7);
+			break;
+		case DIR_Z_PLUS: glTranslated(0, 0, 7); break;
+		case DIR_Z_MINUS: glTranslated(0, 0, 14); break;
+
+		case DIR_NONE: break;
+	}
+	glTranslated(7, 7, -7);
+	glPushMatrix();
+
+	//Halve pipe length temporarily
+	cfg->pipeLength = cfg->pipeLength / 2;
+	buildPipe(cfg);
+	cfg->pipeLength = cfg->pipeLength * 2;
+
+	//Reset Stack
+	glPopMatrix();
+}
+
+#pragma region "VAO Code - Currently Unused"
 /********************************************************
 VERTEX FUNCTIONS
 *********************************************************/
@@ -172,3 +231,4 @@ VERTEX FUNCTIONS
 
 // static void generateSphereVertexArray();
 // static void generateElbowVertexArray();
+#pragma endregion
