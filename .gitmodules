@@ -1,6 +1,0 @@
-[submodule "glfw"]
-	path = glfw
-	url = https://github.com/glfw/glfw.git
-[submodule "pcg"]
-	path = pcg
-	url = https://github.com/imneme/pcg-c-basic
