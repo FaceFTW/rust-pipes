@@ -1,3 +1,0 @@
---memcheck:leak-check=full
---show-reachable=yes
---suppressions=ignore_drivers.supp
