@@ -60,10 +60,10 @@ VERTEX FUNCTIONS
 /********************************************************
 DRAWING FUNCTIONS
 *********************************************************/
-static void buildPipe(DrawConfig* cfg);
-static void buildSphere(DrawConfig* cfg);
-static void buildElbow(DrawConfig* cfg, Direction start, Direction end);
-static void buildHalfPipe(DrawConfig* cfg, Direction dir);
+void buildPipe(DrawConfig* cfg);
+void buildSphere(DrawConfig* cfg);
+void buildElbow(DrawConfig* cfg, Direction start, Direction end);
+void buildHalfPipe(DrawConfig* cfg, Direction dir);
 ;
 
 /********************************************************

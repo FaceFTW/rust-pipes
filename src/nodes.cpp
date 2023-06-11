@@ -78,10 +78,10 @@ void JointNode::draw() {
 	//Apply Base Coordinate Transform (1 node = 14 u)
 	glTranslated(14 * pos.x, 14 * pos.y, 14 * pos.z);
 	glPushMatrix();
+	glLoadIdentity();
 
 	//fix end direction perspective (going out not in)
 	Direction endInv = invertDirection(end);
-
 	buildElbow(cfg, start, endInv);
 
 	glPopMatrix();
@@ -89,7 +89,7 @@ void JointNode::draw() {
 /********************************************************
 DRAWING FUNCTIONS
 *********************************************************/
-static void GlPipes::buildPipe(DrawConfig* cfg) {
+void GlPipes::buildPipe(DrawConfig* cfg) {
 	GLdouble zLow, zHigh, zNormal = 0.0;
 	int stacks = (int) std::round(((float) (cfg->pipeLength / 7.0) * cfg->pipeSlices));
 
@@ -110,16 +110,16 @@ static void GlPipes::buildPipe(DrawConfig* cfg) {
 	}
 
 	glEnd();
-	glFlush();
+	glFinish();
 }
 
 //It's been a while since I had to do this much geometry
 //Shoutouts to http://www.songho.ca/opengl/gl_sphere.html
-static void GlPipes::buildSphere(DrawConfig* cfg) {
+void GlPipes::buildSphere(DrawConfig* cfg) {
 	GLdouble thetaStep = 2 * PI / cfg->sphereSlices;
 	GLdouble phiStep = PI / cfg->sphereStacks;
 
-	glBegin(GL_TRIANGLE_FAN);
+	glBegin(GL_TRIANGLES);
 
 	for(int i = 0; i <= cfg->sphereStacks; ++i) {
 		GLdouble phiCurrent = (PI / 2) - i * phiStep;
@@ -135,10 +135,11 @@ static void GlPipes::buildSphere(DrawConfig* cfg) {
 		}
 	}
 	glEnd();
+	glFinish();
 }
 
 //Assumes Base Transform has occured in JointNode::draw()
-static void GlPipes::buildElbow(DrawConfig* cfg, Direction start, Direction end) {
+void GlPipes::buildElbow(DrawConfig* cfg, Direction start, Direction end) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -155,7 +156,7 @@ static void GlPipes::buildElbow(DrawConfig* cfg, Direction start, Direction end)
 	glPopMatrix();
 }
 
-static void GlPipes::buildHalfPipe(DrawConfig* cfg, Direction dir) {
+void GlPipes::buildHalfPipe(DrawConfig* cfg, Direction dir) {
 
 	glLoadIdentity();
 	switch(dir) {

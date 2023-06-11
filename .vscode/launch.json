@@ -27,6 +27,13 @@
 					"ignoreFailures": true
 				}
 			]
+		},
+		{
+			"name": "glTesting",
+			"type": "cppdbg",
+			"request": "launch",
+			"program": "${workspaceRoot}/build/glTesting",
+			"cwd": "."
 		}
 	]
 }

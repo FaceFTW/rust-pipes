@@ -8,7 +8,6 @@
 
 void drawAxes() {
 	glBegin(GL_LINES);
-
 	glColor3d(0.5, 0, 0.0);
 	glVertex3d(-100, 0, 0);
 	glVertex3d(0, 0, 0);
@@ -27,29 +26,39 @@ void drawAxes() {
 	glColor3d(0.0, 1.0, 0.0);
 	glVertex3d(0, 0, 0);
 	glVertex3d(0, 0, 100);
-
 	glEnd();
 }
 
 void drawBoundingBox() {
 
 	//Draw rough bounding box
-	glBegin(GL_LINE_LOOP);
+	glBegin(GL_LINE_STRIP);
 	glColor3d(0.5, 0.5, 0.5);
+	//y=0 face
 	glVertex3d(0, 0, 0);
 	glVertex3d(14, 0, 0);
 	glVertex3d(14, 0, 0);
 	glVertex3d(14, 0, 14);
-	glVertex3d(14, 14, 0);
-	glVertex3d(0, 14, 0);
-	glVertex3d(0, 0, 0);
+	glVertex3d(14, 0, 14);
 	glVertex3d(0, 0, 14);
+	glVertex3d(0, 0, 14);
+	glVertex3d(0, 0, 0);
+	//Vertical Lines
+	glVertex3d(0, 0, 0);
+	glVertex3d(0, 14, 0);
 	glVertex3d(14, 0, 0);
 	glVertex3d(14, 14, 0);
 	glVertex3d(14, 0, 14);
 	glVertex3d(14, 14, 14);
-	glVertex3d(0, 14, 14);
 	glVertex3d(0, 0, 14);
+	glVertex3d(0, 14, 14);
+	//y=14 face
+	glVertex3d(0, 14, 0);
+	glVertex3d(14, 14, 0);
+	glVertex3d(14, 14, 0);
+	glVertex3d(14, 14, 14);
+	glVertex3d(14, 14, 14);
+	glVertex3d(0, 14, 14);
 	glVertex3d(0, 14, 14);
 	glVertex3d(0, 14, 0);
 	glEnd();
@@ -72,15 +81,14 @@ void draw(GLFWwindow* win) {
 	drawBoundingBox();
 
 	DrawConfig cfg = {14, 16, 3, 16, 16, 5};
-	Point testPoint = {0, 0, 0};
+	// Point testPoint = {0, 0, 0};
+	// GlPipes::JointNode testJoint =
+	//         GlPipes::JointNode(&testPoint, Direction::DIR_X_PLUS, Direction::DIR_Y_MINUS, &cfg);
+	// testJoint.draw();
 
-	GlPipes::JointNode testJoint =
-	        GlPipes::JointNode(&testPoint, Direction::DIR_X_PLUS, Direction::DIR_Y_MINUS, &cfg);
-	testJoint.draw();
-
-	testPoint.x = 1;
-	testJoint = GlPipes::JointNode(&testPoint, Direction::DIR_X_PLUS, Direction::DIR_Z_PLUS, &cfg);
-	testJoint.draw();
+	Point testPoint2 = {2, 0, 0};
+	GlPipes::PipeNode testJoint2 = GlPipes::PipeNode(&testPoint2, Axis::AXIS_X, &cfg);
+	testJoint2.draw();
 	glfwSwapBuffers(win);
 }
 
