@@ -7,7 +7,7 @@ pub struct NodeStruct {
 
 impl NodeStruct {
     pub fn new(size: Coordinate) -> NodeStruct {
-        if (size.0 <= 0 || size.1 <= 0 || size.2 <= 0) {
+        if size.0 <= 0 || size.1 <= 0 || size.2 <= 0 {
             panic!(
                 "Attempting to create a NodeStruct with negative/zero size: {:?}",
                 size
@@ -44,6 +44,17 @@ impl NodeStruct {
         let idx = self.to_vec_index(coord);
         self.array[idx] = val;
     }
+
+	pub fn count_available_in_direction(&self, coord: Coordinate, dir: Direction) -> i32 {
+		let mut count = 0;
+		let mut current_coord = coord;
+		while self.get(current_coord) {
+			count += 1;
+			current_coord = step_in_dir(current_coord, dir);
+		}
+		count
+	}
+
 }
 
 #[cfg(test)]
@@ -114,7 +125,7 @@ mod tests {
         assert_eq!(node_struct.to_vec_index((1, 1, 1)), 7);
     }
 
-	// This is probably redundant, whatever
+    // This is probably redundant, whatever
     #[test]
     fn node_struct_to_vec_index_larger_size_propertly_calculates_index() {
         let node_struct = super::NodeStruct::new((3, 3, 3));
