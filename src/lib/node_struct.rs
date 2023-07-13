@@ -1,11 +1,5 @@
 use super::util::*;
 
-fn to_vec_idx(coord: Coordinate, size: Coordinate) -> usize {
-    let (x, y, z) = coord;
-    let (x_size, y_size, z_size) = size;
-    (x * y_size * z_size + y * z_size + z) as usize
-}
-
 pub struct NodeStruct {
     pub size: Coordinate,
     pub array: Vec<bool>,
@@ -30,7 +24,7 @@ impl NodeStruct {
         }
     }
 
-    pub fn get(&self, coord: Coordinate) -> bool {
+    fn to_vec_index(&self, coord: Coordinate) -> usize {
         let (x, y, z) = coord;
         let (x_size, y_size, z_size) = self.size;
         if x < 0 || y < 0 || z < 0 || x >= x_size || y >= y_size || z >= z_size {
@@ -39,19 +33,16 @@ impl NodeStruct {
                 coord, self.size
             );
         }
-        self.array[(x * y_size * z_size + y * z_size + z) as usize]
+        (x * y_size * z_size + y * z_size + z) as usize
+    }
+
+    pub fn get(&self, coord: Coordinate) -> bool {
+        self.array[self.to_vec_index(coord)]
     }
 
     pub fn set(&mut self, coord: Coordinate, val: bool) {
-        let (x, y, z) = coord;
-        let (x_size, y_size, z_size) = self.size;
-        if x < 0 || y < 0 || z < 0 || x >= x_size || y >= y_size || z >= z_size {
-			panic!(
-				"Attempting to access coordinate out of bounds: {:?}, this is of size {:?}",
-				coord, self.size
-			);
-        }
-        self.array[(x * y_size * z_size + y * z_size + z) as usize] = val;
+        let idx = self.to_vec_index(coord);
+        self.array[idx] = val;
     }
 }
 
@@ -92,8 +83,73 @@ mod tests {
     }
 
     #[test]
+    fn node_struct_to_vec_index_out_of_bounds_panic() {
+        let node_struct = super::NodeStruct::new((1, 1, 1));
+        let result = panic::catch_unwind(|| {
+            node_struct.to_vec_index((1, 1, 1));
+        });
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn node_struct_to_vec_index_in_bounds_no_panic() {
+        let node_struct = super::NodeStruct::new((1, 1, 1));
+        let result = panic::catch_unwind(|| {
+            node_struct.to_vec_index((0, 0, 0));
+        });
+
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn node_struct_to_vec_index_propertly_calculates_index() {
+        let node_struct = super::NodeStruct::new((2, 2, 2));
+        assert_eq!(node_struct.to_vec_index((0, 0, 0)), 0);
+        assert_eq!(node_struct.to_vec_index((0, 0, 1)), 1);
+        assert_eq!(node_struct.to_vec_index((0, 1, 0)), 2);
+        assert_eq!(node_struct.to_vec_index((0, 1, 1)), 3);
+        assert_eq!(node_struct.to_vec_index((1, 0, 0)), 4);
+        assert_eq!(node_struct.to_vec_index((1, 0, 1)), 5);
+        assert_eq!(node_struct.to_vec_index((1, 1, 0)), 6);
+        assert_eq!(node_struct.to_vec_index((1, 1, 1)), 7);
+    }
+
+	// This is probably redundant, whatever
+    #[test]
+    fn node_struct_to_vec_index_larger_size_propertly_calculates_index() {
+        let node_struct = super::NodeStruct::new((3, 3, 3));
+        assert_eq!(node_struct.to_vec_index((0, 0, 0)), 0);
+        assert_eq!(node_struct.to_vec_index((0, 0, 1)), 1);
+        assert_eq!(node_struct.to_vec_index((0, 0, 2)), 2);
+        assert_eq!(node_struct.to_vec_index((0, 1, 0)), 3);
+        assert_eq!(node_struct.to_vec_index((0, 1, 1)), 4);
+        assert_eq!(node_struct.to_vec_index((0, 1, 2)), 5);
+        assert_eq!(node_struct.to_vec_index((0, 2, 0)), 6);
+        assert_eq!(node_struct.to_vec_index((0, 2, 1)), 7);
+        assert_eq!(node_struct.to_vec_index((0, 2, 2)), 8);
+        assert_eq!(node_struct.to_vec_index((1, 0, 0)), 9);
+        assert_eq!(node_struct.to_vec_index((1, 0, 1)), 10);
+        assert_eq!(node_struct.to_vec_index((1, 0, 2)), 11);
+        assert_eq!(node_struct.to_vec_index((1, 1, 0)), 12);
+        assert_eq!(node_struct.to_vec_index((1, 1, 1)), 13);
+        assert_eq!(node_struct.to_vec_index((1, 1, 2)), 14);
+        assert_eq!(node_struct.to_vec_index((1, 2, 0)), 15);
+        assert_eq!(node_struct.to_vec_index((1, 2, 1)), 16);
+        assert_eq!(node_struct.to_vec_index((1, 2, 2)), 17);
+        assert_eq!(node_struct.to_vec_index((2, 0, 0)), 18);
+        assert_eq!(node_struct.to_vec_index((2, 0, 1)), 19);
+        assert_eq!(node_struct.to_vec_index((2, 0, 2)), 20);
+        assert_eq!(node_struct.to_vec_index((2, 1, 0)), 21);
+        assert_eq!(node_struct.to_vec_index((2, 1, 1)), 22);
+        assert_eq!(node_struct.to_vec_index((2, 1, 2)), 23);
+        assert_eq!(node_struct.to_vec_index((2, 2, 0)), 24);
+        assert_eq!(node_struct.to_vec_index((2, 2, 1)), 25);
+        assert_eq!(node_struct.to_vec_index((2, 2, 2)), 26);
+    }
+
+    #[test]
     fn node_struct_get_out_of_bounds_panic() {
-        let mut node_struct = super::NodeStruct::new((1, 1, 1));
+        let node_struct = super::NodeStruct::new((1, 1, 1));
         let result = panic::catch_unwind(|| {
             node_struct.get((1, 1, 1));
         });
@@ -102,7 +158,7 @@ mod tests {
 
     #[test]
     fn node_struct_get_in_bounds_no_panic() {
-        let mut node_struct = super::NodeStruct::new((1, 1, 1));
+        let node_struct = super::NodeStruct::new((1, 1, 1));
         let result = panic::catch_unwind(|| {
             node_struct.get((0, 0, 0));
         });
