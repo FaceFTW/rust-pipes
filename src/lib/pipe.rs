@@ -1,9 +1,9 @@
-type Coordinate = (i32, i32, i32);
+use super::util::*;
 
 /// Represents a pipe to be rendered. This is a ordered
 /// list of nodes that the pipe occupies. Other properties
 /// related to the pipe (such as color) are not stored here.
-struct Pipe {
+pub struct Pipe {
     nodes: Vec<Coordinate>,
 }
 
@@ -33,6 +33,7 @@ struct PipeManager {
     space_length: i32,
     space_width: i32,
     space_height: i32,
+    // occupied_nodes: [[[bool]]], // TODO: Replace with Vec<Vec<Vec<bool
 }
 
 impl PipeManager {
@@ -42,6 +43,7 @@ impl PipeManager {
             space_length: len,
             space_width: wid,
             space_height: height,
+            // occupied_nodes: Vec::new(),
         }
     }
 
@@ -56,12 +58,5 @@ impl PipeManager {
             }
         }
         false
-    }
-
-    fn make_pipe(&mut self, start: Coordinate, end: Coordinate) {
-        let mut pipe = Pipe::new();
-        pipe.add_node(start);
-        pipe.add_node(end);
-        self.pipes.push(pipe);
     }
 }
