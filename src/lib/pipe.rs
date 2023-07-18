@@ -1,3 +1,5 @@
+use rand::Rng;
+
 use super::{node_struct::NodeStruct, util::*};
 
 /// Represents a pipe to be rendered. This is a ordered
@@ -20,17 +22,17 @@ impl Pipe {
         self.nodes.push(node);
     }
 
-	pub fn add_sphere_point(&mut self, point: Coordinate) {
-		self.sphere_points.push(point);
-	}
+    pub fn add_sphere_point(&mut self, point: Coordinate) {
+        self.sphere_points.push(point);
+    }
 
     pub fn get_nodes(&self) -> &Vec<Coordinate> {
         &self.nodes
     }
 
-	pub fn get_sphere_points(&self) -> &Vec<Coordinate> {
-		&self.sphere_points
-	}
+    pub fn get_sphere_points(&self) -> &Vec<Coordinate> {
+        &self.sphere_points
+    }
 
     pub fn occupies_node(&self, node: Coordinate) -> bool {
         self.nodes.contains(&node)
@@ -80,6 +82,34 @@ impl PipeManager {
     /// length.
     ///
     pub fn generate_pipe(&mut self, mut pipe: Pipe) -> Pipe {
+        let mut start_node = self.nodes.find_random_empty_node();
+        let mut current_dir =
+        pipe.add_node(start_node);
+        pipe.add_sphere_point(start_node);
+
+        let mut current_node = start_node;
+
+        let max_iter = rand::thread_rng().gen_range(5..10);
+        let mut iter = 0;
+        while iter < max_iter {
+            let open_nodes_in_dir = self
+                .nodes
+                .count_available_in_direction(current_node, Direction::North);
+
+            let pipe_length = rand::thread_rng().gen_range(1..open_nodes_in_dir);
+
+            let mut pipe_iter = 0;
+            while pipe_iter < pipe_length - 1 {
+                current_node = step_in_dir(current_node, Direction::North);
+                pipe.add_node(current_node);
+                pipe_iter += 1;
+            }
+
+            start_node = step_in_dir(current_node, dir);
+
+            iter += 1;
+        }
+
         return pipe;
     }
 }

@@ -23,6 +23,34 @@ pub fn step_in_dir(coord: Coordinate, dir: Direction) -> Coordinate {
     }
 }
 
+pub fn get_neighbors(coord: Coordinate) -> Vec<Coordinate> {
+    let mut neighbors = Vec::new();
+    for dir in [
+        Direction::North,
+        Direction::South,
+        Direction::East,
+        Direction::West,
+        Direction::Up,
+        Direction::Down,
+    ]
+    .iter()
+    {
+        neighbors.push(step_in_dir(coord, *dir));
+    }
+    neighbors
+}
+pub fn int_to_direction(int: i32) -> Direction {
+    match int {
+        0 => Direction::North,
+        1 => Direction::South,
+        2 => Direction::East,
+        3 => Direction::West,
+        4 => Direction::Up,
+        5 => Direction::Down,
+        _ => panic!("Invalid direction int"),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

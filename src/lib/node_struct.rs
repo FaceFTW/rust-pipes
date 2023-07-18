@@ -1,3 +1,5 @@
+use rand::Rng;
+
 use super::util::*;
 
 pub struct NodeStruct {
@@ -45,16 +47,63 @@ impl NodeStruct {
         self.array[idx] = val;
     }
 
-	pub fn count_available_in_direction(&self, coord: Coordinate, dir: Direction) -> i32 {
-		let mut count = 0;
-		let mut current_coord = coord;
-		while self.get(current_coord) {
-			count += 1;
-			current_coord = step_in_dir(current_coord, dir);
-		}
-		count
-	}
+    pub fn count_available_in_direction(&self, coord: Coordinate, dir: Direction) -> i32 {
+        let mut count = 0;
+        let mut current_coord = coord;
+        let max_walk = match dir {
+            Direction::North => self.size.1 - coord.1,
+            Direction::South => coord.1,
+            Direction::East => self.size.0 - coord.0,
+            Direction::West => coord.0,
+            Direction::Up => self.size.2 - coord.2,
+            Direction::Down => coord.2,
+        };
 
+        while !self.get(current_coord) && count < max_walk {
+            count += 1;
+            current_coord = step_in_dir(current_coord, dir);
+        }
+        count
+    }
+
+    pub fn find_random_empty_node(&self) -> Coordinate {
+        let mut rng = rand::thread_rng();
+        let mut coord = (
+            rng.gen_range(0..self.size.0),
+            rng.gen_range(0..self.size.1),
+            rng.gen_range(0..self.size.2),
+        );
+        while self.get(coord) {
+            coord = (
+                rng.gen_range(0..self.size.0),
+                rng.gen_range(0..self.size.1),
+                rng.gen_range(0..self.size.2),
+            );
+        }
+        coord
+    }
+
+	pub fn choose_random_empty_direction(&self, coord: Coordinate) -> Direction{
+		let mut rng = rand::thread_rng();
+		let mut dir = Direction::North;
+		let mut count = 0;
+		while count < 6 {
+			dir = match rng.gen_range(0..6) {
+				0 => Direction::North,
+				1 => Direction::South,
+				2 => Direction::East,
+				3 => Direction::West,
+				4 => Direction::Up,
+				5 => Direction::Down,
+				_ => panic!("Random number generator returned a number out of range"),
+			};
+			if self.count_available_in_direction(coord, dir) > 0 {
+				break;
+			}
+			count += 1;
+		}
+		dir
+	}
 }
 
 #[cfg(test)]
