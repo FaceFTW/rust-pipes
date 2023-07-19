@@ -1,6 +1,5 @@
-use rand::Rng;
-
 use super::util::*;
+use rand::Rng;
 
 pub struct NodeStruct {
     pub size: Coordinate,
@@ -51,11 +50,11 @@ impl NodeStruct {
         let mut count = 0;
         let mut current_coord = coord;
         let max_walk = match dir {
-            Direction::North => self.size.1 - coord.1,
+            Direction::North => self.size.1 - coord.1 - 1,
             Direction::South => coord.1,
-            Direction::East => self.size.0 - coord.0,
+            Direction::East => self.size.0 - coord.0 - 1,
             Direction::West => coord.0,
-            Direction::Up => self.size.2 - coord.2,
+            Direction::Up => self.size.2 - coord.2 - 1,
             Direction::Down => coord.2,
         };
 
@@ -83,27 +82,18 @@ impl NodeStruct {
         coord
     }
 
-	pub fn choose_random_empty_direction(&self, coord: Coordinate) -> Direction{
-		let mut rng = rand::thread_rng();
-		let mut dir = Direction::North;
-		let mut count = 0;
-		while count < 6 {
-			dir = match rng.gen_range(0..6) {
-				0 => Direction::North,
-				1 => Direction::South,
-				2 => Direction::East,
-				3 => Direction::West,
-				4 => Direction::Up,
-				5 => Direction::Down,
-				_ => panic!("Random number generator returned a number out of range"),
-			};
-			if self.count_available_in_direction(coord, dir) > 0 {
-				break;
-			}
-			count += 1;
-		}
-		dir
-	}
+    pub fn find_random_direction(&self, pos: Coordinate) -> Direction {
+        let mut rng = rand::thread_rng();
+        let mut open_dirs: Vec<Direction> = Vec::new();
+
+        for dir in Direction::iterator() {
+            if self.count_available_in_direction(pos, *dir) > 0 {
+                open_dirs.push(*dir);
+            }
+        }
+
+        return open_dirs[rng.gen_range(0..open_dirs.len())];
+    }
 }
 
 #[cfg(test)]

@@ -1,3 +1,5 @@
+use std::slice::Iter;
+
 pub type Coordinate = (i32, i32, i32);
 
 #[derive(Clone, Copy)]
@@ -8,6 +10,54 @@ pub enum Direction {
     West,
     Up,
     Down,
+}
+
+impl Direction {
+    pub fn to_int(&self) -> i32 {
+        match self {
+            Direction::North => 0,
+            Direction::South => 1,
+            Direction::East => 2,
+            Direction::West => 3,
+            Direction::Up => 4,
+            Direction::Down => 5,
+        }
+    }
+
+    pub fn from_int(int: i32) -> Direction {
+        match int {
+            0 => Direction::North,
+            1 => Direction::South,
+            2 => Direction::East,
+            3 => Direction::West,
+            4 => Direction::Up,
+            5 => Direction::Down,
+            _ => panic!("Invalid direction int"),
+        }
+    }
+
+    pub fn opposite(&self) -> Direction {
+        match self {
+            Direction::North => Direction::South,
+            Direction::South => Direction::North,
+            Direction::East => Direction::West,
+            Direction::West => Direction::East,
+            Direction::Up => Direction::Down,
+            Direction::Down => Direction::Up,
+        }
+    }
+
+    pub fn iterator() -> Iter<'static, Direction> {
+        [
+            Direction::North,
+            Direction::South,
+            Direction::East,
+            Direction::West,
+            Direction::Up,
+            Direction::Down,
+        ]
+        .iter()
+    }
 }
 
 /// Steps a coordinate in a specified direction.
@@ -38,17 +88,6 @@ pub fn get_neighbors(coord: Coordinate) -> Vec<Coordinate> {
         neighbors.push(step_in_dir(coord, *dir));
     }
     neighbors
-}
-pub fn int_to_direction(int: i32) -> Direction {
-    match int {
-        0 => Direction::North,
-        1 => Direction::South,
-        2 => Direction::East,
-        3 => Direction::West,
-        4 => Direction::Up,
-        5 => Direction::Down,
-        _ => panic!("Invalid direction int"),
-    }
 }
 
 #[cfg(test)]
