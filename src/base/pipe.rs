@@ -36,13 +36,6 @@ impl Pipe {
         &self.sphere_points
     }
 
-    pub fn occupies_node(&self, node: Coordinate) -> bool {
-        self.nodes.contains(&node)
-    }
-
-    pub fn tail(&self) -> Coordinate {
-        self.nodes[self.nodes.len() - 1]
-    }
 }
 
 /// Manages the pipes to be rendered. This controls the creation
@@ -70,53 +63,6 @@ impl PipeManager {
     pub fn pipe(&self, index: usize) -> &Pipe {
         &self.pipes[index]
     }
-
-    ///Recursive iteration for each step in a pipe
-    /// generation routine.
-    // fn pipe_gen_step(&mut self, &mut pipe: Pipe) {
-    //     let nodes = *self.nodes.lock().unwrap();
-    // 	let mut possible_nodes = Vec::new();
-    // }
-
-    /// Generates a new pipe. This is done by randomly
-    /// selecting a node, and then randomly selecting
-    /// a direction to go in. The pipe will then continue
-    /// in that direction until either it reaches the
-    /// edge of the space, it reaches a node that is
-    /// already occupied, or it reaches a randomly determined maximum
-    /// length.
-    ///
-    // pub fn generate_pipe(&mut self, mut pipe: Pipe) -> Pipe {
-    //     let mut start_node = self.nodes.find_random_empty_node();
-    //     let mut current_dir =
-    //     pipe.add_node(start_node);
-    //     pipe.add_sphere_point(start_node);
-
-    //     let mut current_node = start_node;
-
-    //     let max_iter = rand::thread_rng().gen_range(5..10);
-    //     let mut iter = 0;
-    //     while iter < max_iter {
-    //         let open_nodes_in_dir = self
-    //             .nodes
-    //             .count_available_in_direction(current_node, Direction::North);
-
-    //         let pipe_length = rand::thread_rng().gen_range(1..open_nodes_in_dir);
-
-    //         let mut pipe_iter = 0;
-    //         while pipe_iter < pipe_length - 1 {
-    //             current_node = step_in_dir(current_node, Direction::North);
-    //             pipe.add_node(current_node);
-    //             pipe_iter += 1;
-    //         }
-
-    //         start_node = step_in_dir(current_node, dir);
-
-    //         iter += 1;
-    //     }
-
-    //     return pipe;
-    // }
 
     pub fn generate_pipe(&mut self) {
         let mut pipe = Pipe::new();
@@ -161,6 +107,7 @@ impl PipeManager {
             //step in direction + add to pipe
             current_node = step_in_dir(current_node, current_dir);
 			pipe.add_node(current_node);
+			self.nodes.set(current_node, true);
             turn_weight += 0.1;
         }
 

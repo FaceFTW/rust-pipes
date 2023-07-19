@@ -20,7 +20,7 @@ impl NodeStruct {
             vec.push(false);
         }
         NodeStruct {
-            size: size,
+            size,
             array: vec,
         }
     }
