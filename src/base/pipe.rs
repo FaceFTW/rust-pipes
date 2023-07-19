@@ -35,7 +35,6 @@ impl Pipe {
     pub fn get_sphere_points(&self) -> &Vec<Coordinate> {
         &self.sphere_points
     }
-
 }
 
 /// Manages the pipes to be rendered. This controls the creation
@@ -106,8 +105,8 @@ impl PipeManager {
 
             //step in direction + add to pipe
             current_node = step_in_dir(current_node, current_dir);
-			pipe.add_node(current_node);
-			self.nodes.set(current_node, true);
+            pipe.add_node(current_node);
+            self.nodes.set(current_node, true);
             turn_weight += 0.1;
         }
 

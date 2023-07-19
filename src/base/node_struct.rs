@@ -19,10 +19,7 @@ impl NodeStruct {
         for _ in 0..vec_size {
             vec.push(false);
         }
-        NodeStruct {
-            size,
-            array: vec,
-        }
+        NodeStruct { size, array: vec }
     }
 
     fn to_vec_index(&self, coord: Coordinate) -> usize {
@@ -92,7 +89,10 @@ impl NodeStruct {
             }
         }
 
-        return open_dirs[rng.gen_range(0..open_dirs.len())];
+        match open_dirs.len() {
+            0 => panic!("No available directions found"),
+            _ => return open_dirs[rng.gen_range(0..open_dirs.len())],
+        }
     }
 }
 
