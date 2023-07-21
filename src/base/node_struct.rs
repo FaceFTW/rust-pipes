@@ -1,3 +1,4 @@
+use super::error::NoDirectionError;
 use super::util::*;
 use rand::Rng;
 
@@ -38,9 +39,9 @@ impl NodeStruct {
         self.array[self.to_vec_index(coord)]
     }
 
-    pub fn set(&mut self, coord: Coordinate, val: bool) {
+    pub fn set(&mut self, coord: Coordinate) {
         let idx = self.to_vec_index(coord);
-        self.array[idx] = val;
+        self.array[idx] = true;
     }
 
     pub fn count_available_in_direction(&self, coord: Coordinate, dir: Direction) -> i32 {
@@ -55,9 +56,14 @@ impl NodeStruct {
             Direction::Down => coord.2,
         };
 
-        while !self.get(current_coord) && count < max_walk {
-            count += 1;
-            current_coord = step_in_dir(current_coord, dir);
+        while count < max_walk {
+            match self.get(current_coord) {
+                true => break,
+                false => {
+                    count += 1;
+                    current_coord = step_in_dir(current_coord, dir);
+                }
+            }
         }
         count
     }
@@ -79,7 +85,7 @@ impl NodeStruct {
         coord
     }
 
-    pub fn find_random_direction(&self, pos: Coordinate) -> Direction {
+    pub fn find_random_direction(&self, pos: Coordinate) -> Result<Direction, NoDirectionError> {
         let mut rng = rand::thread_rng();
         let mut open_dirs: Vec<Direction> = Vec::new();
 
@@ -90,8 +96,8 @@ impl NodeStruct {
         }
 
         match open_dirs.len() {
-            0 => panic!("No available directions found"),
-            _ => return open_dirs[rng.gen_range(0..open_dirs.len())],
+            0 => Err(NoDirectionError),
+            _ => Ok(open_dirs[rng.gen_range(0..open_dirs.len())]),
         }
     }
 }
@@ -219,34 +225,34 @@ mod tests {
     #[should_panic]
     fn node_struct_set_out_of_bounds_panic() {
         let mut node_struct = super::NodeStruct::new((1, 1, 1));
-        node_struct.set((1, 1, 1), true);
+        node_struct.set((1, 1, 1));
     }
 
     #[test]
     fn node_struct_set_in_bounds_no_panic() {
         let mut node_struct = super::NodeStruct::new((1, 1, 1));
-        node_struct.set((0, 0, 0), true);
+        node_struct.set((0, 0, 0));
     }
 
     #[test]
     fn node_struct_set_in_bounds_get_same_value() {
         let mut node_struct = super::NodeStruct::new((1, 1, 1));
-        node_struct.set((0, 0, 0), true);
+        node_struct.set((0, 0, 0));
         assert_eq!(node_struct.get((0, 0, 0)), true);
     }
 
     #[test]
     fn node_struct_larger_size_set_in_bounds_get_same_value() {
         let mut node_struct = super::NodeStruct::new((2, 2, 2));
-        node_struct.set((1, 1, 1), true);
+        node_struct.set((1, 1, 1));
         assert_eq!(node_struct.get((1, 1, 1)), true);
     }
 
     #[test]
     fn node_struct_larger_size_set_multiple_in_bounds_get_same_value() {
         let mut node_struct = super::NodeStruct::new((4, 4, 4));
-        node_struct.set((2, 2, 2), true);
-        node_struct.set((1, 1, 0), true);
+        node_struct.set((2, 2, 2));
+        node_struct.set((1, 1, 0));
         assert_eq!(node_struct.get((2, 2, 2)), true);
         assert_eq!(node_struct.get((1, 1, 0)), true);
     }

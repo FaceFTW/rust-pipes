@@ -1,8 +1,9 @@
+use core::fmt;
 use std::slice::Iter;
 
 pub type Coordinate = (i32, i32, i32);
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum Direction {
     North,
     South,
@@ -58,6 +59,20 @@ impl Direction {
         ]
         .iter()
     }
+}
+
+impl fmt::Display for Direction {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		let dir_str = match self {
+			Direction::North => "North",
+			Direction::South => "South",
+			Direction::East => "East",
+			Direction::West => "West",
+			Direction::Up => "Up",
+			Direction::Down => "Down",
+		};
+		write!(f, "{}", dir_str)
+	}
 }
 
 /// Steps a coordinate in a specified direction.
