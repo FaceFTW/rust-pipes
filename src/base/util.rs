@@ -3,7 +3,7 @@ use std::slice::Iter;
 
 pub type Coordinate = (i32, i32, i32);
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Direction {
     North,
     South,
@@ -14,40 +14,6 @@ pub enum Direction {
 }
 
 impl Direction {
-    pub fn to_int(&self) -> i32 {
-        match self {
-            Direction::North => 0,
-            Direction::South => 1,
-            Direction::East => 2,
-            Direction::West => 3,
-            Direction::Up => 4,
-            Direction::Down => 5,
-        }
-    }
-
-    pub fn from_int(int: i32) -> Direction {
-        match int {
-            0 => Direction::North,
-            1 => Direction::South,
-            2 => Direction::East,
-            3 => Direction::West,
-            4 => Direction::Up,
-            5 => Direction::Down,
-            _ => panic!("Invalid direction int"),
-        }
-    }
-
-    pub fn opposite(&self) -> Direction {
-        match self {
-            Direction::North => Direction::South,
-            Direction::South => Direction::North,
-            Direction::East => Direction::West,
-            Direction::West => Direction::East,
-            Direction::Up => Direction::Down,
-            Direction::Down => Direction::Up,
-        }
-    }
-
     pub fn iterator() -> Iter<'static, Direction> {
         [
             Direction::North,
@@ -119,4 +85,16 @@ mod tests {
         assert_eq!(step_in_dir((0, 0, 0), Direction::Up), (0, 0, 1));
         assert_eq!(step_in_dir((0, 0, 0), Direction::Down), (0, 0, -1));
     }
+
+	#[test]
+	fn test_dir_iterator(){
+		let mut dir_iter = Direction::iterator();
+		assert_eq!(dir_iter.next(), Some(&Direction::North));
+		assert_eq!(dir_iter.next(), Some(&Direction::South));
+		assert_eq!(dir_iter.next(), Some(&Direction::East));
+		assert_eq!(dir_iter.next(), Some(&Direction::West));
+		assert_eq!(dir_iter.next(), Some(&Direction::Up));
+		assert_eq!(dir_iter.next(), Some(&Direction::Down));
+		assert_eq!(dir_iter.next(), None);
+	}
 }

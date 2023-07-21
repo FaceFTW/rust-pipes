@@ -65,21 +65,25 @@ impl PipeManager {
     pub fn generate_pipe(&mut self) {
         let mut pipe = Pipe::new();
 
-        dbg!("Generating pipe...");
         let mut current_node = self.nodes.find_random_empty_node(); //Starting Point
         let mut current_dir = self.nodes.find_random_direction(current_node).unwrap(); //Starting Direction
         let mut rng = rand::thread_rng();
         let max_turns = rng.gen_range(5..10);
 
         let mut current_turns = 0;
-        let mut turn_weight = 0.1;
+
+        //set base turn weight to reciprocal of largest dimension
+        let (size_x, size_y, size_z) = self.space_size;
+        let max_dim = size_x.max(size_y).max(size_z);
+        let base_turn_weight = 1.0 / (max_dim as f64);
+
+        let mut turn_weight = base_turn_weight;
 
         pipe.add_node(current_node);
         pipe.add_sphere_point(current_node);
 
         //Main pipe-layer loop
         loop {
-            dbg!(current_node);
             if current_turns >= max_turns {
                 break;
             }
@@ -89,13 +93,12 @@ impl PipeManager {
                 .nodes
                 .count_available_in_direction(current_node, current_dir);
             if open_nodes_in_dir == 0 {
-                // dbg!("not enough in current dir");
                 current_dir = match self.nodes.find_random_direction(current_node) {
                     Ok(dir) => dir,
                     Err(_) => break,
                 };
                 current_turns += 1;
-                turn_weight = 0.1;
+                turn_weight = base_turn_weight;
                 pipe.add_sphere_point(current_node);
             } else {
                 //check if we *should* turn (random chance)
@@ -106,7 +109,7 @@ impl PipeManager {
                         Err(_) => current_dir, //If we can't find a new direction, just keep going
                     };
                     current_turns += 1;
-                    turn_weight = 0.1;
+                    turn_weight = base_turn_weight;
                     pipe.add_sphere_point(current_node);
                 }
             }
@@ -114,7 +117,9 @@ impl PipeManager {
             //step in direction + add to pipe
             self.nodes.set(current_node);
             current_node = step_in_dir(current_node, current_dir);
-            pipe.add_node(current_node);
+            if (!self.nodes.get(current_node)) {
+                pipe.add_node(current_node)
+            };
             turn_weight += 0.1;
         }
 
