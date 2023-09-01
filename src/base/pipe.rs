@@ -117,7 +117,7 @@ impl PipeManager {
             //step in direction + add to pipe
             self.nodes.set(current_node);
             current_node = step_in_dir(current_node, current_dir);
-            if (!self.nodes.get(current_node)) {
+            if !self.nodes.get(current_node) {
                 pipe.add_node(current_node)
             };
             turn_weight += 0.1;
