@@ -1,128 +1,112 @@
-use rand::Rng;
+use std::collections::HashSet;
 
-use super::node_struct::NodeStruct;
+use rand::{seq::SliceRandom, Rng};
+
 use super::util::*;
 
 /// Represents a pipe to be rendered. This is a ordered
 /// list of nodes that the pipe occupies. Other properties
 /// related to the pipe (such as color) are not stored here.
+///
 pub struct Pipe {
+    alive: bool,
     nodes: Vec<Coordinate>,
-    sphere_points: Vec<Coordinate>,
+    current_dir: Direction,
+    space_bounds: Coordinate,
 }
 
 impl Pipe {
-    pub fn new() -> Pipe {
-        Pipe {
+    pub fn new(
+        occupied_nodes: &mut HashSet<Coordinate>,
+        bounds: Coordinate,
+        rng: &mut impl Rng,
+    ) -> Pipe {
+        let mut new_pipe: Pipe = Pipe {
+            alive: true,
             nodes: Vec::new(),
-            sphere_points: Vec::new(),
+            current_dir: choose_random_direction(rng),
+            space_bounds: bounds,
+        };
+
+        let start = find_random_start(&occupied_nodes, bounds, rng);
+        new_pipe.nodes.push(start);
+        occupied_nodes.insert(start);
+
+        return new_pipe;
+    }
+
+    pub fn is_alive(&self) -> bool {
+        self.alive
+    }
+
+    pub(crate) fn kill(&mut self) {
+        self.alive = false;
+    }
+
+    /// Returns the current head of the pipe, which is the first element in the nodes vector.
+    /// We always assume that when adding a new node to the pipe, it is added to the front of the
+    /// vector.
+    pub fn get_current_head(&self) -> Coordinate {
+        self.nodes[0]
+    }
+
+    pub fn get_current_dir(&self) -> Direction {
+        self.current_dir
+    }
+
+    pub fn update(&mut self, occupied_nodes: &mut HashSet<Coordinate>, rng: &mut impl Rng) {
+        if !self.alive {
+            return;
         }
-    }
 
-    pub fn add_node(&mut self, node: Coordinate) {
-        self.nodes.push(node);
-    }
+        let want_to_turn = rng.gen_bool(1.0 / 2.0);
+        let mut directions_to_try: Vec<Direction> =
+            Direction::iterator().map(|dirs| *dirs).collect();
+        directions_to_try.shuffle(rng);
+        if self.nodes.len() > 1 && !want_to_turn {
+            directions_to_try.insert(0, self.current_dir);
+        }
 
-    pub fn add_sphere_point(&mut self, point: Coordinate) {
-        self.sphere_points.push(point);
-    }
+        let mut found_valid_direction = false;
+        let mut new_position: Coordinate = (0, 0, 0);
+        for dir in directions_to_try {
+            new_position = step_in_dir(self.get_current_head(), dir);
+            if !is_in_bounds(new_position, self.space_bounds) {
+                continue;
+            }
+            if occupied_nodes.contains(&new_position) {
+                continue;
+            }
+            found_valid_direction = true;
+            self.current_dir = dir;
+            break;
+        }
+        if !found_valid_direction {
+            self.alive = false;
+            return;
+        }
 
-    pub fn get_nodes(&self) -> &Vec<Coordinate> {
-        &self.nodes
-    }
-
-    pub fn get_sphere_points(&self) -> &Vec<Coordinate> {
-        &self.sphere_points
+        occupied_nodes.insert(new_position);
+        self.nodes.insert(0, new_position);
     }
 }
 
-/// Manages the pipes to be rendered. This controls the creation
-/// of new pipes, but does not (currently) control the rendering
-/// of the pipes.
-pub struct PipeManager {
-    pipes: Vec<Pipe>,
-    space_size: Coordinate,
-    nodes: NodeStruct,
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-impl PipeManager {
-    pub fn new(size: Coordinate) -> PipeManager {
-        PipeManager {
-            pipes: Vec::new(),
-            space_size: size,
-            nodes: NodeStruct::new(size),
-        }
-    }
-
-    pub fn get_pipes(&self) -> &Vec<Pipe> {
-        &self.pipes
-    }
-
-    pub fn pipe(&self, index: usize) -> &Pipe {
-        &self.pipes[index]
-    }
-
-    pub fn generate_pipe(&mut self) {
-        let mut pipe = Pipe::new();
-
-        let mut current_node = self.nodes.find_random_empty_node(); //Starting Point
-        let mut current_dir = self.nodes.find_random_direction(current_node).unwrap(); //Starting Direction
+    #[test]
+    fn test_dead_pipe_does_not_update() {
+        let mut occupied_nodes: HashSet<Coordinate> = HashSet::new();
         let mut rng = rand::thread_rng();
-        let max_turns = rng.gen_range(5..10);
+        let bounds = (10, 10, 10);
+        let mut pipe = Pipe::new(&mut occupied_nodes, bounds, &mut rng);
+        let head = pipe.get_current_head();
+        pipe.kill();
 
-        let mut current_turns = 0;
-
-        //set base turn weight to reciprocal of largest dimension
-        let (size_x, size_y, size_z) = self.space_size;
-        let max_dim = size_x.max(size_y).max(size_z);
-        let base_turn_weight = 1.0 / (max_dim as f64);
-
-        let mut turn_weight = base_turn_weight;
-
-        pipe.add_node(current_node);
-        pipe.add_sphere_point(current_node);
-
-        //Main pipe-layer loop
-        loop {
-            if current_turns >= max_turns {
-                break;
-            }
-
-            //check if we *have* to turn (no more in direction)
-            let open_nodes_in_dir = self
-                .nodes
-                .count_available_in_direction(current_node, current_dir);
-            if open_nodes_in_dir == 0 {
-                current_dir = match self.nodes.find_random_direction(current_node) {
-                    Ok(dir) => dir,
-                    Err(_) => break,
-                };
-                current_turns += 1;
-                turn_weight = base_turn_weight;
-                pipe.add_sphere_point(current_node);
-            } else {
-                //check if we *should* turn (random chance)
-                let should_turn = rng.gen_bool(turn_weight);
-                if should_turn {
-                    current_dir = match self.nodes.find_random_direction(current_node) {
-                        Ok(dir) => dir,
-                        Err(_) => current_dir, //If we can't find a new direction, just keep going
-                    };
-                    current_turns += 1;
-                    turn_weight = base_turn_weight;
-                    pipe.add_sphere_point(current_node);
-                }
-            }
-
-            //step in direction + add to pipe
-            self.nodes.set(current_node);
-            current_node = step_in_dir(current_node, current_dir);
-            if !self.nodes.get(current_node) {
-                pipe.add_node(current_node)
-            };
-            turn_weight += 0.1;
-        }
-
-        self.pipes.push(pipe);
+        //It should not matter what the occupied nodes are,
+        //since the pipe is dead and should short circuit immediately
+        pipe.update(&mut occupied_nodes, &mut rng);
+        assert_eq!(pipe.get_current_head(), head);
     }
 }
