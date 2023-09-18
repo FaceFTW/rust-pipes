@@ -82,7 +82,7 @@ impl Pipe {
             break;
         }
         if !found_valid_direction {
-            self.alive = false;
+            self.kill();
             return;
         }
 
