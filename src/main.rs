@@ -1,99 +1,111 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, os::windows::thread, thread::sleep, time::Duration};
 
-use base::{pipe::Pipe, util::Coordinate};
-use kiss3d::{window::Window, nalgebra::Point3, camera::ArcBall};
+use base::{
+    draw::{make_ball_joint, make_pipe_section},
+    pipe::Pipe,
+    util::Coordinate,
+};
+use kiss3d::{camera::ArcBall, nalgebra::Point3, window::Window};
+use rand::Rng;
 
 extern crate kiss3d;
 
 mod base;
 
-// use base::{pipe::PipeManager, util::Coordinate};
-// use kiss3d::camera::ArcBall;
-// use kiss3d::nalgebra::{Point3, Translation3, UnitQuaternion, Vector3};
-// use kiss3d::window::Window;
-// use rand::Rng;
-
 struct World {
     pipes: Vec<Pipe>,
+    pipe_node_vectors: Vec<Vec<kiss3d::scene::SceneNode>>,
     occupied_nodes: HashSet<Coordinate>,
     space_bounds: Coordinate,
-	new_pipe_chance: f32,
+    new_pipe_chance: f64,
+    max_pipes: usize,
+    active_pipes: usize,
 }
 
 impl Default for World {
-	fn default() -> Self {
-		World {
-			pipes: Vec::new(),
-			occupied_nodes: HashSet::new(),
-			space_bounds: (50, 50, 50),
-			new_pipe_chance: 0.5,
-		}
-	}
+    fn default() -> Self {
+        World {
+            pipes: Vec::new(),
+            occupied_nodes: HashSet::new(),
+            pipe_node_vectors: Vec::new(),
+            space_bounds: (50, 50, 50),
+            new_pipe_chance: 0.5,
+            max_pipes: 10,
+            active_pipes: 0,
+        }
+    }
 }
 
 fn main() {
+    //===============================================
+    // WORLD INITIALIZATION
+    //===============================================
     let mut world = World {
-		pipes: Vec::new(),
-		occupied_nodes: HashSet::new(),
-		space_bounds: (50, 50, 50),
-		..Default::default()
+        pipes: Vec::new(),
+        pipe_node_vectors: Vec::new(),
+        occupied_nodes: HashSet::new(),
+        ..Default::default()
     };
+    for _ in 0..world.max_pipes {
+        world.pipe_node_vectors.push(Vec::new());
+    }
     let mut rng = rand::thread_rng();
+    world.pipes.push(Pipe::new(
+        &mut world.occupied_nodes,
+        world.space_bounds,
+        &mut rng,
+    ));
+    world.active_pipes += 1;
 
-
-
-    // let pipe_iter: [&Vec<Coordinate>; 2] =
-    //     [manager.pipe(0).get_nodes(), manager.pipe(1).get_nodes()];
-
-    // for i in 0..2 {
-    //     println!("Pipe {}", i);
-    //     for coord in pipe_iter[i] {
-    //         println!("Node: {:?}", coord);
-    //     }
-    // }
-
-    // //Draw Code
+    //===============================================
+    // KISS3D INITIALIZATION
+    //===============================================
     let mut window = Window::new("rust-pipes");
     let eye = Point3::new(-20.0 as f32, -20.0, -20.0);
     let at_point = Point3::new(0.0 as f32, 0.0, 0.0);
     let mut camera = ArcBall::new(eye, at_point);
-    // let mut objects: Vec<kiss3d::scene::SceneNode> = Vec::new();
-    // for pipe in manager.get_pipes() {
-    //     let pipe_red = rng.gen_range(0.0..=1.0);
-    //     let pipe_green = rng.gen_range(0.0..=1.0);
-    //     let pipe_blue = rng.gen_range(0.0..=1.0);
 
-    //     for node in pipe.get_nodes() {
-    //         // let mut object = window.add_cube(1.0, 1.0, 1.0);
-    // 		let mut object = window.add_cylinder(0.5, 0.5);
-    //         object.set_color(pipe_red, pipe_green, pipe_blue);
-    //         object.append_translation(&Translation3::new(
-    //             node.0 as f32,
-    //             node.1 as f32,
-    //             node.2 as f32,
-    //         ));
-    //         objects.push(object);
-    //     }
-    //     for sphere_point in pipe.get_sphere_points() {
-    //         let mut sphere_obj = window.add_sphere(0.5);
-    //         sphere_obj.set_color(pipe_red, pipe_green, pipe_blue);
-    //         sphere_obj.append_translation(&Translation3::new(
-    //             sphere_point.0 as f32,
-    //             sphere_point.1 as f32,
-    //             sphere_point.2 as f32,
-    //         ));
-    //         objects.push(sphere_obj);
-    //     }
-    // }
+    while window.render_with_camera(&mut camera) {
+        sleep(Duration::from_millis(100));
+        for i in 0..world.active_pipes {
+            let lastNode = world.pipes[i].get_current_head();
+            let lastDir = world.pipes[i].get_current_dir();
+            world.pipes[i].update(&mut world.occupied_nodes, &mut rng);
+            if !world.pipes[i].is_alive() {
+                continue;
+            }
+            let currentNode = world.pipes[i].get_current_head();
+            let currentDir = world.pipes[i].get_current_dir();
+            if lastDir != currentDir {
+                world.pipe_node_vectors[i].push(make_ball_joint(
+                    lastNode,
+                    &mut window,
+                    (0.0, 1.0, 0.0),
+                ));
+            } else {
+                world.pipe_node_vectors[i].push(make_pipe_section(
+                    lastNode,
+                    currentNode,
+                    &mut window,
+                    (0.0, 1.0, 0.0),
+                ));
+            }
+        }
+        if rng.gen_bool(world.new_pipe_chance) && world.active_pipes < world.max_pipes {
+            world.pipes.push(Pipe::new(
+                &mut world.occupied_nodes,
+                world.space_bounds,
+                &mut rng,
+            ));
+            world.active_pipes += 1;
 
-    // while window.render_with_camera(&mut camera) {
-    //     for object in &mut objects {
-    //         object.prepend_to_local_rotation(&UnitQuaternion::from_axis_angle(
-    //             &Vector3::y_axis(),
-    //             0.014,
-    //         ));
-    //     }
-    // }
+            world.pipe_node_vectors[world.active_pipes - 1].push(make_ball_joint(
+                world.pipes[world.active_pipes - 1].get_current_head(),
+                &mut window,
+                (0.0, 1.0, 0.0),
+            ));
+        }
+    }
 }
 
 #[cfg(test)]
