@@ -43,7 +43,8 @@ fn main() {
         occupied_nodes: HashSet::new(),
         ..Default::default()
     };
-    let mut pipe_nodes: [Vec<SceneNode>; MAX_PIPES as usize] = Default::default();
+    // let mut pipe_nodes: [Vec<SceneNode>; MAX_PIPES as usize] = Default::default();a
+    let mut pipe_nodes: Vec<SceneNode> = Vec::new();
     let mut rng = rand::thread_rng();
     world.pipes.push(Pipe::new(
         &mut world.occupied_nodes,
@@ -56,8 +57,8 @@ fn main() {
     // KISS3D INITIALIZATION
     //===============================================
     let mut window = Window::new("rust-pipes");
-    let eye = Point3::new(-20.0 as f32, -20.0, -20.0);
-    let at_point = Point3::new(0.0 as f32, 0.0, 0.0);
+    let eye = Point3::new(-20.0 as f32, -20.0, 20.0);
+    let at_point = Point3::new(25.0 as f32, 25.0, 25.0);
     let mut camera = ArcBall::new(eye, at_point);
 
     while window.render_with_camera(&mut camera) {
@@ -71,15 +72,17 @@ fn main() {
             }
             let current_node = world.pipes[i].get_current_head();
             let current_dir = world.pipes[i].get_current_dir();
-            if last_dir != current_dir {
-                pipe_nodes[i].push(make_ball_joint(last_node, &mut window, (0.0, 1.0, 0.0)));
+            if last_dir != current_dir && last_node != current_node {
+                pipe_nodes.push(make_ball_joint(last_node, &mut window, (0.0, 1.0, 0.0)));
             } else {
-                pipe_nodes[i].push(make_pipe_section(
-                    last_node,
-                    current_node,
-                    &mut window,
-                    (0.0, 1.0, 0.0),
-                ));
+                if last_node != current_node {
+                    pipe_nodes.push(make_pipe_section(
+                        last_node,
+                        current_node,
+                        &mut window,
+                        (0.0, 1.0, 0.0),
+                    ));
+                }
             }
         }
         if rng.gen_bool(world.new_pipe_chance) && world.active_pipes < MAX_PIPES as usize {
@@ -90,7 +93,7 @@ fn main() {
             ));
             world.active_pipes += 1;
 
-            pipe_nodes[world.active_pipes - 1].push(make_ball_joint(
+            pipe_nodes.push(make_ball_joint(
                 world.pipes[world.active_pipes - 1].get_current_head(),
                 &mut window,
                 (0.0, 1.0, 0.0),
