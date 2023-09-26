@@ -3,7 +3,7 @@ use std::{collections::HashSet, thread::sleep, time::Duration};
 use base::{
     draw::{make_ball_joint, make_pipe_section},
     pipe::Pipe,
-    util::Coordinate,
+    util::{Color, Coordinate},
 };
 use kiss3d::{camera::ArcBall, nalgebra::Point3, scene::SceneNode, window::Window};
 use rand::Rng;
@@ -16,6 +16,7 @@ const MAX_PIPES: i32 = 10;
 
 struct World {
     pipes: Vec<Pipe>,
+    pipe_colors: Vec<Color>,
     occupied_nodes: HashSet<Coordinate>,
     space_bounds: Coordinate,
     new_pipe_chance: f64,
@@ -26,8 +27,9 @@ impl Default for World {
     fn default() -> Self {
         World {
             pipes: Vec::new(),
+            pipe_colors: Vec::new(),
             occupied_nodes: HashSet::new(),
-            space_bounds: (50, 50, 50),
+            space_bounds: (25,25,25),
             new_pipe_chance: 0.1,
             active_pipes: 0,
         }
@@ -39,11 +41,8 @@ fn main() {
     // WORLD INITIALIZATION
     //===============================================
     let mut world = World {
-        pipes: Vec::new(),
-        occupied_nodes: HashSet::new(),
         ..Default::default()
     };
-    // let mut pipe_nodes: [Vec<SceneNode>; MAX_PIPES as usize] = Default::default();a
     let mut pipe_nodes: Vec<SceneNode> = Vec::new();
     let mut rng = rand::thread_rng();
     world.pipes.push(Pipe::new(
@@ -64,6 +63,11 @@ fn main() {
     while window.render_with_camera(&mut camera) {
         sleep(Duration::from_millis(100));
         for i in 0..world.active_pipes {
+            if world.pipe_colors.len() < i + 1 {
+                let new_color: Color = rng.gen();
+                world.pipe_colors.push(new_color);
+            }
+            let pipe_color = world.pipe_colors[i];
             let last_node = world.pipes[i].get_current_head();
             let last_dir = world.pipes[i].get_current_dir();
             world.pipes[i].update(&mut world.occupied_nodes, &mut rng);
@@ -73,14 +77,14 @@ fn main() {
             let current_node = world.pipes[i].get_current_head();
             let current_dir = world.pipes[i].get_current_dir();
             if last_dir != current_dir && last_node != current_node {
-                pipe_nodes.push(make_ball_joint(last_node, &mut window, (0.0, 1.0, 0.0)));
+                pipe_nodes.push(make_ball_joint(last_node, &mut window, pipe_color));
             } else {
                 if last_node != current_node {
                     pipe_nodes.push(make_pipe_section(
                         last_node,
                         current_node,
                         &mut window,
-                        (0.0, 1.0, 0.0),
+                        pipe_color,
                     ));
                 }
             }
@@ -93,10 +97,12 @@ fn main() {
             ));
             world.active_pipes += 1;
 
+            let new_color: Color = rng.gen();
+            world.pipe_colors.push(new_color);
             pipe_nodes.push(make_ball_joint(
                 world.pipes[world.active_pipes - 1].get_current_head(),
                 &mut window,
-                (0.0, 1.0, 0.0),
+                new_color,
             ));
         }
     }

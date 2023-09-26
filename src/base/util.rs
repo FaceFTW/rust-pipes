@@ -3,7 +3,9 @@ use rand::Rng;
 use std::{collections::HashSet, slice::Iter};
 
 pub type Coordinate = (i32, i32, i32);
+pub type Color = (f32, f32, f32);
 
+///Defines a direction in space
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Direction {
     North,
