@@ -10,7 +10,7 @@ use super::{
 ///Used to give information to the render loop while
 ///minimizing the amount of state entanglement with
 /// the world
-pub struct PipeChange {
+pub struct PipeChangeData {
     pub last_node: Coordinate,
     pub last_dir: Direction,
     pub current_node: Coordinate,
@@ -66,7 +66,7 @@ impl World {
         }
     }
 
-    pub fn pipe_update(&mut self, idx: usize, rng: &mut impl Rng) -> PipeChange {
+    pub fn pipe_update(&mut self, idx: usize, rng: &mut impl Rng) -> PipeChangeData {
         let color = self.pipe_colors[idx];
         let last_node = self.pipes[idx].get_current_head();
         let last_dir = self.pipes[idx].get_current_dir();
@@ -75,7 +75,7 @@ impl World {
         let current_node = self.pipes[idx].get_current_head();
         let current_dir = self.pipes[idx].get_current_dir();
 
-        PipeChange {
+        PipeChangeData {
             last_node: last_node,
             last_dir: last_dir,
             current_node: current_node,

@@ -26,7 +26,7 @@ fn main() {
     // KISS3D INITIALIZATION
     //===============================================
     let mut window = Window::new("rust-pipes");
-    let eye = Point3::new(-20.0 as f32, -20.0, 20.0);
+    let eye = Point3::new(-20.0 as f32, -20.0, 10.0);
     let at_point = Point3::new(10.0 as f32, 10.0, 10.0);
     let mut camera = ArcBall::new(eye, at_point);
 
