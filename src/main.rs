@@ -1,7 +1,7 @@
 use std::{thread::sleep, time::Duration};
 
 use base::{
-    draw::{make_ball_joint, make_pipe_section},
+    draw::{draw_axes, make_ball_joint, make_pipe_section},
     world::World,
 };
 use kiss3d::{camera::ArcBall, nalgebra::Point3, scene::SceneNode, window::Window};
@@ -26,11 +26,13 @@ fn main() {
     // KISS3D INITIALIZATION
     //===============================================
     let mut window = Window::new("rust-pipes");
-    let eye = Point3::new(-20.0 as f32, -20.0, 10.0);
+
+    let eye = Point3::new(-20.0 as f32, 10.0, -20.0);
     let at_point = Point3::new(10.0 as f32, 10.0, 10.0);
     let mut camera = ArcBall::new(eye, at_point);
 
     while window.render_with_camera(&mut camera) {
+        draw_axes(&mut window);
         sleep(Duration::from_millis(100));
 
         for i in 0..world.active_pipes {
