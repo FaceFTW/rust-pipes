@@ -48,12 +48,12 @@ impl fmt::Display for Direction {
 impl Into<UnitQuaternion<f32>> for Direction {
     fn into(self) -> UnitQuaternion<f32> {
         match self {
-            Direction::North => todo!(),
-            Direction::South => todo!(),
-            Direction::East => todo!(),
-            Direction::West => todo!(),
-            Direction::Up => todo!(),
-            Direction::Down => todo!(),
+            Direction::North => UnitQuaternion::new(Vector3::y() * 0.0),
+            Direction::South => UnitQuaternion::new(Vector3::y() * 180.0),
+            Direction::East => UnitQuaternion::new(Vector3::y() * 90.0),
+            Direction::West => UnitQuaternion::new(Vector3::y() * 270.0),
+            Direction::Up => UnitQuaternion::new(Vector3::x() * 90.0),
+            Direction::Down => UnitQuaternion::new(Vector3::x() * 270.0),
         }
     }
 }

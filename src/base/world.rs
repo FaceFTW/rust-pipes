@@ -75,6 +75,17 @@ impl World {
         let current_node = self.pipes[idx].get_current_head();
         let current_dir = self.pipes[idx].get_current_dir();
 
+        //Add a random chance post update to kill the pipe
+        //increases the more the space is filled
+        let total_nodes = self.space_bounds.0 * self.space_bounds.1 * self.space_bounds.2;
+        let chance_to_kill = (self.occupied_nodes.len() as f64) / (total_nodes as f64);
+
+        if self.pipes[idx].len() >= (total_nodes * 10 / 100) as i32 && rng.gen_bool(chance_to_kill)
+        {
+            self.pipes[idx].kill();
+            // self.active_pipes -= 1;
+        }
+
         PipeChangeData {
             last_node: last_node,
             last_dir: last_dir,

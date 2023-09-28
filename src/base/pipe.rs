@@ -54,6 +54,10 @@ impl Pipe {
         self.current_dir
     }
 
+    pub fn len(&self) -> i32 {
+        self.nodes.len().try_into().unwrap()
+    }
+
     pub fn update(&mut self, occupied_nodes: &mut HashSet<Coordinate>, rng: &mut impl Rng) {
         if !self.alive {
             return;

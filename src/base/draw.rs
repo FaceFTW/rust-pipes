@@ -26,9 +26,8 @@ pub fn make_pipe_section(
         from.1 as f32,
         from.2 as f32,
     ));
-    pipe_section.set_local_rotation(
-        UnitQuaternion::rotation_between(&from_point, &(to_point - from_point)).unwrap(),
-    );
+    pipe_section
+        .set_local_rotation(UnitQuaternion::rotation_between(&from_point, &to_point).unwrap());
     pipe_section
 }
 
