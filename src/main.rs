@@ -31,6 +31,7 @@ fn main() {
     let at_point = Point3::new(10.0 as f32, 10.0, 10.0);
     let mut camera = ArcBall::new(eye, at_point);
 
+
     while window.render_with_camera(&mut camera) {
         draw_axes(&mut window);
         sleep(Duration::from_millis(100));

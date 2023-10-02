@@ -62,3 +62,164 @@ pub fn draw_axes(window: &mut Window) {
     window.draw_line(&origin, &y_max, &green);
     window.draw_line(&origin, &z_max, &blue);
 }
+
+#[cfg(test)]
+mod tests {
+    use std::f32::consts::PI;
+
+    use kiss3d::{
+        nalgebra::{Point3, UnitQuaternion, Vector3},
+        window::Window,
+    };
+
+    //Here, we effectively check if the SceneNode is generated as expected
+    use crate::base::util::{Color, Coordinate};
+
+    use super::make_pipe_section;
+
+    #[test]
+    fn make_pipe_section_origin_start_no_translation() {
+        let mut window = Window::new_hidden("test");
+        let from: Coordinate = (0, 0, 0);
+        let to: Coordinate = (1, 0, 0);
+        let color: Color = (0.0, 1.0, 0.0);
+
+        let node = make_pipe_section(from, to, &mut window, color);
+        let node_data = node.data();
+
+        assert_eq!(node_data.local_translation().vector, Vector3::zeros());
+    }
+
+    #[test]
+    fn make_pipe_section_non_origin_start_has_translation() {
+        let mut window = Window::new_hidden("test");
+        let from: Coordinate = (1, 0, 0);
+        let to: Coordinate = (2, 0, 0);
+        let color: Color = (0.0, 1.0, 0.0);
+
+        let node = make_pipe_section(from, to, &mut window, color);
+        let node_data = node.data();
+
+        assert_eq!(
+            node_data.local_translation().vector,
+            Vector3::new(1.0, 0.0, 0.0)
+        );
+    }
+
+    #[test]
+    fn make_pipe_section_north_dir_quarternion_applied() {
+        let mut window = Window::new_hidden("test");
+        let from: Coordinate = (0, 0, 0);
+        let to: Coordinate = (1, 0, 0);
+        let color: Color = (0.0, 1.0, 0.0);
+
+        let node = make_pipe_section(from, to, &mut window, color);
+        let node_data = node.data();
+
+        let axisangle = Vector3::x() * 0.0;
+        assert_eq!(
+            node_data.local_transformation().rotation,
+            UnitQuaternion::<f32>::new(axisangle)
+        )
+    }
+
+    #[test]
+    fn make_pipe_section_south_dir_quarternion_applied() {
+        let mut window = Window::new_hidden("test");
+        let from: Coordinate = (0, 0, 0);
+        let to: Coordinate = (-1, 0, 0);
+        let color: Color = (0.0, 1.0, 0.0);
+
+        let node = make_pipe_section(from, to, &mut window, color);
+        let node_data = node.data();
+
+        let axisangle = Vector3::x() * PI;
+        assert_eq!(
+            node_data.local_transformation().rotation,
+            UnitQuaternion::<f32>::new(axisangle)
+        )
+    }
+    #[test]
+    fn make_pipe_section_east_dir_quarternion_applied() {
+        let mut window = Window::new_hidden("test");
+        let from: Coordinate = (0, 0, 0);
+        let to: Coordinate = (0, 0, 1);
+        let color: Color = (0.0, 1.0, 0.0);
+
+        let node = make_pipe_section(from, to, &mut window, color);
+        let node_data = node.data();
+
+        let axisangle = Vector3::x() * 0.0;
+        assert_eq!(
+            node_data.local_transformation().rotation,
+            UnitQuaternion::<f32>::new(axisangle)
+        )
+    }
+
+    #[test]
+    fn make_pipe_section_west_dir_quarternion_applied() {
+        let mut window = Window::new_hidden("test");
+        let from: Coordinate = (0, 0, 0);
+        let to: Coordinate = (0, 0, -1);
+        let color: Color = (0.0, 1.0, 0.0);
+
+        let node = make_pipe_section(from, to, &mut window, color);
+        let node_data = node.data();
+
+        let axisangle = Vector3::x() * PI;
+        assert_eq!(
+            node_data.local_transformation().rotation,
+            UnitQuaternion::<f32>::new(axisangle)
+        )
+    }
+
+    #[test]
+    fn make_pipe_section_up_dir_quarternion_applied() {
+        let mut window = Window::new_hidden("test");
+        let from: Coordinate = (0, 0, 0);
+        let to: Coordinate = (0, 1, 0);
+        let color: Color = (0.0, 1.0, 0.0);
+
+        let node = make_pipe_section(from, to, &mut window, color);
+        let node_data = node.data();
+
+        let axisangle = Vector3::x() * 0.0;
+        assert_eq!(
+            node_data.local_transformation().rotation,
+            UnitQuaternion::<f32>::new(axisangle)
+        )
+    }
+
+    #[test]
+    fn make_pipe_section_down_dir_quarternion_applied() {
+        let mut window = Window::new_hidden("test");
+        let from: Coordinate = (0, 0, 0);
+        let to: Coordinate = (0, -1, 0);
+        let color: Color = (0.0, 1.0, 0.0);
+
+        let node = make_pipe_section(from, to, &mut window, color);
+        let node_data = node.data();
+
+        let axisangle = Vector3::x() * PI;
+        assert_eq!(
+            node_data.local_transformation().rotation,
+            UnitQuaternion::<f32>::new(axisangle)
+        )
+    }
+
+    #[test]
+    fn make_pipe_section_applies_color() {
+        let mut window = Window::new_hidden("test");
+        let from: Coordinate = (0, 0, 0);
+        let to: Coordinate = (0, 1, 0);
+        let color: Color = (0.0, 1.0, 0.0);
+
+        let node = make_pipe_section(from, to, &mut window, color);
+        let node_data = node.data();
+
+        assert_eq!(
+            node_data.get_object().data().color().to_owned(),
+            Point3::<f32>::new(color.0, color.1, color.2)
+        )
+    }
+}
