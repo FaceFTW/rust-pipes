@@ -1,13 +1,14 @@
-use std::{thread::sleep, time::Duration};
-
 use base::{
     draw::{draw_axes, make_ball_joint, make_pipe_section},
     world::World,
 };
-use kiss3d::{camera::ArcBall, nalgebra::Point3, scene::SceneNode, window::Window};
 use rand::Rng;
+use std::{thread::sleep, time::Duration};
 
+#[cfg(feature = "k3d_engine")]
 extern crate kiss3d;
+#[cfg(feature = "k3d_engine")]
+use kiss3d::{camera::ArcBall, nalgebra::Point3, scene::SceneNode, window::Window};
 
 mod base;
 
@@ -18,19 +19,24 @@ fn main() {
     // WORLD INITIALIZATION
     //===============================================
     let mut world = World::new();
-    let mut pipe_nodes: Vec<SceneNode> = Vec::new();
     let mut rng = rand::thread_rng();
     world.new_pipe(&mut rng);
 
+    #[cfg(feature = "k3d_engine")]
+    k3d_run(&mut world, &mut rng);
+}
+
+#[cfg(feature = "k3d_engine")]
+fn k3d_run(world: &mut World, mut rng: impl Rng) {
     //===============================================
     // KISS3D INITIALIZATION
     //===============================================
     let mut window = Window::new("rust-pipes");
 
+    let mut pipe_nodes: Vec<SceneNode> = Vec::new();
     let eye = Point3::new(-20.0 as f32, 10.0, -20.0);
     let at_point = Point3::new(10.0 as f32, 10.0, 10.0);
     let mut camera = ArcBall::new(eye, at_point);
-
 
     while window.render_with_camera(&mut camera) {
         draw_axes(&mut window);
