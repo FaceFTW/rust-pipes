@@ -1,5 +1,4 @@
 use core::fmt;
-use kiss3d::nalgebra::{UnitQuaternion, Vector3};
 use rand::Rng;
 use std::{collections::HashSet, slice::Iter};
 
@@ -42,19 +41,6 @@ impl fmt::Display for Direction {
             Direction::Down => "Down",
         };
         write!(f, "{}", dir_str)
-    }
-}
-
-impl Into<UnitQuaternion<f32>> for Direction {
-    fn into(self) -> UnitQuaternion<f32> {
-        match self {
-            Direction::North => UnitQuaternion::new(Vector3::y() * 0.0),
-            Direction::South => UnitQuaternion::new(Vector3::y() * 180.0),
-            Direction::East => UnitQuaternion::new(Vector3::y() * 90.0),
-            Direction::West => UnitQuaternion::new(Vector3::y() * 270.0),
-            Direction::Up => UnitQuaternion::new(Vector3::x() * 90.0),
-            Direction::Down => UnitQuaternion::new(Vector3::x() * 270.0),
-        }
     }
 }
 

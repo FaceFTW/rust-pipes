@@ -1,9 +1,4 @@
 use super::util::Coordinate;
-use kiss3d::{
-    nalgebra::{Point3, Translation3, UnitQuaternion, Vector3},
-    scene::SceneNode,
-    window::Window,
-};
 
 const PIPE_RADIUS: f32 = 0.5;
 const PIPE_SEG_HEIGHT: f32 = 1.0;
@@ -13,9 +8,14 @@ const BALL_JOINT_RADIUS: f32 = 0.85;
 pub fn make_pipe_section(
     from: Coordinate,
     to: Coordinate,
-    window_ref: &mut Window,
+    window_ref: &mut kiss3d::window::Window,
     color: (f32, f32, f32),
-) -> SceneNode {
+) -> kiss3d::scene::SceneNode {
+    use kiss3d::{
+        nalgebra::{Point3, Translation3, UnitQuaternion, Vector3},
+        scene::SceneNode,
+        window::Window,
+    };
     let mut pipe_section = window_ref.add_cylinder(PIPE_RADIUS, PIPE_SEG_HEIGHT);
     let from_point = Vector3::new(from.0 as f32, from.1 as f32, from.2 as f32);
     let to_point = Vector3::new(to.0 as f32, to.1 as f32, to.2 as f32);
@@ -35,9 +35,14 @@ pub fn make_pipe_section(
 #[cfg(feature = "k3d_engine")]
 pub fn make_ball_joint(
     point: Coordinate,
-    window_ref: &mut Window,
+    window_ref: &mut kiss3d::window::Window,
     color: (f32, f32, f32),
-) -> SceneNode {
+) -> kiss3d::scene::SceneNode {
+    use kiss3d::{
+        nalgebra::{Point3, Translation3, UnitQuaternion, Vector3},
+        scene::SceneNode,
+        window::Window,
+    };
     let mut ball_joint = window_ref.add_sphere(BALL_JOINT_RADIUS);
     let (red, green, blue) = color;
     ball_joint.set_color(red, green, blue);
@@ -50,7 +55,13 @@ pub fn make_ball_joint(
 }
 
 ///Method for drawing coordinate axes in "debug" modes
-pub fn draw_axes(window: &mut Window) {
+#[cfg(feature = "k3d_engine")]
+pub fn draw_axes(window: &mut kiss3d::window::Window) {
+    use kiss3d::{
+        nalgebra::{Point3, Translation3, UnitQuaternion, Vector3},
+        scene::SceneNode,
+        window::Window,
+    };
     let origin = Point3::<f32>::origin();
     let x_max = Point3::<f32>::new(30.0, 0.0, 0.0);
     let y_max = Point3::<f32>::new(0.0, 30.0, 0.0);
@@ -65,7 +76,7 @@ pub fn draw_axes(window: &mut Window) {
     window.draw_line(&origin, &z_max, &blue);
 }
 
-#[cfg(test)]
+#[cfg(all(feature = "k3d_engine", test))]
 mod tests {
     use std::f32::consts::PI;
 
@@ -79,7 +90,6 @@ mod tests {
 
     use super::make_pipe_section;
 
-    #[cfg(feature = "k3d_engine")]
     #[test]
     fn make_pipe_section_origin_start_no_translation() {
         let mut window = Window::new_hidden("test");
@@ -93,7 +103,6 @@ mod tests {
         assert_eq!(node_data.local_translation().vector, Vector3::zeros());
     }
 
-    #[cfg(feature = "k3d_engine")]
     #[test]
     fn make_pipe_section_non_origin_start_has_translation() {
         let mut window = Window::new_hidden("test");
@@ -110,7 +119,6 @@ mod tests {
         );
     }
 
-    #[cfg(feature = "k3d_engine")]
     #[test]
     fn make_pipe_section_north_dir_quarternion_applied() {
         let mut window = Window::new_hidden("test");
@@ -128,7 +136,6 @@ mod tests {
         )
     }
 
-    #[cfg(feature = "k3d_engine")]
     #[test]
     fn make_pipe_section_south_dir_quarternion_applied() {
         let mut window = Window::new_hidden("test");
@@ -146,7 +153,6 @@ mod tests {
         )
     }
 
-    #[cfg(feature = "k3d_engine")]
     #[test]
     fn make_pipe_section_east_dir_quarternion_applied() {
         let mut window = Window::new_hidden("test");
@@ -164,7 +170,6 @@ mod tests {
         )
     }
 
-    #[cfg(feature = "k3d_engine")]
     #[test]
     fn make_pipe_section_west_dir_quarternion_applied() {
         let mut window = Window::new_hidden("test");
@@ -182,7 +187,6 @@ mod tests {
         )
     }
 
-    #[cfg(feature = "k3d_engine")]
     #[test]
     fn make_pipe_section_up_dir_quarternion_applied() {
         let mut window = Window::new_hidden("test");
@@ -200,7 +204,6 @@ mod tests {
         )
     }
 
-    #[cfg(feature = "k3d_engine")]
     #[test]
     fn make_pipe_section_down_dir_quarternion_applied() {
         let mut window = Window::new_hidden("test");
@@ -218,7 +221,6 @@ mod tests {
         )
     }
 
-    #[cfg(feature = "k3d_engine")]
     #[test]
     fn make_pipe_section_applies_color() {
         let mut window = Window::new_hidden("test");
