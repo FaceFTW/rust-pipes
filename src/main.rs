@@ -1,8 +1,11 @@
-use base::world::World;
+use world::World;
 use rand::Rng;
 use std::{thread::sleep, time::Duration};
 
-mod base;
+mod world;
+mod pipe;
+mod util;
+mod draw;
 
 const MAX_PIPES: i32 = 10;
 
@@ -146,7 +149,7 @@ fn custom_eng_init(world: &mut World, mut rng: impl Rng) {
 #[cfg(feature = "k3d_engine")]
 fn k3d_run(world: &mut World, mut rng: impl Rng) {
     extern crate kiss3d;
-    use base::draw::{draw_axes, make_ball_joint, make_pipe_section};
+    use draw::{draw_axes, make_ball_joint, make_pipe_section};
     use kiss3d::{camera::ArcBall, nalgebra::Point3, scene::SceneNode, window::Window};
     //===============================================
     // KISS3D INITIALIZATION
