@@ -1,8 +1,69 @@
-use super::util::Coordinate;
+use three_d::{Context, Mat4};
+use three_d::{Gm, Mesh, PhysicalMaterial};
 
-const PIPE_RADIUS: f32 = 0.5;
+use crate::util::Direction;
+
+use super::util::{Color, Coordinate};
+
+pub type RenderObject = Gm<Mesh, PhysicalMaterial>;
+
+const PIPE_RADIUS: f32 = 0.15;
 const PIPE_SEG_HEIGHT: f32 = 1.0;
 const BALL_JOINT_RADIUS: f32 = 0.85;
+
+const DEFAULT_SUBDIVISIONS: u32 = 16;
+
+fn gen_scale_transform(dir: Direction) -> Mat4 {
+    match dir {
+        Direction::North => Mat4::from_nonuniform_scale(1.0, PIPE_RADIUS, PIPE_RADIUS),
+        Direction::South => Mat4::from_nonuniform_scale(1.0, PIPE_RADIUS, PIPE_RADIUS),
+        Direction::East => Mat4::from_nonuniform_scale(PIPE_RADIUS, PIPE_RADIUS, 1.0),
+        Direction::West => Mat4::from_nonuniform_scale(PIPE_RADIUS, PIPE_RADIUS, 1.0),
+        Direction::Up => Mat4::from_nonuniform_scale(PIPE_RADIUS, 1.0, PIPE_RADIUS),
+        Direction::Down => Mat4::from_nonuniform_scale(PIPE_RADIUS, 1.0, PIPE_RADIUS),
+    }
+}
+
+#[cfg(feature = "three_d_eng")]
+pub fn make_pipe_section(
+    from: Coordinate,
+    to: Coordinate,
+    color: (u8, u8, u8),
+    ctxt: &Context,
+) -> Box<RenderObject> {
+    use three_d::{CpuMesh, Srgba, Vec3};
+
+    let (red, green, blue) = color;
+    let (from_x, from_y, from_z) = from;
+    let (to_x, to_y, to_z) = to;
+
+    let mesh = Mesh::new(ctxt, &CpuMesh::cylinder(DEFAULT_SUBDIVISIONS));
+    let material = PhysicalMaterial::new_opaque(
+        ctxt,
+        &three_d::CpuMaterial {
+            albedo: Srgba {
+                r: red,
+                g: green,
+                b: blue,
+                a: 100,
+            },
+            ..Default::default()
+        },
+    );
+
+    let mut obj = Gm::new(mesh, material);
+
+    let delta = (to_x - from_x, to_y - from_y, to_z - from_z);
+
+    let from_vec = Vec3::new(from_x as f32, from_y as f32, from_z as f32);
+    let rot_matrix: Mat4 = Direction::from(delta).into();
+    let scale_matrix = gen_scale_transform(Direction::from(delta));
+
+    let trans_matrix = scale_matrix * Mat4::from_translation(from_vec) * rot_matrix;
+    obj.set_transformation(trans_matrix);
+
+    return Box::new(obj);
+}
 
 #[cfg(feature = "k3d_engine")]
 pub fn make_pipe_section(
@@ -237,3 +298,6 @@ mod tests {
         )
     }
 }
+
+#[cfg(all(feature = "three_d_eng", test))]
+mod tests {}

@@ -1,6 +1,7 @@
 use core::fmt;
 use rand::Rng;
 use std::{collections::HashSet, slice::Iter};
+use three_d::{Deg, Mat4};
 
 pub type Coordinate = (i32, i32, i32);
 pub type Color = (f32, f32, f32);
@@ -30,6 +31,38 @@ impl Direction {
     }
 }
 
+#[cfg(feature = "three_d_eng")]
+impl Into<Mat4> for Direction {
+    fn into(self) -> Mat4 {
+        match self {
+            Direction::North => Mat4::from_angle_y(Deg(0.0)),
+            Direction::South => Mat4::from_angle_y(Deg(180.0)),
+            Direction::East => Mat4::from_angle_y(Deg(-90.0)),
+            Direction::West => Mat4::from_angle_y(Deg(90.0)),
+            Direction::Up => Mat4::from_angle_z(Deg(90.0)),
+            Direction::Down => Mat4::from_angle_z(Deg(270.0)),
+        }
+    }
+}
+
+impl From<Coordinate> for Direction {
+    fn from(value: Coordinate) -> Self {
+        let (x, y, z) = value;
+        match (x, y, z) {
+            (x, 0, 0) if x > 0 => Direction::North,
+            (x, 0, 0) if x < 0 => Direction::South,
+            (0, y, 0) if y > 0 => Direction::Up,
+            (0, y, 0) if y < 0 => Direction::Down,
+            (0, 0, z) if z > 0 => Direction::East,
+            (0, 0, z) if z < 0 => Direction::West,
+            _ => panic!(
+                "Could not convert coordinate/distance to a cardinal direction, {:?}",
+                value
+            ),
+        }
+    }
+}
+
 impl fmt::Display for Direction {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let dir_str = match self {
@@ -48,12 +81,12 @@ impl fmt::Display for Direction {
 pub fn step_in_dir(coord: Coordinate, dir: Direction) -> Coordinate {
     let (x, y, z) = coord;
     match dir {
-        Direction::North => (x, y + 1, z),
-        Direction::South => (x, y - 1, z),
-        Direction::East => (x + 1, y, z),
-        Direction::West => (x - 1, y, z),
-        Direction::Up => (x, y, z + 1),
-        Direction::Down => (x, y, z - 1),
+        Direction::North => (x + 1, y, z),
+        Direction::South => (x - 1, y, z),
+        Direction::East => (x, y, z + 1),
+        Direction::West => (x, y, z - 1),
+        Direction::Up => (x, y + 1, z),
+        Direction::Down => (x, y - 1, z),
     }
 }
 
@@ -108,15 +141,14 @@ pub fn find_random_start(
 mod tests {
     use super::*;
 
-    //could be broken down into multiple tests, but I'm lazy
     #[test]
     fn test_step_in_dir() {
-        assert_eq!(step_in_dir((0, 0, 0), Direction::North), (0, 1, 0));
-        assert_eq!(step_in_dir((0, 0, 0), Direction::South), (0, -1, 0));
-        assert_eq!(step_in_dir((0, 0, 0), Direction::East), (1, 0, 0));
-        assert_eq!(step_in_dir((0, 0, 0), Direction::West), (-1, 0, 0));
-        assert_eq!(step_in_dir((0, 0, 0), Direction::Up), (0, 0, 1));
-        assert_eq!(step_in_dir((0, 0, 0), Direction::Down), (0, 0, -1));
+        assert_eq!(step_in_dir((0, 0, 0), Direction::North), (1, 0, 0));
+        assert_eq!(step_in_dir((0, 0, 0), Direction::South), (-1, 0, 0));
+        assert_eq!(step_in_dir((0, 0, 0), Direction::East), (0, 0, 1));
+        assert_eq!(step_in_dir((0, 0, 0), Direction::West), (0, 0, -1));
+        assert_eq!(step_in_dir((0, 0, 0), Direction::Up), (0, 1, 0));
+        assert_eq!(step_in_dir((0, 0, 0), Direction::Down), (0, -1, 0));
     }
 
     #[test]
@@ -129,5 +161,27 @@ mod tests {
         assert_eq!(dir_iter.next(), Some(&Direction::Up));
         assert_eq!(dir_iter.next(), Some(&Direction::Down));
         assert_eq!(dir_iter.next(), None);
+    }
+
+    #[test]
+    fn test_direction_from_coordinate_cardinal_directions() {
+        assert_eq!(Direction::from((1, 0, 0)), Direction::North);
+        assert_eq!(Direction::from((-1, 0, 0)), Direction::South);
+        assert_eq!(Direction::from((0, 1, 0)), Direction::Up);
+        assert_eq!(Direction::from((0, -1, 0)), Direction::Down);
+        assert_eq!(Direction::from((0, 0, 1)), Direction::East);
+        assert_eq!(Direction::from((0, 0, -1)), Direction::West);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_direction_from_coordinate_vector_dirs_panic() {
+        let _test2 = Direction::from((1, 2, 3));
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_direction_from_coordinate_zero_vector_panics() {
+        let _test1 = Direction::from((0, 0, 0));
     }
 }

@@ -1,11 +1,11 @@
-use world::World;
 use rand::Rng;
 use std::{thread::sleep, time::Duration};
+use world::World;
 
-mod world;
+mod draw;
 mod pipe;
 mod util;
-mod draw;
+mod world;
 
 const MAX_PIPES: i32 = 10;
 
@@ -28,6 +28,8 @@ fn main() {
 fn custom_eng_init(world: &mut World, mut rng: impl Rng) {
     use three_d::*;
 
+    use crate::draw::make_pipe_section;
+
     let window = Window::new(WindowSettings {
         title: "Rust Pipes".to_string(),
         max_size: Some((1280, 720)),
@@ -47,78 +49,27 @@ fn custom_eng_init(world: &mut World, mut rng: impl Rng) {
     );
     let mut control = OrbitControl::new(*camera.target(), 1.0, 100.0);
 
-    let mut sphere = Gm::new(
-        Mesh::new(&context, &CpuMesh::sphere(16)),
-        PhysicalMaterial::new_transparent(
-            &context,
-            &CpuMaterial {
-                albedo: Srgba {
-                    r: 255,
-                    g: 0,
-                    b: 0,
-                    a: 200,
-                },
-                ..Default::default()
-            },
-        ),
-    );
-    sphere.set_transformation(Mat4::from_translation(vec3(0.0, 1.3, 0.0)) * Mat4::from_scale(0.2));
-    let mut cylinder = Gm::new(
-        Mesh::new(&context, &CpuMesh::cylinder(16)),
-        PhysicalMaterial::new_transparent(
-            &context,
-            &CpuMaterial {
-                albedo: Srgba {
-                    r: 0,
-                    g: 255,
-                    b: 0,
-                    a: 200,
-                },
-                ..Default::default()
-            },
-        ),
-    );
-    cylinder
-        .set_transformation(Mat4::from_translation(vec3(1.3, 0.0, 0.0)) * Mat4::from_scale(0.2));
-    let mut cube = Gm::new(
-        Mesh::new(&context, &CpuMesh::cube()),
-        PhysicalMaterial::new_transparent(
-            &context,
-            &CpuMaterial {
-                albedo: Srgba {
-                    r: 0,
-                    g: 0,
-                    b: 255,
-                    a: 100,
-                },
-                ..Default::default()
-            },
-        ),
-    );
-    cube.set_transformation(Mat4::from_translation(vec3(0.0, 0.0, 1.3)) * Mat4::from_scale(0.2));
-    let axes = Axes::new(&context, 0.1, 2.0);
-    let bounding_box_sphere = Gm::new(
-        BoundingBox::new(&context, sphere.aabb()),
-        ColorMaterial {
-            color: Srgba::BLACK,
-            ..Default::default()
-        },
-    );
-    let bounding_box_cube = Gm::new(
-        BoundingBox::new(&context, cube.aabb()),
-        ColorMaterial {
-            color: Srgba::BLACK,
-            ..Default::default()
-        },
-    );
-    let bounding_box_cylinder = Gm::new(
-        BoundingBox::new(&context, cylinder.aabb()),
-        ColorMaterial {
-            color: Srgba::BLACK,
-            ..Default::default()
-        },
-    );
+    let cylinder = make_pipe_section((0, -1, 0), (0, 0, 0), (0, 255, 0), &context);
+    let cylinder2 = make_pipe_section((0, 0, 0), (1, 0, 0), (255, 0, 0), &context);
+    // let mut cylinder = Gm::new(
+    //     Mesh::new(&context, &CpuMesh::cylinder(16)),
+    //     PhysicalMaterial::new_transparent(
+    //         &context,
+    //         &CpuMaterial {
+    //             albedo: Srgba {
+    //                 r: 0,
+    //                 g: 255,
+    //                 b: 0,
+    //                 a: 200,
+    //             },
+    //             ..Default::default()
+    //         },
+    //     ),
+    // );
+    // cylinder
+    //     .set_transformation(Mat4::from_translation(vec3(1.3, 0.0, 0.0)) * Mat4::from_scale(0.2));
 
+    let axes = Axes::new(&context, 0.1, 2.0);
     let light0 = DirectionalLight::new(&context, 1.0, Srgba::WHITE, &vec3(0.0, -0.5, -0.5));
     let light1 = DirectionalLight::new(&context, 1.0, Srgba::WHITE, &vec3(0.0, 0.5, 0.5));
 
@@ -131,14 +82,7 @@ fn custom_eng_init(world: &mut World, mut rng: impl Rng) {
             .clear(ClearState::color_and_depth(0.8, 0.8, 0.8, 1.0, 1.0))
             .render(
                 &camera,
-                sphere
-                    .into_iter()
-                    .chain(&cylinder)
-                    .chain(&cube)
-                    .chain(&axes)
-                    .chain(&bounding_box_sphere)
-                    .chain(&bounding_box_cube)
-                    .chain(&bounding_box_cylinder),
+                axes.into_iter().chain(&*cylinder).chain(&*cylinder2),
                 &[&light0, &light1],
             );
 
