@@ -22,6 +22,10 @@ fn main() {
     let mut rng = rand::thread_rng();
     world.new_pipe(&mut rng);
 
+    //TODO remove these once more logic is in place to remove unused warns
+    world.pipe_update(0, &mut rng);
+    let alive = world.pipes[0].is_alive();
+
     let window = Window::new(WindowSettings {
         title: "Rust Pipes".to_string(),
         max_size: Some((1280, 720)),
@@ -114,7 +118,6 @@ fn k3d_run(world: &mut World, mut rng: impl Rng) {
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {}
