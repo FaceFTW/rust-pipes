@@ -11,17 +11,6 @@ const BALL_JOINT_RADIUS: f32 = 0.3;
 
 const DEFAULT_SUBDIVISIONS: u32 = 16;
 
-fn gen_scale_transform(dir: Direction) -> Mat4 {
-    match dir {
-        Direction::North => Mat4::from_nonuniform_scale(1.0, PIPE_RADIUS, PIPE_RADIUS),
-        Direction::South => Mat4::from_nonuniform_scale(1.0, PIPE_RADIUS, PIPE_RADIUS),
-        Direction::East => Mat4::from_nonuniform_scale(PIPE_RADIUS, PIPE_RADIUS, 1.0),
-        Direction::West => Mat4::from_nonuniform_scale(PIPE_RADIUS, PIPE_RADIUS, 1.0),
-        Direction::Up => Mat4::from_nonuniform_scale(PIPE_RADIUS, 1.0, PIPE_RADIUS),
-        Direction::Down => Mat4::from_nonuniform_scale(PIPE_RADIUS, 1.0, PIPE_RADIUS),
-    }
-}
-
 fn color_to_srgba(color: Color) -> Srgba {
     Srgba {
         r: color.0,
@@ -54,8 +43,8 @@ pub fn make_pipe_section(
     let translation_matrix =
         Mat4::from_translation(Vec3::new(from_x as f32, from_y as f32, from_z as f32));
     let rotation_matrix: Mat4 = Direction::from(delta).into();
-    let scale_matrix = gen_scale_transform(Direction::from(delta));
-    let transform = scale_matrix * translation_matrix * rotation_matrix;
+    let scale_matrix = Mat4::from_nonuniform_scale(1.0, PIPE_RADIUS, PIPE_RADIUS);
+    let transform = translation_matrix * rotation_matrix * scale_matrix;
 
     obj.set_transformation(transform);
 
@@ -78,7 +67,7 @@ pub fn make_ball_joint(pos: Coordinate, color: Color, context: &Context) -> Rend
     let translation_matrix =
         Mat4::from_translation(Vec3::new(pos_x as f32, pos_y as f32, pos_z as f32));
     let scale_matrix = Mat4::from_scale(BALL_JOINT_RADIUS); //Scale is uniform here unlike pipes
-    let transform = scale_matrix * translation_matrix;
+    let transform = translation_matrix * scale_matrix;
 
     obj.set_transformation(transform);
 

@@ -67,6 +67,12 @@ fn main() {
                         delta_state.pipe_color,
                         &context,
                     ));
+                    pipe_render_objs[i].push(make_pipe_section(
+                        delta_state.last_node,
+                        delta_state.current_node,
+                        delta_state.pipe_color,
+                        &context,
+                    ));
                 } else {
                     pipe_render_objs[i].push(make_pipe_section(
                         delta_state.last_node,
