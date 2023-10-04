@@ -1,5 +1,10 @@
+use draw::make_pipe_section;
 use rand::Rng;
 use std::{thread::sleep, time::Duration};
+use three_d::{
+    degrees, vec3, Axes, Camera, ClearState, DirectionalLight, FrameOutput, OrbitControl, Srgba,
+    Window, WindowSettings,
+};
 use world::World;
 
 mod draw;
@@ -16,19 +21,6 @@ fn main() {
     let mut world = World::new();
     let mut rng = rand::thread_rng();
     world.new_pipe(&mut rng);
-
-    #[cfg(feature = "three_d_eng")]
-    custom_eng_init(&mut world, &mut rng);
-
-    #[cfg(feature = "k3d_engine")]
-    k3d_run(&mut world, &mut rng);
-}
-
-#[cfg(feature = "three_d_eng")]
-fn custom_eng_init(world: &mut World, mut rng: impl Rng) {
-    use three_d::*;
-
-    use crate::draw::make_pipe_section;
 
     let window = Window::new(WindowSettings {
         title: "Rust Pipes".to_string(),
@@ -51,23 +43,6 @@ fn custom_eng_init(world: &mut World, mut rng: impl Rng) {
 
     let cylinder = make_pipe_section((0, -1, 0), (0, 0, 0), (0, 255, 0), &context);
     let cylinder2 = make_pipe_section((0, 0, 0), (1, 0, 0), (255, 0, 0), &context);
-    // let mut cylinder = Gm::new(
-    //     Mesh::new(&context, &CpuMesh::cylinder(16)),
-    //     PhysicalMaterial::new_transparent(
-    //         &context,
-    //         &CpuMaterial {
-    //             albedo: Srgba {
-    //                 r: 0,
-    //                 g: 255,
-    //                 b: 0,
-    //                 a: 200,
-    //             },
-    //             ..Default::default()
-    //         },
-    //     ),
-    // );
-    // cylinder
-    //     .set_transformation(Mat4::from_translation(vec3(1.3, 0.0, 0.0)) * Mat4::from_scale(0.2));
 
     let axes = Axes::new(&context, 0.1, 2.0);
     let light0 = DirectionalLight::new(&context, 1.0, Srgba::WHITE, &vec3(0.0, -0.5, -0.5));
@@ -90,6 +65,7 @@ fn custom_eng_init(world: &mut World, mut rng: impl Rng) {
     });
 }
 
+//OLD CODE - WILL BE DELETED
 #[cfg(feature = "k3d_engine")]
 fn k3d_run(world: &mut World, mut rng: impl Rng) {
     extern crate kiss3d;
@@ -138,6 +114,7 @@ fn k3d_run(world: &mut World, mut rng: impl Rng) {
         }
     }
 }
+
 
 #[cfg(test)]
 mod tests {}

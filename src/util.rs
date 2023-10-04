@@ -4,7 +4,7 @@ use std::{collections::HashSet, slice::Iter};
 use three_d::{Deg, Mat4};
 
 pub type Coordinate = (i32, i32, i32);
-pub type Color = (f32, f32, f32);
+pub type Color = (u8, u8, u8);
 
 ///Defines a direction in space
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -31,7 +31,6 @@ impl Direction {
     }
 }
 
-#[cfg(feature = "three_d_eng")]
 impl Into<Mat4> for Direction {
     fn into(self) -> Mat4 {
         match self {
