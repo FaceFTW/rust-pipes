@@ -7,7 +7,7 @@ use super::util::{Color, Coordinate};
 pub type RenderObject = Gm<Mesh, PhysicalMaterial>;
 
 const PIPE_RADIUS: f32 = 0.15;
-const BALL_JOINT_RADIUS: f32 = 0.85;
+const BALL_JOINT_RADIUS: f32 = 0.3;
 
 const DEFAULT_SUBDIVISIONS: u32 = 16;
 
@@ -34,16 +34,16 @@ fn color_to_srgba(color: Color) -> Srgba {
 pub fn make_pipe_section(
     from: Coordinate,
     to: Coordinate,
-    color: (u8, u8, u8),
-    ctxt: &Context,
-) -> Box<RenderObject> {
+    color: Color,
+    context: &Context,
+) -> RenderObject {
     let (from_x, from_y, from_z) = from;
     let (to_x, to_y, to_z) = to;
     let delta = (to_x - from_x, to_y - from_y, to_z - from_z);
 
-    let mesh = Mesh::new(ctxt, &CpuMesh::cylinder(DEFAULT_SUBDIVISIONS));
+    let mesh = Mesh::new(context, &CpuMesh::cylinder(DEFAULT_SUBDIVISIONS));
     let material = PhysicalMaterial::new_opaque(
-        ctxt,
+        context,
         &CpuMaterial {
             albedo: color_to_srgba(color),
             ..Default::default()
@@ -59,7 +59,30 @@ pub fn make_pipe_section(
 
     obj.set_transformation(transform);
 
-    return Box::new(obj);
+    obj
+}
+
+pub fn make_ball_joint(pos: Coordinate, color: Color, context: &Context) -> RenderObject {
+    let (pos_x, pos_y, pos_z) = pos;
+
+    let mesh = Mesh::new(context, &CpuMesh::sphere(DEFAULT_SUBDIVISIONS));
+    let material = PhysicalMaterial::new_opaque(
+        context,
+        &CpuMaterial {
+            albedo: color_to_srgba(color),
+            ..Default::default()
+        },
+    );
+    let mut obj = Gm::new(mesh, material);
+
+    let translation_matrix =
+        Mat4::from_translation(Vec3::new(pos_x as f32, pos_y as f32, pos_z as f32));
+    let scale_matrix = Mat4::from_scale(BALL_JOINT_RADIUS); //Scale is uniform here unlike pipes
+    let transform = scale_matrix * translation_matrix;
+
+    obj.set_transformation(transform);
+
+    obj
 }
 
 #[cfg(test)]

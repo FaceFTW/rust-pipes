@@ -1,4 +1,4 @@
-use draw::make_pipe_section;
+use draw::{make_ball_joint, make_pipe_section};
 use rand::Rng;
 use std::{thread::sleep, time::Duration};
 use three_d::{
@@ -47,6 +47,7 @@ fn main() {
 
     let cylinder = make_pipe_section((0, -1, 0), (0, 0, 0), (0, 255, 0), &context);
     let cylinder2 = make_pipe_section((0, 0, 0), (1, 0, 0), (255, 0, 0), &context);
+    let joint = make_ball_joint((0, 0, 0), (0, 0, 255), &context);
 
     let axes = Axes::new(&context, 0.1, 2.0);
     let light0 = DirectionalLight::new(&context, 1.0, Srgba::WHITE, &vec3(0.0, -0.5, -0.5));
@@ -61,7 +62,10 @@ fn main() {
             .clear(ClearState::color_and_depth(0.8, 0.8, 0.8, 1.0, 1.0))
             .render(
                 &camera,
-                axes.into_iter().chain(&*cylinder).chain(&*cylinder2),
+                axes.into_iter()
+                    .chain(&cylinder)
+                    .chain(&cylinder2)
+                    .chain(&joint),
                 &[&light0, &light1],
             );
 
