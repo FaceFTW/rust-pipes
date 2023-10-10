@@ -24,12 +24,12 @@ pub struct NewPipeData {
 }
 
 pub struct World {
-    pub pipes: Vec<Pipe>,
-    pub pipe_colors: Vec<Color>,
+    pipes: Vec<Pipe>,
+    pipe_colors: Vec<Color>,
     occupied_nodes: HashSet<Coordinate>,
     space_bounds: Coordinate,
-    pub new_pipe_chance: f64,
-    pub active_pipes: usize,
+    new_pipe_chance: f64,
+    active_pipes: usize,
 }
 
 impl Default for World {
@@ -93,5 +93,28 @@ impl World {
             current_dir: current_dir,
             pipe_color: color,
         }
+    }
+
+    //=======================================
+    // Encapsulation Things
+    //=======================================
+    pub fn active_pipes_count(&self) -> usize {
+        self.active_pipes
+    }
+
+    pub fn max_active_count_reached(&self, max_num: u32) -> bool {
+        self.active_pipes < max_num as usize
+    }
+
+    pub fn max_active_pipe_idx(&self) -> usize {
+        self.active_pipes - 1
+    }
+
+    pub fn new_pipe_chance(&self) -> f64 {
+        self.new_pipe_chance
+    }
+
+    pub fn is_pipe_alive(&self, idx: usize) -> bool {
+        self.pipes[idx].is_alive()
     }
 }

@@ -1,8 +1,8 @@
 use draw::{make_ball_joint, make_pipe_section, RenderObject};
 use rand::Rng;
 use three_d::{
-    degrees, vec3, Axes, Camera, ClearState, DirectionalLight, FrameOutput, OrbitControl, Srgba,
-    Window, WindowSettings,
+    degrees, vec3, Camera, ClearState, DirectionalLight, FrameOutput, OrbitControl, Srgba, Window,
+    WindowSettings,
 };
 use world::World;
 
@@ -11,7 +11,7 @@ mod pipe;
 mod util;
 mod world;
 
-const MAX_PIPES: i32 = 10;
+const MAX_PIPES: u32 = 10;
 
 fn main() {
     //===============================================
@@ -34,8 +34,8 @@ fn main() {
 
     let mut camera = Camera::new_perspective(
         window.viewport(),
-        vec3(5.0, 2.0, 2.5),
-        vec3(0.0, 0.0, -0.5),
+        vec3(-20.0, 10.0, -20.0),
+        vec3(0.0, 10.0, 0.0),
         vec3(0.0, 1.0, 0.0),
         degrees(45.0),
         0.1,
@@ -54,8 +54,8 @@ fn main() {
         control.handle_events(&mut camera, &mut frame_input.events);
 
         //World Update Step
-        for i in 0..world.active_pipes {
-            if !world.pipes[i].is_alive() {
+        for i in 0..world.active_pipes_count() {
+            if !world.is_pipe_alive(i) {
                 continue;
             }
             let delta_state = world.pipe_update(i, &mut rng);
@@ -83,9 +83,9 @@ fn main() {
                 }
             }
         }
-        if rng.gen_bool(world.new_pipe_chance) && world.active_pipes < MAX_PIPES as usize {
+        if rng.gen_bool(world.new_pipe_chance()) && world.max_active_count_reached(MAX_PIPES) {
             let data = world.new_pipe(&mut rng);
-            pipe_render_objs[world.active_pipes - 1].push(make_ball_joint(
+            pipe_render_objs[world.max_active_pipe_idx()].push(make_ball_joint(
                 data.start_node,
                 data.color,
                 &context,

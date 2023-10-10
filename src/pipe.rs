@@ -39,7 +39,7 @@ impl Pipe {
         self.alive
     }
 
-    pub(crate) fn kill(&mut self) {
+    pub fn kill(&mut self) {
         self.alive = false;
     }
 
