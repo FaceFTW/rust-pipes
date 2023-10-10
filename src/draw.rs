@@ -1,4 +1,4 @@
-use three_d::{Context, CpuMaterial, CpuMesh, Gm, Mat4, Mesh, PhysicalMaterial, Srgba, Vec3};
+use three_d::{Context, CpuMaterial, CpuMesh, Cull, Gm, Mat4, Mesh, PhysicalMaterial, Srgba, Vec3};
 
 use crate::util::Direction;
 
@@ -48,6 +48,7 @@ pub fn make_pipe_section(
     let transform = translation_matrix * rotation_matrix * scale_matrix;
 
     obj.set_transformation(transform);
+    obj.material.render_states.cull = Cull::Back;
 
     obj
 }
@@ -71,6 +72,7 @@ pub fn make_ball_joint(pos: Coordinate, color: Color, context: &Context) -> Rend
     let transform = translation_matrix * scale_matrix;
 
     obj.set_transformation(transform);
+    obj.material.render_states.cull = Cull::Back;
 
     obj
 }

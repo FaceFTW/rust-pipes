@@ -14,7 +14,7 @@ mod pipe;
 mod util;
 mod world;
 
-const MAX_PIPES: u32 = 1;
+const MAX_PIPES: u32 = 10;
 
 fn main() {
     //===============================================
@@ -105,7 +105,7 @@ fn main() {
 
         match start_time.elapsed() {
             Ok(elapsed) => {
-                if elapsed.as_secs_f64() >= 30.0 {
+                if elapsed.as_secs_f64() >= 15.0 {
                     world.set_gen_complete();
                     for i in 0..world.active_pipes_count() {
                         world.kill_pipe(i);
