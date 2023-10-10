@@ -29,6 +29,7 @@ pub fn make_pipe_section(
     let (from_x, from_y, from_z) = from;
     let (to_x, to_y, to_z) = to;
     let delta = (to_x - from_x, to_y - from_y, to_z - from_z);
+    let pipe_len = ((delta.0.pow(2) + delta.1.pow(2) + delta.2.pow(2)) as f32).sqrt();
 
     let mesh = Mesh::new(context, &CpuMesh::cylinder(DEFAULT_SUBDIVISIONS));
     let material = PhysicalMaterial::new_opaque(
@@ -43,7 +44,7 @@ pub fn make_pipe_section(
     let translation_matrix =
         Mat4::from_translation(Vec3::new(from_x as f32, from_y as f32, from_z as f32));
     let rotation_matrix: Mat4 = Direction::from(delta).into();
-    let scale_matrix = Mat4::from_nonuniform_scale(1.0, PIPE_RADIUS, PIPE_RADIUS);
+    let scale_matrix = Mat4::from_nonuniform_scale(pipe_len, PIPE_RADIUS, PIPE_RADIUS);
     let transform = translation_matrix * rotation_matrix * scale_matrix;
 
     obj.set_transformation(transform);

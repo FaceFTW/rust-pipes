@@ -4,6 +4,7 @@ use three_d::{
     degrees, vec3, Camera, ClearState, DirectionalLight, FrameOutput, OrbitControl, Srgba, Window,
     WindowSettings,
 };
+use util::Coordinate;
 use world::World;
 
 mod draw;
@@ -11,7 +12,7 @@ mod pipe;
 mod util;
 mod world;
 
-const MAX_PIPES: u32 = 10;
+const MAX_PIPES: u32 = 1;
 
 fn main() {
     //===============================================
@@ -48,6 +49,7 @@ fn main() {
     let light1 = DirectionalLight::new(&context, 1.0, Srgba::WHITE, &vec3(0.0, 0.5, 0.5));
 
     let mut pipe_render_objs: [Vec<RenderObject>; 10] = Default::default();
+    let mut last_seg_coords: [Coordinate; 10] = Default::default();
 
     window.render_loop(move |mut frame_input| {
         camera.set_viewport(frame_input.viewport);
@@ -73,9 +75,11 @@ fn main() {
                         delta_state.pipe_color,
                         &context,
                     ));
+                    last_seg_coords[i] = delta_state.last_node;
                 } else {
+                    pipe_render_objs[i].pop(); //reduce number of render objects in mem
                     pipe_render_objs[i].push(make_pipe_section(
-                        delta_state.last_node,
+                        last_seg_coords[i],
                         delta_state.current_node,
                         delta_state.pipe_color,
                         &context,
@@ -85,6 +89,7 @@ fn main() {
         }
         if rng.gen_bool(world.new_pipe_chance()) && world.max_active_count_reached(MAX_PIPES) {
             let data = world.new_pipe(&mut rng);
+            last_seg_coords[world.max_active_pipe_idx()] = data.start_node;
             pipe_render_objs[world.max_active_pipe_idx()].push(make_ball_joint(
                 data.start_node,
                 data.color,
