@@ -1,3 +1,5 @@
+use std::time::SystemTime;
+
 use draw::{make_ball_joint, make_pipe_section, RenderObject};
 use rand::Rng;
 use three_d::{
@@ -20,7 +22,7 @@ fn main() {
     //===============================================
     let mut world = World::new();
     let mut rng = rand::thread_rng();
-    world.new_pipe(&mut rng);
+    let init_data = world.new_pipe(&mut rng);
 
     //===============================================
     // ENGINE INIT
@@ -50,40 +52,44 @@ fn main() {
 
     let mut pipe_render_objs: [Vec<RenderObject>; 10] = Default::default();
     let mut last_seg_coords: [Coordinate; 10] = Default::default();
+    last_seg_coords[0] = init_data.start_node;
+    let start_time = SystemTime::now();
 
     window.render_loop(move |mut frame_input| {
         camera.set_viewport(frame_input.viewport);
         control.handle_events(&mut camera, &mut frame_input.events);
 
         //World Update Step
-        for i in 0..world.active_pipes_count() {
-            if !world.is_pipe_alive(i) {
-                continue;
-            }
-            let delta_state = world.pipe_update(i, &mut rng);
+        if !world.is_gen_complete() {
+            for i in 0..world.active_pipes_count() {
+                if !world.is_pipe_alive(i) {
+                    continue;
+                }
+                let delta_state = world.pipe_update(i, &mut rng);
 
-            if delta_state.last_node != delta_state.current_node {
-                if delta_state.last_dir != delta_state.current_dir {
-                    pipe_render_objs[i].push(make_ball_joint(
-                        delta_state.last_node,
-                        delta_state.pipe_color,
-                        &context,
-                    ));
-                    pipe_render_objs[i].push(make_pipe_section(
-                        delta_state.last_node,
-                        delta_state.current_node,
-                        delta_state.pipe_color,
-                        &context,
-                    ));
-                    last_seg_coords[i] = delta_state.last_node;
-                } else {
-                    pipe_render_objs[i].pop(); //reduce number of render objects in mem
-                    pipe_render_objs[i].push(make_pipe_section(
-                        last_seg_coords[i],
-                        delta_state.current_node,
-                        delta_state.pipe_color,
-                        &context,
-                    ));
+                if delta_state.last_node != delta_state.current_node {
+                    if delta_state.last_dir != delta_state.current_dir {
+                        pipe_render_objs[i].push(make_ball_joint(
+                            delta_state.last_node,
+                            delta_state.pipe_color,
+                            &context,
+                        ));
+                        pipe_render_objs[i].push(make_pipe_section(
+                            delta_state.last_node,
+                            delta_state.current_node,
+                            delta_state.pipe_color,
+                            &context,
+                        ));
+                        last_seg_coords[i] = delta_state.last_node;
+                    } else {
+                        pipe_render_objs[i].pop(); //reduce number of render objects in mem
+                        pipe_render_objs[i].push(make_pipe_section(
+                            last_seg_coords[i],
+                            delta_state.current_node,
+                            delta_state.pipe_color,
+                            &context,
+                        ));
+                    }
                 }
             }
         }
@@ -95,6 +101,18 @@ fn main() {
                 data.color,
                 &context,
             ));
+        }
+
+        match start_time.elapsed() {
+            Ok(elapsed) => {
+                if elapsed.as_secs_f64() >= 30.0 {
+                    world.set_gen_complete();
+                    for i in 0..world.active_pipes_count() {
+                        world.kill_pipe(i);
+                    }
+                }
+            }
+            Err(_) => panic!("Timer Did an oopsie, Panicking!!!!"),
         }
 
         frame_input

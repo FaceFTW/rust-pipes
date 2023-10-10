@@ -30,6 +30,7 @@ pub struct World {
     space_bounds: Coordinate,
     new_pipe_chance: f64,
     active_pipes: usize,
+    gen_complete: bool,
 }
 
 impl Default for World {
@@ -41,6 +42,7 @@ impl Default for World {
             space_bounds: (20, 20, 20),
             new_pipe_chance: 0.1,
             active_pipes: 0,
+            gen_complete: false,
         }
     }
 }
@@ -116,5 +118,17 @@ impl World {
 
     pub fn is_pipe_alive(&self, idx: usize) -> bool {
         self.pipes[idx].is_alive()
+    }
+
+    pub fn is_gen_complete(&self) -> bool {
+        self.gen_complete
+    }
+
+    pub fn set_gen_complete(&mut self) {
+        self.gen_complete = true;
+    }
+
+    pub fn kill_pipe(&mut self, idx: usize) {
+        self.pipes[idx].kill();
     }
 }
