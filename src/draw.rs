@@ -1,4 +1,6 @@
-use three_d::{Context, CpuMaterial, CpuMesh, Cull, Gm, Mat4, Mesh, PhysicalMaterial, Srgba, Vec3};
+use three_d::{
+    Context, CpuMaterial, CpuMesh, Cull, Gm, Instances, Mat4, Mesh, PhysicalMaterial, Srgba, Vec3,
+};
 
 use crate::util::Direction;
 
@@ -75,6 +77,57 @@ pub fn make_ball_joint(pos: Coordinate, color: Color, context: &Context) -> Rend
     obj.material.render_states.cull = Cull::Back;
 
     obj
+}
+
+pub fn make_instanced_pipe_section(
+    instance_struct: &mut Instances,
+    from: Coordinate,
+    to: Coordinate,
+    color: Color,
+) {
+    let (from_x, from_y, from_z) = from;
+    let (to_x, to_y, to_z) = to;
+    let delta = (to_x - from_x, to_y - from_y, to_z - from_z);
+    let pipe_len = ((delta.0.pow(2) + delta.1.pow(2) + delta.2.pow(2)) as f32).sqrt();
+
+    let translation_matrix =
+        Mat4::from_translation(Vec3::new(from_x as f32, from_y as f32, from_z as f32));
+    let rotation_matrix: Mat4 = Direction::from(delta).into();
+    let scale_matrix = Mat4::from_nonuniform_scale(pipe_len, PIPE_RADIUS, PIPE_RADIUS);
+    let transform = translation_matrix * rotation_matrix * scale_matrix;
+
+    instance_struct.transformations.push(transform);
+    // instance_struct
+    //     .texture_transformations
+    //     .as_mut()
+    //     .unwrap_or(&mut Vec::<Mat3>::new())
+    //     .push(Mat3::zero());
+    instance_struct
+        .colors
+        .as_mut()
+        .unwrap_or(&mut Vec::<Srgba>::new())
+        .push(color_to_srgba(color));
+}
+
+pub fn make_instanced_ball_joint(instance_struct: &mut Instances, pos: Coordinate, color: Color) {
+    let (pos_x, pos_y, pos_z) = pos;
+
+    let translation_matrix =
+        Mat4::from_translation(Vec3::new(pos_x as f32, pos_y as f32, pos_z as f32));
+    let scale_matrix = Mat4::from_scale(BALL_JOINT_RADIUS); //Scale is uniform here unlike pipes
+    let transform = translation_matrix * scale_matrix;
+
+    instance_struct.transformations.push(transform);
+    // instance_struct
+    //     .texture_transformations
+    //     .as_mut()
+    //     .unwrap_or(&mut Vec::<Mat3>::new())
+    //     .push(Mat3::zero());
+    instance_struct
+        .colors
+        .as_mut()
+        .unwrap_or(&mut Vec::<Srgba>::new())
+        .push(color_to_srgba(color));
 }
 
 #[cfg(test)]
