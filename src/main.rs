@@ -2,12 +2,12 @@ use std::time::SystemTime;
 
 // use cli::CliArgs;
 use draw::{make_ball_joint, make_pipe_section, RenderObject};
+use draw::{make_instanced_ball_joint, make_instanced_pipe_section};
 use rand::Rng;
 use three_d::{
-    degrees, vec3, Camera, ClearState, DirectionalLight, FrameOutput, OrbitControl, Srgba, Window,
-    WindowSettings,
+    degrees, vec3, Camera, ClearState, CpuMaterial, CpuMesh, DirectionalLight, FrameOutput, Gm,
+    InstancedMesh, Instances, OrbitControl, PhysicalMaterial, Srgba, Window, WindowSettings,
 };
-use util::Coordinate;
 use world::World;
 
 use crate::cli::make_cli_parser;
@@ -58,41 +58,37 @@ fn main() {
     let light0 = DirectionalLight::new(&context, 1.0, Srgba::WHITE, &vec3(0.0, -0.5, -0.5));
     let light1 = DirectionalLight::new(&context, 1.0, Srgba::WHITE, &vec3(0.0, 0.5, 0.5));
 
-    let mut pipe_render_objs: [Vec<RenderObject>; 10] = Default::default();
-    let mut last_seg_coords: [Coordinate; 10] = Default::default();
-    last_seg_coords[0] = init_data.start_node;
+    //FIXME Needs three-d fix
+    //Instanced Rendering Data
+    let mut pipe_instances = Instances {
+        transformations: Vec::new(),
+        colors: Some(Vec::new()),
+        ..Default::default()
+    };
+    let mut ball_instances = Instances {
+        transformations: Vec::new(),
+        colors: Some(Vec::new()),
+        ..Default::default()
+    };
 
-    //TODO THis is for instanced rendering, when that bug in three-d is fixed
-    // //Instanced Rendering Data
-    // let mut pipe_instances = Instances {
-    //     transformations: Vec::new(),
-    //     colors: Some(Vec::new()),
-    //     ..Default::default()
-    // };
-    // let mut ball_instances = Instances {
-    //     transformations: Vec::new(),
-    //     colors: Some(Vec::new()),
-    //     ..Default::default()
-    // };
+    let base_instance_material = CpuMaterial {
+        albedo: Srgba {
+            r: 255,
+            g: 255,
+            b: 255,
+            a: 255,
+        },
+        ..Default::default()
+    };
 
-    // let base_instance_material = CpuMaterial {
-    //     albedo: Srgba {
-    //         r: 255,
-    //         g: 255,
-    //         b: 255,
-    //         a: 255,
-    //     },
-    //     ..Default::default()
-    // };
-
-    // let mut pipe_instance_mesh = Gm::new(
-    //     InstancedMesh::new(&context, &Instances::default(), &CpuMesh::cylinder(16)),
-    //     PhysicalMaterial::new(&context, &base_instance_material),
-    // );
-    // let mut ball_instance_mesh = Gm::new(
-    //     InstancedMesh::new(&context, &Instances::default(), &CpuMesh::sphere(16)),
-    //     PhysicalMaterial::new(&context, &base_instance_material),
-    // );
+    let mut pipe_instance_mesh = Gm::new(
+        InstancedMesh::new(&context, &Instances::default(), &CpuMesh::cylinder(16)),
+        PhysicalMaterial::new(&context, &base_instance_material),
+    );
+    let mut ball_instance_mesh = Gm::new(
+        InstancedMesh::new(&context, &Instances::default(), &CpuMesh::sphere(16)),
+        PhysicalMaterial::new(&context, &base_instance_material),
+    );
 
     let start_time = SystemTime::now();
 
@@ -110,51 +106,24 @@ fn main() {
 
                 if delta_state.last_node != delta_state.current_node {
                     if delta_state.last_dir != delta_state.current_dir {
-                        // make_instanced_ball_joint(
-                        //     &mut ball_instances,
-                        //     delta_state.last_node,
-                        //     delta_state.pipe_color,
-                        // );
-
-                        pipe_render_objs[i].push(make_ball_joint(
+                        make_instanced_ball_joint(
+                            &mut ball_instances,
                             delta_state.last_node,
                             delta_state.pipe_color,
-                            &context,
-                        ));
-                        pipe_render_objs[i].push(make_pipe_section(
-                            delta_state.last_node,
-                            delta_state.current_node,
-                            delta_state.pipe_color,
-                            &context,
-                        ));
-                        last_seg_coords[i] = delta_state.last_node;
-                    } else {
-                        pipe_render_objs[i].pop(); //reduce number of render objects in mem
-                        pipe_render_objs[i].push(make_pipe_section(
-                            last_seg_coords[i],
-                            delta_state.current_node,
-                            delta_state.pipe_color,
-                            &context,
-                        ));
-                        // }
-                        // make_instanced_pipe_section(
-                        //     &mut pipe_instances,
-                        //     delta_state.last_node,
-                        //     delta_state.current_node,
-                        //     delta_state.pipe_color,
-                        // );
+                        );
                     }
+                    make_instanced_pipe_section(
+                        &mut pipe_instances,
+                        delta_state.last_node,
+                        delta_state.current_node,
+                        delta_state.pipe_color,
+                    );
                 }
             }
         }
         if rng.gen_bool(world.new_pipe_chance()) && world.max_active_count_reached(MAX_PIPES) {
             let data = world.new_pipe(&mut rng);
-            last_seg_coords[world.max_active_pipe_idx()] = data.start_node;
-            pipe_render_objs[world.max_active_pipe_idx()].push(make_ball_joint(
-                data.start_node,
-                data.color,
-                &context,
-            ));
+            make_instanced_ball_joint(&mut ball_instances, data.start_node, data.color);
         }
 
         match start_time.elapsed() {
@@ -184,33 +153,14 @@ fn main() {
         //     Err(err) => panic!("{err}"),
         // }
 
-        // pipe_instance_mesh
-        //     .animate((frame_input.accumulated_time * 0.001) as f32);
-
-        // pipe_instance_mesh.set_instances(&Instances {
-        //     transformations: pipe_instances
-        //         .transformations
-        //         .to_owned()
-        //         .into_iter()
-        //         .collect(),
-        //     colors: Some(
-        //         pipe_instances
-        //             .colors
-        //             .to_owned()
-        //             .unwrap_or_default()
-        //             .into_iter()
-        //             .collect(),
-        //     ),
-        //     ..Default::default()
-        // });
-        // ball_instance_mesh.set_instances(&ball_instances);
+        pipe_instance_mesh.set_instances(&pipe_instances);
+        ball_instance_mesh.set_instances(&ball_instances);
         frame_input
             .screen()
             .clear(ClearState::color_and_depth(0.8, 0.8, 0.8, 1.0, 1.0))
             .render(
                 &camera,
-                pipe_render_objs.iter().flatten(),
-                // &pipe_instance_mesh,
+                [&pipe_instance_mesh, &ball_instance_mesh].into_iter(),
                 &[&light0, &light1],
             );
 
