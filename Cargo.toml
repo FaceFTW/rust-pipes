@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 three-d = "*"
 rand = "0.8.5"
+clap = { version = "4.4.6", features = ["derive", "cargo"] }

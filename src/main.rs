@@ -1,5 +1,6 @@
 use std::time::SystemTime;
 
+// use cli::CliArgs;
 use draw::{make_ball_joint, make_pipe_section, RenderObject};
 use rand::Rng;
 use three_d::{
@@ -9,12 +10,16 @@ use three_d::{
 use util::Coordinate;
 use world::World;
 
+use crate::cli::make_cli_parser;
+
 mod draw;
 mod pipe;
 mod util;
 mod world;
+mod cli;
 
 const MAX_PIPES: u32 = 10;
+
 
 fn main() {
     //===============================================
@@ -23,6 +28,9 @@ fn main() {
     let mut world = World::new();
     let mut rng = rand::thread_rng();
     let init_data = world.new_pipe(&mut rng);
+
+    let cli_args = make_cli_parser().get_matches();
+    dbg!(cli_args);
 
     //===============================================
     // ENGINE INIT
