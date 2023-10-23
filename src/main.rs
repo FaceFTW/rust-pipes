@@ -1,7 +1,5 @@
 use std::time::SystemTime;
 
-// use cli::CliArgs;
-use draw::{make_ball_joint, make_pipe_section, RenderObject};
 use draw::{make_instanced_ball_joint, make_instanced_pipe_section};
 use rand::Rng;
 use three_d::{
@@ -12,14 +10,13 @@ use world::World;
 
 use crate::cli::make_cli_parser;
 
+mod cli;
 mod draw;
 mod pipe;
 mod util;
 mod world;
-mod cli;
 
 const MAX_PIPES: u32 = 10;
-
 
 fn main() {
     //===============================================
@@ -27,10 +24,9 @@ fn main() {
     //===============================================
     let mut world = World::new();
     let mut rng = rand::thread_rng();
-    let init_data = world.new_pipe(&mut rng);
 
-    let cli_args = make_cli_parser().get_matches();
-    dbg!(cli_args);
+    // let cli_args = make_cli_parser().get_matches();
+    // dbg!(cli_args);
 
     //===============================================
     // ENGINE INIT
@@ -54,11 +50,9 @@ fn main() {
     );
     let mut control = OrbitControl::new(*camera.target(), 1.0, 100.0);
 
-    // let axes = Axes::new(&context, 0.1, 2.0);
     let light0 = DirectionalLight::new(&context, 1.0, Srgba::WHITE, &vec3(0.0, -0.5, -0.5));
     let light1 = DirectionalLight::new(&context, 1.0, Srgba::WHITE, &vec3(0.0, 0.5, 0.5));
 
-    //FIXME Needs three-d fix
     //Instanced Rendering Data
     let mut pipe_instances = Instances {
         transformations: Vec::new(),
@@ -137,21 +131,6 @@ fn main() {
             }
             Err(_) => panic!("Timer Did an oopsie, Panicking!!!!"),
         }
-
-        // let pipe_count = pipe_instance_mesh.instance_count();
-        // let ball_count = ball_instance_mesh.instance_count();
-        // println!("Pipe instances: {pipe_count}, Ball_Instances: {ball_count}");
-
-        // pipe_instance_mesh.set_instances(&pipe_instances);
-        // ball_instance_mesh.set_instances(&ball_instances);
-        // match pipe_instances.validate() {
-        //     Ok(_) => (),
-        //     Err(err) => panic!("{err}"),
-        // }
-        // match ball_instances.validate() {
-        //     Ok(_) => (),
-        //     Err(err) => panic!("{err}"),
-        // }
 
         pipe_instance_mesh.set_instances(&pipe_instances);
         ball_instance_mesh.set_instances(&ball_instances);
