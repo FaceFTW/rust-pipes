@@ -25,8 +25,8 @@ fn main() {
     let mut world = World::new();
     let mut rng = rand::thread_rng();
 
-    // let cli_args = make_cli_parser().get_matches();
-    // dbg!(cli_args);
+    let cli_args = make_cli_parser().get_matches();
+    dbg!(cli_args);
 
     //===============================================
     // ENGINE INIT
