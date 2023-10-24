@@ -108,9 +108,9 @@ impl World {
         self.active_pipes < max_num as usize
     }
 
-    pub fn max_active_pipe_idx(&self) -> usize {
-        self.active_pipes - 1
-    }
+    // pub fn max_active_pipe_idx(&self) -> usize {
+    //     self.active_pipes - 1
+    // }
 
     pub fn new_pipe_chance(&self) -> f64 {
         self.new_pipe_chance
