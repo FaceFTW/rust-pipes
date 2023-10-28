@@ -5,9 +5,7 @@ pub fn make_cli_parser() -> Command {
         .group(ArgGroup::new("exec").required(false).multiple(true))
         .next_help_heading("Execution Options")
         .args([Arg::new("rng-seed").long("seed").value_name("seed").help(
-            "The seed input used by the random number generator for pipe generation.\n\
-			The state of the random number generator is not reset between simulations.\n\
-			Seeds can be alphanumeric.",
+            "The seed input used by the random number generator for pipe generation.\n The state of the random number generator is not reset between simulations.\n Seeds can be alphanumeric.",
         )])
         .group(ArgGroup::new("sim").required(false).multiple(true))
         .next_help_heading("Simulation Options")
@@ -55,7 +53,18 @@ pub fn make_cli_parser() -> Command {
                 .value_parser(clap::value_parser!(u32).range(8..))
                 .default_value("16")
                 .long("poly-subdivisions"),
-            Arg::new("original-colors").long("original-colors"),
+            Arg::new("original-colors")
+                .long("original-colors")
+                .default_value("false")
+                .value_name("true/false")
+                .value_parser(clap::value_parser!(bool))
+                .help("If we should only render using the colors defined in the original screensaver."),
+            Arg::new("bg-color")
+                .long("bg-color")
+                .num_args(3)
+                .value_names(["red","green","blue"])
+                .default_values(["0","0","0"])
+                .value_parser(clap::value_parser!(u8))
         ])
 }
 
