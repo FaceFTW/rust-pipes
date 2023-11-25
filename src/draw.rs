@@ -1,8 +1,5 @@
+use super::util::{Color, Coordinate, Direction};
 use three_d::{Instances, Mat4, Srgba, Vec3};
-
-use crate::util::Direction;
-
-use super::util::{Color, Coordinate};
 
 const PIPE_RADIUS: f32 = 0.15;
 const BALL_JOINT_RADIUS: f32 = 0.3;

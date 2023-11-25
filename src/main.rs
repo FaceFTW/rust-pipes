@@ -8,7 +8,7 @@ use three_d::{
 };
 use world::World;
 
-use crate::cli::make_cli_parser;
+use crate::cli::{make_cli_parser, DrawOptions};
 
 mod cli;
 mod draw;
@@ -25,8 +25,10 @@ fn main() {
     let mut world = World::new();
     let mut rng = rand::thread_rng();
 
-    let cli_args = make_cli_parser().get_matches();
+    let ref cli_args = make_cli_parser().get_matches();
     dbg!(cli_args);
+
+    let draw_options = DrawOptions::new(cli_args);
 
     //===============================================
     // ENGINE INIT
@@ -76,11 +78,19 @@ fn main() {
     };
 
     let mut pipe_instance_mesh = Gm::new(
-        InstancedMesh::new(&context, &Instances::default(), &CpuMesh::cylinder(16)),
+        InstancedMesh::new(
+            &context,
+            &Instances::default(),
+            &CpuMesh::cylinder(draw_options.angle_subdiv),
+        ),
         PhysicalMaterial::new(&context, &base_instance_material),
     );
     let mut ball_instance_mesh = Gm::new(
-        InstancedMesh::new(&context, &Instances::default(), &CpuMesh::sphere(16)),
+        InstancedMesh::new(
+            &context,
+            &Instances::default(),
+            &CpuMesh::sphere(draw_options.angle_subdiv),
+        ),
         PhysicalMaterial::new(&context, &base_instance_material),
     );
 
