@@ -1,6 +1,8 @@
 use crate::util::Color;
 use clap::{command, Arg, ArgAction, ArgGroup, ArgMatches, Command};
 
+
+
 pub(crate) struct DrawOptions {
     pub original_colors: bool,
     pub bg_color: Color,
@@ -100,7 +102,7 @@ pub fn make_cli_parser() -> Command {
                 .long("bg-color")
                 .num_args(3)
                 .value_names(["red","green","blue"])
-                .default_values(["0","0","0"])
+                .default_values(["10","10","10"])
                 .value_parser(clap::value_parser!(u8))
         ])
 }

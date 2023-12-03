@@ -1,6 +1,6 @@
-use std::time::SystemTime;
 use draw::{make_instanced_ball_joint, make_instanced_pipe_section};
 use rand::Rng;
+use std::time::SystemTime;
 use three_d::{
     degrees, vec3, Camera, ClearState, CpuMaterial, CpuMesh, DirectionalLight, FrameOutput, Gm,
     InstancedMesh, Instances, OrbitControl, PhysicalMaterial, Srgba, Window, WindowSettings,
@@ -145,7 +145,13 @@ fn main() {
         ball_instance_mesh.set_instances(&ball_instances);
         frame_input
             .screen()
-            .clear(ClearState::color_and_depth(0.8, 0.8, 0.8, 1.0, 1.0))
+            .clear(ClearState::color_and_depth(
+                draw_options.bg_color.0 as f32 / 255.0,
+                draw_options.bg_color.1 as f32 / 255.0,
+                draw_options.bg_color.2 as f32 / 255.0,
+                1.0,
+                1.0,
+            ))
             .render(
                 &camera,
                 [&pipe_instance_mesh, &ball_instance_mesh].into_iter(),
