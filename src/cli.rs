@@ -29,6 +29,14 @@ impl DrawOptions {
     }
 }
 
+pub(crate) struct WorldOptions {}
+
+impl WorldOptions {
+    pub fn new(cli_match: &ArgMatches) -> WorldOptions {
+        WorldOptions {}
+    }
+}
+
 pub fn make_cli_parser() -> Command {
     command!()
         .group(ArgGroup::new("exec").required(false).multiple(true))

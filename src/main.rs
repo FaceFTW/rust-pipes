@@ -1,5 +1,4 @@
 use std::time::SystemTime;
-
 use draw::{make_instanced_ball_joint, make_instanced_pipe_section};
 use rand::Rng;
 use three_d::{
