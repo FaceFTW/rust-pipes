@@ -918,6 +918,7 @@ dependencies = [
  "clap",
  "rand",
  "three-d",
+ "three-d-asset",
 ]
 
 [[package]]
@@ -1066,8 +1067,9 @@ dependencies = [
 
 [[package]]
 name = "three-d"
-version = "0.17.0"
-source = "git+https://github.com/asny/three-d.git?rev=0e338e3#0e338e3ccea8ea4187397803eafb8e7f894e0a77"
+version = "0.16.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f2db9010227411ab0aa5948e770304e807e5c9b6d5d0719c3de248bae7be7096"
 dependencies = [
  "cgmath",
  "glow",
