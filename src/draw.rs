@@ -34,7 +34,7 @@ pub fn make_instanced_pipe_section(
     instance_struct
         .colors
         .as_mut()
-        .unwrap_or(&mut Vec::<Srgba>::new())
+        .expect("Instance Struct should have Color Instance Vector!")
         .push(color_to_srgba(color));
 }
 
@@ -50,7 +50,7 @@ pub fn make_instanced_ball_joint(instance_struct: &mut Instances, pos: Coordinat
     instance_struct
         .colors
         .as_mut()
-        .unwrap_or(&mut Vec::<Srgba>::new())
+        .expect("Instance Struct should have Color Instances Vector!")
         .push(color_to_srgba(color));
 }
 
