@@ -2,6 +2,8 @@ use std::collections::HashSet;
 
 use rand::Rng;
 
+use crate::config::Configuration;
+
 use super::{
     pipe::Pipe,
     util::{Color, Coordinate, Direction},
@@ -10,7 +12,7 @@ use super::{
 ///Used to give information to the render loop while
 ///minimizing the amount of state entanglement with
 /// the world
-pub struct PipeChangeData {
+pub(crate) struct PipeChangeData {
     pub last_node: Coordinate,
     pub last_dir: Direction,
     pub current_node: Coordinate,
@@ -18,12 +20,12 @@ pub struct PipeChangeData {
     pub pipe_color: Color,
 }
 
-pub struct NewPipeData {
+pub(crate) struct NewPipeData {
     pub start_node: Coordinate,
     pub color: Color,
 }
 
-pub struct World {
+pub(crate) struct World {
     pipes: Vec<Pipe>,
     pipe_colors: Vec<Color>,
     occupied_nodes: HashSet<Coordinate>,
@@ -50,6 +52,18 @@ impl Default for World {
 impl World {
     pub fn new() -> Self {
         World {
+            ..Default::default()
+        }
+    }
+
+    pub fn with_config(config: &Configuration) -> Self {
+        World {
+            space_bounds: (
+                config.world.max_bounds.0 as i32,
+                config.world.max_bounds.1 as i32,
+                config.world.max_bounds.2 as i32,
+            ),
+
             ..Default::default()
         }
     }

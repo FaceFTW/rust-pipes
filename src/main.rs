@@ -22,7 +22,6 @@ fn main() {
     //===============================================
     // WORLD INITIALIZATION
     //===============================================
-    let mut world = World::new();
     let mut rng = rand::thread_rng();
 
     let ref cli_args = make_cli_parser().get_matches();
@@ -30,6 +29,7 @@ fn main() {
 
     let cfg = Configuration::new(cli_args);
 
+    let mut world = World::with_config(&cfg);
     //===============================================
     // ENGINE INIT
     //===============================================
@@ -132,7 +132,7 @@ fn main() {
 
         match start_time.elapsed() {
             Ok(elapsed) => {
-                if elapsed.as_secs_f64() >= 15.0 {
+                if elapsed.as_secs_f64() >= cfg.world.max_gen_time as f64 {
                     world.set_gen_complete();
                     for i in 0..world.active_pipes_count() {
                         world.kill_pipe(i);
