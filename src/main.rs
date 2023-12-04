@@ -7,9 +7,10 @@ use three_d::{
 };
 use world::World;
 
-use crate::cli::{make_cli_parser, DrawOptions};
+use crate::{cli::make_cli_parser, config::Configuration};
 
 mod cli;
+mod config;
 mod draw;
 mod pipe;
 mod util;
@@ -27,7 +28,7 @@ fn main() {
     let ref cli_args = make_cli_parser().get_matches();
     dbg!(cli_args);
 
-    let draw_options = DrawOptions::new(cli_args);
+    let cfg = Configuration::new(cli_args);
 
     //===============================================
     // ENGINE INIT
@@ -80,7 +81,7 @@ fn main() {
         InstancedMesh::new(
             &context,
             &Instances::default(),
-            &CpuMesh::cylinder(draw_options.angle_subdiv),
+            &CpuMesh::cylinder(cfg.draw.angle_subdiv),
         ),
         PhysicalMaterial::new(&context, &base_instance_material),
     );
@@ -88,7 +89,7 @@ fn main() {
         InstancedMesh::new(
             &context,
             &Instances::default(),
-            &CpuMesh::sphere(draw_options.angle_subdiv),
+            &CpuMesh::sphere(cfg.draw.angle_subdiv),
         ),
         PhysicalMaterial::new(&context, &base_instance_material),
     );
@@ -146,9 +147,9 @@ fn main() {
         frame_input
             .screen()
             .clear(ClearState::color_and_depth(
-                draw_options.bg_color.0 as f32 / 255.0,
-                draw_options.bg_color.1 as f32 / 255.0,
-                draw_options.bg_color.2 as f32 / 255.0,
+                cfg.draw.bg_color.0 as f32 / 255.0,
+                cfg.draw.bg_color.1 as f32 / 255.0,
+                cfg.draw.bg_color.2 as f32 / 255.0,
                 1.0,
                 1.0,
             ))

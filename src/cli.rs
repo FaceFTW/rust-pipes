@@ -1,43 +1,4 @@
-use crate::util::Color;
-use clap::{command, Arg, ArgAction, ArgGroup, ArgMatches, Command};
-
-
-
-pub(crate) struct DrawOptions {
-    pub original_colors: bool,
-    pub bg_color: Color,
-    pub angle_subdiv: u32,
-}
-
-impl DrawOptions {
-    pub fn new(cli_match: &ArgMatches) -> DrawOptions {
-        let bg_color_vec: Vec<u8> = cli_match
-            .get_many("bg-color")
-            .expect("This field should have a value populated!")
-            .copied()
-            .collect();
-
-        let bg_tuple: Color = (bg_color_vec[0], bg_color_vec[1], bg_color_vec[2]);
-
-        DrawOptions {
-            bg_color: bg_tuple,
-            angle_subdiv: *cli_match
-                .get_one("angle-subdiv")
-                .expect("Arg angle-subdiv should be populated"),
-            original_colors: *cli_match
-                .get_one("original-colors")
-                .expect("Arg original-colors should be populated"),
-        }
-    }
-}
-
-pub(crate) struct WorldOptions {}
-
-impl WorldOptions {
-    pub fn new(cli_match: &ArgMatches) -> WorldOptions {
-        WorldOptions {}
-    }
-}
+use clap::{command, Arg, ArgAction, ArgGroup, Command};
 
 pub fn make_cli_parser() -> Command {
     command!()
