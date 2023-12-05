@@ -50,21 +50,24 @@ impl Default for World {
 }
 
 impl World {
-    pub fn new() -> Self {
-        World {
-            ..Default::default()
-        }
-    }
+    // pub fn new() -> Self {
+    //     World {
+    //         ..Default::default()
+    //     }
+    // }
 
-    pub fn with_config(config: &Configuration) -> Self {
-        World {
-            space_bounds: (
-                config.world.max_bounds.0 as i32,
-                config.world.max_bounds.1 as i32,
-                config.world.max_bounds.2 as i32,
-            ),
+    pub fn new(config: Option<&Configuration>) -> Self {
+        match config {
+            Some(config) => World {
+                space_bounds: (
+                    config.world.max_bounds.0 as i32,
+                    config.world.max_bounds.1 as i32,
+                    config.world.max_bounds.2 as i32,
+                ),
 
-            ..Default::default()
+                ..Default::default()
+            },
+            None => World::default(),
         }
     }
 

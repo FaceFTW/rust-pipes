@@ -29,7 +29,7 @@ fn main() {
 
     let cfg = Configuration::new(cli_args);
 
-    let mut world = World::with_config(&cfg);
+    let mut world = World::new(Some(&cfg));
     //===============================================
     // ENGINE INIT
     //===============================================
