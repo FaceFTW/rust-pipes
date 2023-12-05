@@ -33,6 +33,7 @@ pub(crate) struct World {
     new_pipe_chance: f64,
     active_pipes: usize,
     gen_complete: bool,
+    turn_chance: f32,
 }
 
 impl Default for World {
@@ -45,17 +46,12 @@ impl Default for World {
             new_pipe_chance: 0.1,
             active_pipes: 0,
             gen_complete: false,
+            turn_chance: 0.3,
         }
     }
 }
 
 impl World {
-    // pub fn new() -> Self {
-    //     World {
-    //         ..Default::default()
-    //     }
-    // }
-
     pub fn new(config: Option<&Configuration>) -> Self {
         match config {
             Some(config) => World {
@@ -64,7 +60,7 @@ impl World {
                     config.world.max_bounds.1 as i32,
                     config.world.max_bounds.2 as i32,
                 ),
-
+                turn_chance: config.world.turn_chance,
                 ..Default::default()
             },
             None => World::default(),
@@ -89,7 +85,7 @@ impl World {
         let color = self.pipe_colors[idx];
         let last_node = self.pipes[idx].get_current_head();
         let last_dir = self.pipes[idx].get_current_dir();
-        self.pipes[idx].update(&mut self.occupied_nodes, rng);
+        self.pipes[idx].update(&mut self.occupied_nodes, rng, Some(self.turn_chance));
 
         let current_node = self.pipes[idx].get_current_head();
         let current_dir = self.pipes[idx].get_current_dir();

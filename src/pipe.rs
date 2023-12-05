@@ -58,12 +58,22 @@ impl Pipe {
         self.nodes.len().try_into().unwrap()
     }
 
-    pub fn update(&mut self, occupied_nodes: &mut HashSet<Coordinate>, rng: &mut impl Rng) {
+    pub fn update(
+        &mut self,
+        occupied_nodes: &mut HashSet<Coordinate>,
+        rng: &mut impl Rng,
+        turn_chance: Option<f32>,
+    ) {
         if !self.alive {
             return;
         }
 
-        let want_to_turn = rng.gen_bool(1.0 / 2.0);
+        let turn_float: f64 = match turn_chance {
+            Some(chance) => chance.into(),
+            None => 1.0 / 2.0,
+        };
+
+        let want_to_turn = rng.gen_bool(turn_float);
         let mut directions_to_try: Vec<Direction> =
             Direction::iterator().map(|dirs| *dirs).collect();
         directions_to_try.shuffle(rng);
@@ -110,7 +120,7 @@ mod tests {
 
         //It should not matter what the occupied nodes are,
         //since the pipe is dead and should short circuit immediately
-        pipe.update(&mut occupied_nodes, &mut rng);
+        pipe.update(&mut occupied_nodes, &mut rng, None);
         assert_eq!(pipe.get_current_head(), head);
     }
 }

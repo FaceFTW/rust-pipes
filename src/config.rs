@@ -35,7 +35,7 @@ pub(crate) struct WorldOptions {
     pub max_bounds: (u8, u8, u8),
     pub turn_chance: f32,
     pub max_gen_time: u32,
-    pub max_freeze_time: Option<u32>,
+    pub max_freeze_time: u32,
 }
 
 impl WorldOptions {
