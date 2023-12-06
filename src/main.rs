@@ -28,7 +28,6 @@ fn main() {
     dbg!(cli_args);
 
     let cfg = Configuration::new(cli_args);
-
     let mut world = World::new(Some(&cfg));
     //===============================================
     // ENGINE INIT
@@ -101,46 +100,14 @@ fn main() {
         control.handle_events(&mut camera, &mut frame_input.events);
 
         //World Update Step
-        if !world.is_gen_complete() {
-            for i in 0..world.active_pipes_count() {
-                if !world.is_pipe_alive(i) {
-                    continue;
-                }
-                let delta_state = world.pipe_update(i, &mut rng);
-
-                if delta_state.last_node != delta_state.current_node {
-                    if delta_state.last_dir != delta_state.current_dir {
-                        make_instanced_ball_joint(
-                            &mut ball_instances,
-                            delta_state.last_node,
-                            delta_state.pipe_color,
-                        );
-                    }
-                    make_instanced_pipe_section(
-                        &mut pipe_instances,
-                        delta_state.last_node,
-                        delta_state.current_node,
-                        delta_state.pipe_color,
-                    );
-                }
-            }
-        }
-        if rng.gen_bool(world.new_pipe_chance()) && world.max_active_count_reached(MAX_PIPES) {
-            let data = world.new_pipe(&mut rng);
-            make_instanced_ball_joint(&mut ball_instances, data.start_node, data.color);
-        }
-
-        match start_time.elapsed() {
-            Ok(elapsed) => {
-                if elapsed.as_secs_f64() >= cfg.world.max_gen_time as f64 {
-                    world.set_gen_complete();
-                    for i in 0..world.active_pipes_count() {
-                        world.kill_pipe(i);
-                    }
-                }
-            }
-            Err(_) => panic!("Timer Did an oopsie, Panicking!!!!"),
-        }
+        world_update_tick(
+            &mut world,
+            &mut rng,
+            &mut ball_instances,
+            &mut pipe_instances,
+            start_time,
+            &cfg,
+        );
 
         pipe_instance_mesh.set_instances(&pipe_instances);
         ball_instance_mesh.set_instances(&ball_instances);
@@ -161,6 +128,56 @@ fn main() {
 
         FrameOutput::default()
     });
+}
+
+fn world_update_tick(
+    world: &mut World,
+    mut rng: &mut impl Rng,
+    ball_instances: &mut Instances,
+    pipe_instances: &mut Instances,
+    start_time: SystemTime,
+    cfg: &Configuration,
+) {
+    if !world.is_gen_complete() {
+        for i in 0..world.active_pipes_count() {
+            if !world.is_pipe_alive(i) {
+                continue;
+            }
+            let delta_state = world.pipe_update(i, &mut rng);
+
+            if delta_state.last_node != delta_state.current_node {
+                if delta_state.last_dir != delta_state.current_dir {
+                    make_instanced_ball_joint(
+                        ball_instances,
+                        delta_state.last_node,
+                        delta_state.pipe_color,
+                    );
+                }
+                make_instanced_pipe_section(
+                    pipe_instances,
+                    delta_state.last_node,
+                    delta_state.current_node,
+                    delta_state.pipe_color,
+                );
+            }
+        }
+    }
+    if rng.gen_bool(world.new_pipe_chance()) && world.max_active_count_reached(MAX_PIPES) {
+        let data = world.new_pipe(&mut rng);
+        make_instanced_ball_joint(ball_instances, data.start_node, data.color);
+    }
+
+    match start_time.elapsed() {
+        Ok(elapsed) => {
+            if elapsed.as_secs_f64() >= cfg.world.max_gen_time as f64 {
+                world.set_gen_complete();
+                for i in 0..world.active_pipes_count() {
+                    world.kill_pipe(i);
+                }
+            }
+        }
+        Err(_) => panic!("Timer Did an oopsie, Panicking!!!!"),
+    }
 }
 
 #[cfg(test)]
