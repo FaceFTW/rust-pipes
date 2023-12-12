@@ -5,6 +5,15 @@ use three_d::{Deg, Mat4};
 
 pub type Coordinate = (i32, i32, i32);
 pub type Color = (u8, u8, u8);
+pub type F32Color = (f32, f32, f32);
+
+pub fn convert_to_float_color(val: Color) -> F32Color {
+    (
+        val.0 as f32 / u8::MAX as f32,
+        val.1 as f32 / u8::MAX as f32,
+        val.2 as f32 / u8::MAX as f32,
+    )
+}
 
 ///Defines a direction in space
 #[derive(Debug, Clone, Copy, PartialEq)]

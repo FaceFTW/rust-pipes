@@ -12,6 +12,7 @@ use crate::{cli::make_cli_parser, config::Configuration};
 mod cli;
 mod config;
 mod draw;
+mod material;
 mod pipe;
 mod util;
 mod world;
