@@ -31,11 +31,11 @@ impl Pipe {
             space_bounds: bounds,
         };
 
-        let start = find_random_start(&occupied_nodes, bounds, rng);
+        let start = find_random_start(occupied_nodes, bounds, rng);
         new_pipe.nodes.push(start);
         occupied_nodes.insert(start);
 
-        return new_pipe;
+        new_pipe
     }
 
     pub fn is_alive(&self) -> bool {
@@ -78,7 +78,7 @@ impl Pipe {
 
         let want_to_turn = rng.gen_bool(turn_float);
         let mut directions_to_try: Vec<Direction> =
-            Direction::iterator().map(|dirs| *dirs).collect();
+            Direction::iterator().copied().collect();
         directions_to_try.shuffle(rng);
         if self.nodes.len() > 1 && !want_to_turn {
             directions_to_try.insert(0, self.current_dir);
@@ -198,17 +198,17 @@ impl World {
         let total_nodes = self.space_bounds.0 * self.space_bounds.1 * self.space_bounds.2;
         let chance_to_kill = (self.occupied_nodes.len() as f64) / (total_nodes as f64);
 
-        if self.pipes[idx].len() >= (total_nodes * 10 / 100) as i32 && rng.gen_bool(chance_to_kill)
+        if self.pipes[idx].len() >= (total_nodes * 10 / 100) && rng.gen_bool(chance_to_kill)
         {
             self.pipes[idx].kill();
             // self.active_pipes -= 1;
         }
 
         PipeChangeData {
-            last_node: last_node,
-            last_dir: last_dir,
-            current_node: current_node,
-            current_dir: current_dir,
+            last_node,
+            last_dir,
+            current_node,
+            current_dir,
             pipe_color: color,
         }
     }

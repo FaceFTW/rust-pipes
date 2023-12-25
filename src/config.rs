@@ -189,13 +189,13 @@ mod tests {
         let cli_parser = make_cli_parser();
         let match1 = cli_parser.get_matches_from(vec!["prog", "--single-run"]);
         assert!(match1.contains_id("single-run"));
-        assert_eq!(match1.get_flag("single-run"), true);
+        assert!(match1.get_flag("single-run"));
 
         //recreate because of rust semantics (also good for ensuring clean state)
         let cli_parser = make_cli_parser();
         let match2 = cli_parser.get_matches_from(vec!["prog"]);
         assert!(match2.contains_id("single-run"));
-        assert_eq!(match2.get_flag("single-run"), false);
+        assert!(!match2.get_flag("single-run"));
     }
 
     #[test]

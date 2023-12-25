@@ -153,9 +153,9 @@ cfg_if! {
   } else {
     use crate::config::make_cli_parser;
     fn get_config() -> Configuration{
-        let ref cli_args = make_cli_parser().get_matches();
+        let cli_args = &make_cli_parser().get_matches();
         dbg!(cli_args);
-        Configuration::new(&cli_args)
+        Configuration::new(cli_args)
     }
   }
 }
@@ -214,7 +214,7 @@ fn world_update_tick(
 
         Err(_) => panic!("Timer Did an oopsie, Panicking!!!!"),
     }
-    return false;
+    false
 }
 
 #[cfg(target_arch = "wasm32")]

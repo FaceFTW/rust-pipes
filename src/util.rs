@@ -38,9 +38,9 @@ impl Direction {
     }
 }
 
-impl Into<Mat4> for Direction {
-    fn into(self) -> Mat4 {
-        match self {
+impl From<Direction> for Mat4 {
+    fn from(val: Direction) -> Self {
+        match val {
             Direction::North => Mat4::from_angle_y(Deg(0.0)),
             Direction::South => Mat4::from_angle_y(Deg(180.0)),
             Direction::East => Mat4::from_angle_y(Deg(-90.0)),
@@ -111,7 +111,8 @@ pub fn is_in_bounds(coord: Coordinate, bounds: Coordinate) -> bool {
 }
 
 pub fn choose_random_direction(rng: &mut impl Rng) -> Direction {
-    let dir = match rng.gen_range(0..6) {
+    
+    match rng.gen_range(0..6) {
         0 => Direction::North,
         1 => Direction::South,
         2 => Direction::East,
@@ -119,8 +120,7 @@ pub fn choose_random_direction(rng: &mut impl Rng) -> Direction {
         4 => Direction::Up,
         5 => Direction::Down,
         _ => panic!("Invalid direction generated"),
-    };
-    dir
+    }
 }
 
 /// Returns a random coordinate that is not occupied by any other pipe (including the pipe itself if
