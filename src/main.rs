@@ -1,4 +1,3 @@
-mod cli;
 mod config;
 mod util;
 mod world;
@@ -152,7 +151,7 @@ cfg_if! {
         Configuration::new()
     }
   } else {
-    use crate::cli::make_cli_parser;
+    use crate::config::make_cli_parser;
     fn get_config() -> Configuration{
         let ref cli_args = make_cli_parser().get_matches();
         dbg!(cli_args);
