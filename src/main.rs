@@ -99,7 +99,7 @@ fn main() {
         camera.set_viewport(frame_input.viewport);
         control.handle_events(&mut camera, &mut frame_input.events);
 
-        if do_reset {
+        if do_reset && !cfg.single_run {
             start_time = SystemTime::now();
             world = World::new(Some(&cfg));
             pipe_instances = Instances {

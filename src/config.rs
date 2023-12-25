@@ -71,6 +71,7 @@ impl WorldOptions {
 pub(crate) struct Configuration {
     pub draw: DrawOptions,
     pub world: WorldOptions,
+    pub single_run: bool,
 }
 
 impl Configuration {
@@ -78,6 +79,9 @@ impl Configuration {
         Configuration {
             draw: DrawOptions::new(cli_match),
             world: WorldOptions::new(cli_match),
+            single_run: *cli_match
+                .get_one("single-run")
+                .expect("Arg single-run should be populated"),
         }
     }
 }
