@@ -1,6 +1,5 @@
 mod cli;
 mod config;
-mod pipe;
 mod util;
 mod world;
 
