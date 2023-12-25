@@ -5,11 +5,14 @@ use three_d::{Deg, Instances, Mat4, Srgba, Vec3};
 
 pub type Coordinate = (i32, i32, i32);
 pub type Color = (u8, u8, u8);
-pub type F32Color = (f32, f32, f32);
+// pub type F32Color = (f32, f32, f32);
 
 const PIPE_RADIUS: f32 = 0.15;
 const BALL_JOINT_RADIUS: f32 = 0.3;
 
+//=============================================
+// State-related Utilities
+//=============================================
 ///Defines a direction in space
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Direction {
@@ -80,13 +83,13 @@ impl fmt::Display for Direction {
     }
 }
 
-pub fn convert_to_float_color(val: Color) -> F32Color {
-    (
-        val.0 as f32 / u8::MAX as f32,
-        val.1 as f32 / u8::MAX as f32,
-        val.2 as f32 / u8::MAX as f32,
-    )
-}
+// pub fn convert_to_float_color(val: Color) -> F32Color {
+//     (
+//         val.0 as f32 / u8::MAX as f32,
+//         val.1 as f32 / u8::MAX as f32,
+//         val.2 as f32 / u8::MAX as f32,
+//     )
+// }
 
 /// Steps a coordinate in a specified direction.
 pub fn step_in_dir(coord: Coordinate, dir: Direction) -> Coordinate {
@@ -156,6 +159,10 @@ fn color_to_srgba(color: Color) -> Srgba {
     }
 }
 
+//=============================================
+// Rendering Related Utilities
+//=============================================
+///Creates an instance of a pipe segment with the required transformations.
 pub fn make_instanced_pipe_section(
     instance_struct: &mut Instances,
     from: Coordinate,
@@ -197,12 +204,14 @@ pub fn make_instanced_ball_joint(instance_struct: &mut Instances, pos: Coordinat
         .push(color_to_srgba(color));
 }
 
+//=============================================
+// Unit Tests
+//=============================================
 #[cfg(test)]
 mod tests {
     use super::*;
-    use three_d::{Instances, Mat4, Vec3};
-
     use super::{color_to_srgba, PIPE_RADIUS};
+    use three_d::{Instances, Mat4, Vec3};
 
     #[test]
     pub fn make_instanced_pipe_section_creates_expected_instances() {

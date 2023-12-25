@@ -1,8 +1,11 @@
-use std::collections::HashSet;
-
 use crate::config::Configuration;
 use crate::util::*;
 use rand::{seq::SliceRandom, Rng};
+use std::collections::HashSet;
+
+//=============================================
+// Pipe Implementation
+//=============================================
 
 /// Represents a pipe to be rendered. This is a ordered
 /// list of nodes that the pipe occupies. Other properties
@@ -104,6 +107,10 @@ impl Pipe {
         self.nodes.insert(0, new_position);
     }
 }
+
+//=============================================
+// World Implementation
+//=============================================
 
 ///Used to give information to the render loop while
 ///minimizing the amount of state entanglement with
@@ -242,6 +249,9 @@ impl World {
     }
 }
 
+//=============================================
+// Unit Tests
+//=============================================
 #[cfg(test)]
 mod tests {
     use super::*;
