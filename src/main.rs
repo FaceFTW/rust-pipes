@@ -92,14 +92,31 @@ fn main() {
         PhysicalMaterial::new(&context, &base_instance_material),
     );
 
-    let start_time = SystemTime::now();
+    let mut start_time = SystemTime::now();
+    let mut do_reset = false;
 
     window.render_loop(move |mut frame_input| {
         camera.set_viewport(frame_input.viewport);
         control.handle_events(&mut camera, &mut frame_input.events);
 
+        if do_reset {
+            start_time = SystemTime::now();
+            world = World::new(Some(&cfg));
+            pipe_instances = Instances {
+                transformations: Vec::new(),
+                colors: Some(Vec::new()),
+                ..Default::default()
+            };
+            ball_instances = Instances {
+                transformations: Vec::new(),
+                colors: Some(Vec::new()),
+                ..Default::default()
+            };
+            // do_reset = false;
+        }
+
         //World Update Step
-        world_update_tick(
+        do_reset = world_update_tick(
             &mut world,
             &mut rng,
             &mut ball_instances,
@@ -136,7 +153,7 @@ fn world_update_tick(
     pipe_instances: &mut Instances,
     start_time: SystemTime,
     cfg: &Configuration,
-) {
+) -> bool {
     if !world.is_gen_complete() {
         for i in 0..world.active_pipes_count() {
             if !world.is_pipe_alive(i) {
@@ -166,17 +183,24 @@ fn world_update_tick(
         make_instanced_ball_joint(ball_instances, data.start_node, data.color);
     }
 
+    let max_cycle_time = (cfg.world.max_gen_time + cfg.world.max_freeze_time) as f64;
+
     match start_time.elapsed() {
-        Ok(elapsed) => {
-            if elapsed.as_secs_f64() >= cfg.world.max_gen_time as f64 {
-                world.set_gen_complete();
-                for i in 0..world.active_pipes_count() {
-                    world.kill_pipe(i);
-                }
+        Ok(elapsed) if elapsed.as_secs_f64() < cfg.world.max_gen_time as f64 => (),
+        Ok(elapsed)
+            if elapsed.as_secs_f64() >= cfg.world.max_gen_time as f64
+                && elapsed.as_secs_f64() < max_cycle_time =>
+        {
+            world.set_gen_complete();
+            for i in 0..world.active_pipes_count() {
+                world.kill_pipe(i);
             }
         }
+        Ok(_) => return true,
+
         Err(_) => panic!("Timer Did an oopsie, Panicking!!!!"),
     }
+    return false;
 }
 
 #[cfg(test)]

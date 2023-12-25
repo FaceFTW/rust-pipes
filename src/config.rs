@@ -3,7 +3,7 @@ use clap::ArgMatches;
 use rust_pipes::Color;
 
 pub(crate) struct DrawOptions {
-    pub original_colors: bool,
+    // pub original_colors: bool,
     pub bg_color: Color,
     pub angle_subdiv: u32,
 }
@@ -23,9 +23,9 @@ impl DrawOptions {
             angle_subdiv: *cli_match
                 .get_one("angle-subdiv")
                 .expect("Arg angle-subdiv should be populated"),
-            original_colors: *cli_match
-                .get_one("original-colors")
-                .expect("Arg original-colors should be populated"),
+            // original_colors: *cli_match
+            //     .get_one("original-colors")
+            //     .expect("Arg original-colors should be populated"),
         }
     }
 }
