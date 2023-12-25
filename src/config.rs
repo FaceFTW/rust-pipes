@@ -1,6 +1,6 @@
 use clap::ArgMatches;
 
-use crate::util::Color;
+use rust_pipes::Color;
 
 pub(crate) struct DrawOptions {
     pub original_colors: bool,

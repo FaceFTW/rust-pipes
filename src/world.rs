@@ -1,13 +1,10 @@
 use std::collections::HashSet;
 
 use rand::Rng;
+use rust_pipes::{Color, Coordinate, Direction};
 
+use super::pipe::Pipe;
 use crate::config::Configuration;
-
-use super::{
-    pipe::Pipe,
-    util::{Color, Coordinate, Direction},
-};
 
 ///Used to give information to the render loop while
 ///minimizing the amount of state entanglement with

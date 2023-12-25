@@ -1,8 +1,6 @@
 use std::collections::HashSet;
-
 use rand::{seq::SliceRandom, Rng};
-
-use super::util::*;
+use rust_pipes::*;
 
 /// Represents a pipe to be rendered. This is a ordered
 /// list of nodes that the pipe occupies. Other properties

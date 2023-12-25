@@ -1,4 +1,4 @@
-use super::util::{Color, Coordinate, Direction};
+use rust_pipes::*;
 use three_d::{Instances, Mat4, Srgba, Vec3};
 
 const PIPE_RADIUS: f32 = 0.15;
@@ -57,11 +57,8 @@ pub fn make_instanced_ball_joint(instance_struct: &mut Instances, pos: Coordinat
 #[cfg(test)]
 mod tests {
     use three_d::{Instances, Mat4, Vec3};
-
-    use crate::{
-        draw::{make_instanced_ball_joint, make_instanced_pipe_section, BALL_JOINT_RADIUS},
-        util::Direction,
-    };
+    use crate::draw::{make_instanced_ball_joint, make_instanced_pipe_section, BALL_JOINT_RADIUS};
+    use rust_pipes::Direction;
 
     use super::{color_to_srgba, PIPE_RADIUS};
 

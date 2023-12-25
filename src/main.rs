@@ -1,3 +1,9 @@
+mod cli;
+mod config;
+mod draw;
+mod pipe;
+mod world;
+
 use draw::{make_instanced_ball_joint, make_instanced_pipe_section};
 use rand::Rng;
 use std::time::SystemTime;
@@ -8,13 +14,6 @@ use three_d::{
 use world::World;
 
 use crate::{cli::make_cli_parser, config::Configuration};
-
-mod cli;
-mod config;
-mod draw;
-mod pipe;
-mod util;
-mod world;
 
 const MAX_PIPES: u32 = 10;
 
