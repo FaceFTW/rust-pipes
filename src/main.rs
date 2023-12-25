@@ -1,17 +1,17 @@
 mod cli;
 mod config;
-mod draw;
 mod pipe;
+mod util;
 mod world;
 
 use cfg_if::cfg_if;
-use draw::{make_instanced_ball_joint, make_instanced_pipe_section};
 use rand::Rng;
 use std::time::SystemTime;
 use three_d::{
     degrees, vec3, Camera, ClearState, CpuMaterial, CpuMesh, DirectionalLight, FrameOutput, Gm,
     InstancedMesh, Instances, OrbitControl, PhysicalMaterial, Srgba, Window, WindowSettings,
 };
+use util::{make_instanced_ball_joint, make_instanced_pipe_section};
 use world::World;
 
 use crate::config::Configuration;

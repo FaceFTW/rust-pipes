@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
+use crate::util::{Color, Coordinate, Direction};
 use rand::Rng;
-use rust_pipes::{Color, Coordinate, Direction};
 
 use super::pipe::Pipe;
 use crate::config::Configuration;
