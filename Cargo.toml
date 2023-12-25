@@ -3,8 +3,15 @@ name = "rust-pipes"
 version = "0.1.0"
 edition = "2021"
 
+# [features]
+# std_exec=["clap"]
+# web=["wasm-bindgen"]
+
 [dependencies]
 three-d = "0.16.3"
 three-d-asset = "0.6.0"
 rand = "0.8.5"
+cfg-if = "1.0.0"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 clap = { version = "4.4.6", features = ["derive", "cargo"] }

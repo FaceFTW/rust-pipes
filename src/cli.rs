@@ -1,5 +1,7 @@
+#[cfg(not(target_arch = "wasm32"))]
 use clap::{command, Arg, ArgAction, ArgGroup, Command};
 
+#[cfg(not(target_arch = "wasm32"))]
 pub fn make_cli_parser() -> Command {
     command!()
         .group(ArgGroup::new("exec").required(false).multiple(true))
@@ -68,6 +70,7 @@ pub fn make_cli_parser() -> Command {
         ])
 }
 
+//Test cfg should imply not(target_arch="wasm32")
 #[cfg(test)]
 mod tests {
     use super::make_cli_parser;

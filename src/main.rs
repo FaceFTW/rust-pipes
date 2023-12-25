@@ -4,6 +4,7 @@ mod draw;
 mod pipe;
 mod world;
 
+use cfg_if::cfg_if;
 use draw::{make_instanced_ball_joint, make_instanced_pipe_section};
 use rand::Rng;
 use std::time::SystemTime;
@@ -13,7 +14,7 @@ use three_d::{
 };
 use world::World;
 
-use crate::{cli::make_cli_parser, config::Configuration};
+use crate::config::Configuration;
 
 const MAX_PIPES: u32 = 10;
 
@@ -23,10 +24,10 @@ fn main() {
     //===============================================
     let mut rng = rand::thread_rng();
 
-    let ref cli_args = make_cli_parser().get_matches();
-    dbg!(cli_args);
+    // let ref cli_args = make_cli_parser().get_matches();
+    // dbg!(cli_args);
 
-    let cfg = Configuration::new(cli_args);
+    let cfg = get_config();
     let mut world = World::new(Some(&cfg));
     //===============================================
     // ENGINE INIT
@@ -146,6 +147,21 @@ fn main() {
     });
 }
 
+cfg_if! {
+  if #[cfg(target_arch="wasm32")]{
+    fn get_config() -> Configuration{
+        Configuration::new()
+    }
+  } else {
+    use crate::cli::make_cli_parser;
+    fn get_config() -> Configuration{
+        let ref cli_args = make_cli_parser().get_matches();
+        dbg!(cli_args);
+        Configuration::new(&cli_args)
+    }
+  }
+}
+
 fn world_update_tick(
     world: &mut World,
     mut rng: &mut impl Rng,
@@ -203,5 +219,25 @@ fn world_update_tick(
     return false;
 }
 
-#[cfg(test)]
-mod tests {}
+#[cfg(target_arch = "wasm32")]
+mod web_main {
+    // #![allow(special_module_name)]
+    // mod main;
+
+    // Entry point for wasm
+    #[cfg(target_arch = "wasm32")]
+    use wasm_bindgen::prelude::*;
+
+    #[cfg(target_arch = "wasm32")]
+    #[wasm_bindgen(start)]
+    pub async fn start() -> Result<(), JsValue> {
+        console_log::init_with_level(log::Level::Debug).unwrap();
+
+        use log::info;
+        info!("Logging works!");
+
+        std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+        main::run().await;
+        Ok(())
+    }
+}

@@ -9,6 +9,7 @@ pub(crate) struct DrawOptions {
 }
 
 impl DrawOptions {
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn new(cli_match: &ArgMatches) -> DrawOptions {
         let bg_color_vec: Vec<u8> = cli_match
             .get_many("bg-color")
@@ -39,6 +40,7 @@ pub(crate) struct WorldOptions {
 }
 
 impl WorldOptions {
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn new(cli_match: &ArgMatches) -> WorldOptions {
         let bounds_vec: Vec<u8> = cli_match
             .get_many("max-bounds")
@@ -75,6 +77,7 @@ pub(crate) struct Configuration {
 }
 
 impl Configuration {
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn new(cli_match: &ArgMatches) -> Configuration {
         Configuration {
             draw: DrawOptions::new(cli_match),
@@ -82,6 +85,24 @@ impl Configuration {
             single_run: *cli_match
                 .get_one("single-run")
                 .expect("Arg single-run should be populated"),
+        }
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    pub fn new() -> Configuration {
+        Configuration {
+            draw: DrawOptions {
+                bg_color: (40, 40, 40),
+                angle_subdiv: 16,
+            },
+            world: WorldOptions {
+                max_pipes: 8,
+                max_bounds: (20, 20, 20),
+                turn_chance: 0.3,
+                max_gen_time: 15,
+                max_freeze_time: 10,
+            },
+            single_run: false,
         }
     }
 }
