@@ -2,12 +2,13 @@ mod config;
 mod util;
 mod world;
 
-use crate::engine::config::Configuration;
-use crate::engine::util::{make_instanced_ball_joint, make_instanced_pipe_section, RngShim};
-use crate::engine::world::World;
+use crate::engine::{
+    config::Configuration,
+    util::{make_instanced_ball_joint, make_instanced_pipe_section, RngShim},
+    world::World,
+};
 use cfg_if::cfg_if;
 use fastrand::Rng;
-// use rand::Rng;
 use std::time::SystemTime;
 use three_d::{
     degrees, vec3, Camera, ClearState, CpuMaterial, CpuMesh, DirectionalLight, FrameOutput, Gm,
@@ -20,11 +21,6 @@ pub fn real_main() {
     //===============================================
     // WORLD INITIALIZATION
     //===============================================
-    // let mut rng = Rng::
-
-    // let ref cli_args = make_cli_parser().get_matches();
-    // dbg!(cli_args);
-
     let cfg = get_config();
     let mut world = World::new(Some(&cfg));
     let mut rng = Rng::with_seed(0x0432);

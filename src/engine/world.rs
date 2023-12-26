@@ -1,8 +1,6 @@
-use fastrand::Rng;
-
 use crate::engine::config::Configuration;
 use crate::engine::util::*;
-// use rand::{seq::SliceRandom, Rng};
+use fastrand::Rng;
 use std::collections::HashSet;
 
 //=============================================

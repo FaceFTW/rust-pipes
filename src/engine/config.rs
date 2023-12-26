@@ -4,7 +4,6 @@ use clap::ArgMatches;
 use crate::engine::util::Color;
 
 pub(crate) struct DrawOptions {
-    // pub original_colors: bool,
     pub bg_color: Color,
     pub angle_subdiv: u32,
 }
@@ -25,9 +24,6 @@ impl DrawOptions {
             angle_subdiv: *cli_match
                 .get_one("angle-subdiv")
                 .expect("Arg angle-subdiv should be populated"),
-            // original_colors: *cli_match
-            //     .get_one("original-colors")
-            //     .expect("Arg original-colors should be populated"),
         }
     }
 }
@@ -69,7 +65,8 @@ impl WorldOptions {
     }
 }
 
-///Internal struct to organize configuration and pass it around to necessary parts of the program
+///Internal struct to organize configuration and
+/// pass it around to necessary parts of the program
 ///
 pub(crate) struct Configuration {
     pub draw: DrawOptions,

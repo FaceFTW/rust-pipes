@@ -1,12 +1,10 @@
 use core::fmt;
-// use rand::Rng;
 use fastrand::Rng;
 use std::{collections::HashSet, slice::Iter};
 use three_d::{Deg, Instances, Mat4, Srgba, Vec3};
 
 pub type Coordinate = (i32, i32, i32);
 pub type Color = (u8, u8, u8);
-// pub type F32Color = (f32, f32, f32);
 
 const PIPE_RADIUS: f32 = 0.15;
 const BALL_JOINT_RADIUS: f32 = 0.3;
@@ -109,14 +107,6 @@ impl fmt::Display for Direction {
         write!(f, "{}", dir_str)
     }
 }
-
-// pub fn convert_to_float_color(val: Color) -> F32Color {
-//     (
-//         val.0 as f32 / u8::MAX as f32,
-//         val.1 as f32 / u8::MAX as f32,
-//         val.2 as f32 / u8::MAX as f32,
-//     )
-// }
 
 /// Steps a coordinate in a specified direction.
 pub fn step_in_dir(coord: Coordinate, dir: Direction) -> Coordinate {
