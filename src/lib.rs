@@ -1,10 +1,12 @@
 #![allow(special_module_name)]
 cfg_if::cfg_if! {
     if #[cfg(target_arch="wasm32")]{
-        mod main;
-        mod config;
-        mod util;
-        mod world;
+        // mod main;
+        // mod config;
+        // mod util;
+        // mod world;
+
+        mod engine;
 
         // Entry point for wasm
         use wasm_bindgen::prelude::*;

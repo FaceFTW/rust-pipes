@@ -1,7 +1,7 @@
 #[cfg(not(target_arch = "wasm32"))]
 use clap::ArgMatches;
 
-use crate::util::Color;
+use crate::engine::util::Color;
 
 pub(crate) struct DrawOptions {
     // pub original_colors: bool,

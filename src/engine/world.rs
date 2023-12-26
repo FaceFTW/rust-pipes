@@ -1,5 +1,5 @@
-use crate::config::Configuration;
-use crate::util::*;
+use crate::engine::config::Configuration;
+use crate::engine::util::*;
 use rand::{seq::SliceRandom, Rng};
 use std::collections::HashSet;
 
@@ -77,8 +77,7 @@ impl Pipe {
         };
 
         let want_to_turn = rng.gen_bool(turn_float);
-        let mut directions_to_try: Vec<Direction> =
-            Direction::iterator().copied().collect();
+        let mut directions_to_try: Vec<Direction> = Direction::iterator().copied().collect();
         directions_to_try.shuffle(rng);
         if self.nodes.len() > 1 && !want_to_turn {
             directions_to_try.insert(0, self.current_dir);
@@ -198,8 +197,7 @@ impl World {
         let total_nodes = self.space_bounds.0 * self.space_bounds.1 * self.space_bounds.2;
         let chance_to_kill = (self.occupied_nodes.len() as f64) / (total_nodes as f64);
 
-        if self.pipes[idx].len() >= (total_nodes * 10 / 100) && rng.gen_bool(chance_to_kill)
-        {
+        if self.pipes[idx].len() >= (total_nodes * 10 / 100) && rng.gen_bool(chance_to_kill) {
             self.pipes[idx].kill();
             // self.active_pipes -= 1;
         }
