@@ -1,11 +1,6 @@
 #![allow(special_module_name)]
 cfg_if::cfg_if! {
     if #[cfg(target_arch="wasm32")]{
-        // mod main;
-        // mod config;
-        // mod util;
-        // mod world;
-
         mod engine;
 
         // Entry point for wasm
@@ -18,9 +13,8 @@ cfg_if::cfg_if! {
             info!("Logging works!");
 
             std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-            main::real_main().await;
+            engine::real_main();
             Ok(())
         }
-
     }
 }

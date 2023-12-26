@@ -3,19 +3,8 @@ name = "rust-pipes"
 version = "0.1.0"
 edition = "2021"
 
-[[bin]]
-# crate-type = ["bin"]
-name = "rust_pipes"
-path = "src/main.rs"
-
 [lib]
 crate-type = ["cdylib"]
-name = "rust_pipes_wasm"
-
-# [features]
-# std_exec=["clap"]
-# web=["wasm-bindgen"]
-
 
 [dependencies]
 three-d = "0.16.3"

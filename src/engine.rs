@@ -1,10 +1,7 @@
-// cfg_if! {
-// if #[cfg(not(target_arch="wasm32"))]{
 mod config;
 mod util;
 mod world;
-//     }
-// }
+
 use crate::engine::config::Configuration;
 use crate::engine::util::{make_instanced_ball_joint, make_instanced_pipe_section};
 use crate::engine::world::World;
@@ -17,6 +14,7 @@ use three_d::{
 };
 
 const MAX_PIPES: u32 = 10;
+
 pub fn real_main() {
     //===============================================
     // WORLD INITIALIZATION
