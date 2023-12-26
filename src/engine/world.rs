@@ -1,6 +1,8 @@
+use fastrand::Rng;
+
 use crate::engine::config::Configuration;
 use crate::engine::util::*;
-use rand::{seq::SliceRandom, Rng};
+// use rand::{seq::SliceRandom, Rng};
 use std::collections::HashSet;
 
 //=============================================
@@ -22,7 +24,7 @@ impl Pipe {
     pub fn new(
         occupied_nodes: &mut HashSet<Coordinate>,
         bounds: Coordinate,
-        rng: &mut impl Rng,
+        rng: &mut Rng,
     ) -> Pipe {
         let mut new_pipe: Pipe = Pipe {
             alive: true,
@@ -64,7 +66,7 @@ impl Pipe {
     pub fn update(
         &mut self,
         occupied_nodes: &mut HashSet<Coordinate>,
-        rng: &mut impl Rng,
+        rng: &mut Rng,
         turn_chance: Option<f32>,
     ) {
         if !self.alive {
@@ -78,7 +80,7 @@ impl Pipe {
 
         let want_to_turn = rng.gen_bool(turn_float);
         let mut directions_to_try: Vec<Direction> = Direction::iterator().copied().collect();
-        directions_to_try.shuffle(rng);
+        rng.shuffle(directions_to_try.as_mut_slice());
         if self.nodes.len() > 1 && !want_to_turn {
             directions_to_try.insert(0, self.current_dir);
         }
@@ -169,7 +171,7 @@ impl World {
         }
     }
 
-    pub fn new_pipe(&mut self, rng: &mut impl Rng) -> NewPipeData {
+    pub fn new_pipe(&mut self, rng: &mut Rng) -> NewPipeData {
         self.pipes
             .push(Pipe::new(&mut self.occupied_nodes, self.space_bounds, rng));
         let start = self.pipes[self.pipes.len() - 1].get_current_head();
@@ -183,7 +185,7 @@ impl World {
         }
     }
 
-    pub fn pipe_update(&mut self, idx: usize, rng: &mut impl Rng) -> PipeChangeData {
+    pub fn pipe_update(&mut self, idx: usize, rng: &mut Rng) -> PipeChangeData {
         let color = self.pipe_colors[idx];
         let last_node = self.pipes[idx].get_current_head();
         let last_dir = self.pipes[idx].get_current_dir();
@@ -257,7 +259,7 @@ mod tests {
     #[test]
     fn test_dead_pipe_does_not_update() {
         let mut occupied_nodes: HashSet<Coordinate> = HashSet::new();
-        let mut rng = rand::thread_rng();
+        let mut rng = Rng::new();
         let bounds = (10, 10, 10);
         let mut pipe = Pipe::new(&mut occupied_nodes, bounds, &mut rng);
         let head = pipe.get_current_head();

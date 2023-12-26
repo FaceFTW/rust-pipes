@@ -3,10 +3,11 @@ mod util;
 mod world;
 
 use crate::engine::config::Configuration;
-use crate::engine::util::{make_instanced_ball_joint, make_instanced_pipe_section};
+use crate::engine::util::{make_instanced_ball_joint, make_instanced_pipe_section, RngShim};
 use crate::engine::world::World;
 use cfg_if::cfg_if;
-use rand::Rng;
+use fastrand::Rng;
+// use rand::Rng;
 use std::time::SystemTime;
 use three_d::{
     degrees, vec3, Camera, ClearState, CpuMaterial, CpuMesh, DirectionalLight, FrameOutput, Gm,
@@ -19,13 +20,15 @@ pub fn real_main() {
     //===============================================
     // WORLD INITIALIZATION
     //===============================================
-    let mut rng = rand::thread_rng();
+    // let mut rng = Rng::
 
     // let ref cli_args = make_cli_parser().get_matches();
     // dbg!(cli_args);
 
     let cfg = get_config();
     let mut world = World::new(Some(&cfg));
+    let mut rng = Rng::with_seed(0x0432);
+
     //===============================================
     // ENGINE INIT
     //===============================================
@@ -161,7 +164,7 @@ cfg_if! {
 
 fn world_update_tick(
     world: &mut World,
-    mut rng: &mut impl Rng,
+    mut rng: &mut Rng,
     ball_instances: &mut Instances,
     pipe_instances: &mut Instances,
     start_time: SystemTime,
