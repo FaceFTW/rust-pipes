@@ -16,7 +16,11 @@ use crate::config::Configuration;
 
 const MAX_PIPES: u32 = 10;
 
-fn main() {
+fn main(){
+	real_main();
+}
+
+fn real_main() {
     //===============================================
     // WORLD INITIALIZATION
     //===============================================
@@ -154,7 +158,7 @@ cfg_if! {
     use crate::config::make_cli_parser;
     fn get_config() -> Configuration{
         let cli_args = &make_cli_parser().get_matches();
-        dbg!(cli_args);
+        // dbg!(cli_args);
         Configuration::new(cli_args)
     }
   }
@@ -215,27 +219,4 @@ fn world_update_tick(
         Err(_) => panic!("Timer Did an oopsie, Panicking!!!!"),
     }
     false
-}
-
-#[cfg(target_arch = "wasm32")]
-mod web_main {
-    // #![allow(special_module_name)]
-    // mod main;
-
-    // Entry point for wasm
-    #[cfg(target_arch = "wasm32")]
-    use wasm_bindgen::prelude::*;
-
-    #[cfg(target_arch = "wasm32")]
-    #[wasm_bindgen(start)]
-    pub async fn start() -> Result<(), JsValue> {
-        console_log::init_with_level(log::Level::Debug).unwrap();
-
-        use log::info;
-        info!("Logging works!");
-
-        std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-        main::run().await;
-        Ok(())
-    }
 }
