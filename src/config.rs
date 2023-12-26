@@ -1,3 +1,4 @@
+#[cfg(not(target_arch = "wasm32"))]
 use clap::ArgMatches;
 
 use crate::util::Color;

@@ -1,7 +1,13 @@
-mod config;
-mod util;
-mod world;
-
+cfg_if! {
+    if #[cfg(not(target_arch="wasm32"))]{
+        mod config;
+        mod util;
+        mod world;
+    }
+}
+use crate::config::Configuration;
+use crate::util::{make_instanced_ball_joint, make_instanced_pipe_section};
+use crate::world::World;
 use cfg_if::cfg_if;
 use rand::Rng;
 use std::time::SystemTime;
@@ -9,18 +15,14 @@ use three_d::{
     degrees, vec3, Camera, ClearState, CpuMaterial, CpuMesh, DirectionalLight, FrameOutput, Gm,
     InstancedMesh, Instances, OrbitControl, PhysicalMaterial, Srgba, Window, WindowSettings,
 };
-use util::{make_instanced_ball_joint, make_instanced_pipe_section};
-use world::World;
-
-use crate::config::Configuration;
 
 const MAX_PIPES: u32 = 10;
 
-fn main(){
-	real_main();
+fn main() {
+    real_main();
 }
 
-fn real_main() {
+pub fn real_main() {
     //===============================================
     // WORLD INITIALIZATION
     //===============================================
