@@ -119,7 +119,12 @@ impl Configuration {
 /// Fun fact, I am basing this roughly off of how Minecraft takes level
 /// generation seeds but downcasting to u64 size instead of 128-bit
 /// (See net.minecraft.world.level.levelgen.RandomSupport)
-fn parse_seed(val: &str) -> Result<u64, std::io::Error> {
+fn parse_seed(val: &str) -> Result<Option<u64>, std::io::Error> {
+	//check if it is a number that can fit into a u64 space first
+	// if let parsed: u64 = str::is_char_boundary(&self, index)  {
+
+	// }
+
     let hash: [u8; 16] = md5::compute(val).into();
     //Do some funny bit ops to make the full 64-bit number
     //We intentionally discard half of the hash because no shot
@@ -133,7 +138,7 @@ fn parse_seed(val: &str) -> Result<u64, std::io::Error> {
         | ((hash[5] & 0xFF) as u64) << 16
         | ((hash[6] & 0xFF) as u64) << 8
         | ((hash[7] & 0xFF) as u64);
-    Ok(seed_u64)
+    Ok(Some(seed_u64))
 }
 
 #[cfg(not(target_arch = "wasm32"))]
