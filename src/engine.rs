@@ -23,7 +23,11 @@ pub fn real_main() {
     //===============================================
     let cfg = get_config();
     let mut world = World::new(Some(&cfg));
-    let mut rng = Rng::with_seed(0x0432);
+    let mut rng = match cfg.rng_seed {
+        Some(seed) => Rng::with_seed(seed),
+        None => Rng::new(),
+    };
+    dbg!(rng.get_seed());
 
     //===============================================
     // ENGINE INIT

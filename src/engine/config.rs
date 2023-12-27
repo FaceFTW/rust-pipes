@@ -72,6 +72,7 @@ pub(crate) struct Configuration {
     pub draw: DrawOptions,
     pub world: WorldOptions,
     pub single_run: bool,
+    pub rng_seed: Option<u64>,
 }
 
 impl Configuration {
@@ -83,6 +84,10 @@ impl Configuration {
             single_run: *cli_match
                 .get_one("single-run")
                 .expect("Arg single-run should be populated"),
+            rng_seed: match cli_match.get_one("rng-seed").unwrap_or(&None) {
+                Some(val) => Some(*val),
+                None => None,
+            },
         }
     }
 
@@ -101,8 +106,34 @@ impl Configuration {
                 max_freeze_time: 10,
             },
             single_run: false,
+            rng_seed: None,
         }
     }
+}
+
+///Takes a string and effectively converts it to a u64 seed
+/// that is usable by the fastrand library. Primarily used as
+/// a clap value parser. Should not return errors in any situation,
+/// Result<T,E> is for type checking.
+///
+/// Fun fact, I am basing this roughly off of how Minecraft takes level
+/// generation seeds but downcasting to u64 size instead of 128-bit
+/// (See net.minecraft.world.level.levelgen.RandomSupport)
+fn parse_seed(val: &str) -> Result<u64, std::io::Error> {
+    let hash: [u8; 16] = md5::compute(val).into();
+    //Do some funny bit ops to make the full 64-bit number
+    //We intentionally discard half of the hash because no shot
+    //128 bits can fit into 64 bits
+
+    let seed_u64: u64 = ((hash[0] & 0xFF) as u64) << 56
+        | ((hash[1] & 0xFF) as u64) << 48
+        | ((hash[2] & 0xFF) as u64) << 40
+        | ((hash[3] & 0xFF) as u64) << 32
+        | ((hash[4] & 0xFF) as u64) << 24
+        | ((hash[5] & 0xFF) as u64) << 16
+        | ((hash[6] & 0xFF) as u64) << 8
+        | ((hash[7] & 0xFF) as u64);
+    Ok(seed_u64)
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -110,12 +141,14 @@ use clap::{command, Arg, ArgAction, ArgGroup, Command};
 
 #[cfg(not(target_arch = "wasm32"))]
 pub fn make_cli_parser() -> Command {
+    use clap::builder::ValueParser;
+
     command!()
         .group(ArgGroup::new("exec").required(false).multiple(true))
         .next_help_heading("Execution Options")
         .args([Arg::new("rng-seed").long("seed").value_name("seed").help(
             "The seed input used by the random number generator for pipe generation.\n The state of the random number generator is not reset between simulations.\n Seeds can be alphanumeric.",
-        )])
+        ).value_parser(ValueParser::new(parse_seed))])
         .group(ArgGroup::new("sim").required(false).multiple(true))
         .next_help_heading("Simulation Options")
         .args([
