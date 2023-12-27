@@ -120,25 +120,25 @@ impl Configuration {
 /// generation seeds but downcasting to u64 size instead of 128-bit
 /// (See net.minecraft.world.level.levelgen.RandomSupport)
 fn parse_seed(val: &str) -> Result<Option<u64>, std::io::Error> {
-	//check if it is a number that can fit into a u64 space first
-	// if let parsed: u64 = str::is_char_boundary(&self, index)  {
+    match val.parse::<u64>() {
+        Ok(val) => Ok(Some(val)),
+        Err(_) => {
+            let hash: [u8; 16] = md5::compute(val).into();
+            //Do some funny bit ops to make the full 64-bit number
+            //We intentionally discard half of the hash because no shot
+            //128 bits can fit into 64 bits
 
-	// }
-
-    let hash: [u8; 16] = md5::compute(val).into();
-    //Do some funny bit ops to make the full 64-bit number
-    //We intentionally discard half of the hash because no shot
-    //128 bits can fit into 64 bits
-
-    let seed_u64: u64 = ((hash[0] & 0xFF) as u64) << 56
-        | ((hash[1] & 0xFF) as u64) << 48
-        | ((hash[2] & 0xFF) as u64) << 40
-        | ((hash[3] & 0xFF) as u64) << 32
-        | ((hash[4] & 0xFF) as u64) << 24
-        | ((hash[5] & 0xFF) as u64) << 16
-        | ((hash[6] & 0xFF) as u64) << 8
-        | ((hash[7] & 0xFF) as u64);
-    Ok(Some(seed_u64))
+            let seed_u64: u64 = ((hash[0] & 0xFF) as u64) << 56
+                | ((hash[1] & 0xFF) as u64) << 48
+                | ((hash[2] & 0xFF) as u64) << 40
+                | ((hash[3] & 0xFF) as u64) << 32
+                | ((hash[4] & 0xFF) as u64) << 24
+                | ((hash[5] & 0xFF) as u64) << 16
+                | ((hash[6] & 0xFF) as u64) << 8
+                | ((hash[7] & 0xFF) as u64);
+            Ok(Some(seed_u64))
+        }
+    }
 }
 
 #[cfg(not(target_arch = "wasm32"))]
