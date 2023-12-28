@@ -1,3 +1,4 @@
+
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
@@ -8,6 +9,7 @@ module.exports = {
 	output: {
 		path: path.resolve(__dirname, 'dist'),
 		filename: 'index.js',
+		clean: true
 	},
 	plugins: [
 		new HtmlWebpackPlugin({
@@ -27,7 +29,6 @@ module.exports = {
 		})
 	],
 
-	mode: 'development',
 	experiments: {
 		asyncWebAssembly: true
 	}
