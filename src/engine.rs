@@ -9,7 +9,7 @@ use crate::engine::{
 };
 use cfg_if::cfg_if;
 use fastrand::Rng;
-use std::time::SystemTime;
+use std::time::Instant;
 use three_d::{
     degrees, vec3, Camera, ClearState, CpuMaterial, CpuMesh, DirectionalLight, FrameOutput, Gm,
     InstancedMesh, Instances, OrbitControl, PhysicalMaterial, Srgba, Window, WindowSettings,
@@ -93,7 +93,7 @@ pub fn real_main() {
         PhysicalMaterial::new(&context, &base_instance_material),
     );
 
-    let mut start_time = SystemTime::now();
+    let mut start_time = Instant::now();
     let mut do_reset = false;
 
     window.render_loop(move |mut frame_input| {
@@ -101,7 +101,7 @@ pub fn real_main() {
         control.handle_events(&mut camera, &mut frame_input.events);
 
         if do_reset && !cfg.single_run {
-            start_time = SystemTime::now();
+            start_time = Instant::now();
             world = World::new(Some(&cfg));
             pipe_instances = Instances {
                 transformations: Vec::new(),
@@ -167,7 +167,7 @@ fn world_update_tick(
     mut rng: &mut Rng,
     ball_instances: &mut Instances,
     pipe_instances: &mut Instances,
-    start_time: SystemTime,
+    start_time: Instant,
     cfg: &Configuration,
 ) -> bool {
     if !world.is_gen_complete() {
@@ -202,8 +202,8 @@ fn world_update_tick(
     let max_cycle_time = (cfg.world.max_gen_time + cfg.world.max_freeze_time) as f64;
 
     match start_time.elapsed() {
-        Ok(elapsed) if elapsed.as_secs_f64() < cfg.world.max_gen_time as f64 => (),
-        Ok(elapsed)
+        elapsed if elapsed.as_secs_f64() < cfg.world.max_gen_time as f64 => (),
+        elapsed
             if elapsed.as_secs_f64() >= cfg.world.max_gen_time as f64
                 && elapsed.as_secs_f64() < max_cycle_time =>
         {
@@ -212,9 +212,7 @@ fn world_update_tick(
                 world.kill_pipe(i);
             }
         }
-        Ok(_) => return true,
-
-        Err(_) => panic!("Timer Did an oopsie, Panicking!!!!"),
+        _ => return true,
     }
     false
 }
