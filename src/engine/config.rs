@@ -103,7 +103,7 @@ impl Configuration {
                 angle_subdiv: 16,
             },
             world: WorldOptions {
-                max_pipes: 8,
+                // max_pipes: 8,
                 max_bounds: (20, 20, 20),
                 turn_chance: 0.3,
                 max_gen_time: 15,
