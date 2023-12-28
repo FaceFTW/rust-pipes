@@ -1,6 +1,7 @@
+use cfg_if::cfg_if;
 use core::fmt;
 use fastrand::Rng;
-use std::{collections::HashSet, slice::Iter};
+use std::{collections::HashSet, slice::Iter, time::Duration};
 use three_d::{Deg, Instances, Mat4, Srgba, Vec3};
 
 pub type Coordinate = (i32, i32, i32);
@@ -210,6 +211,53 @@ pub fn make_instanced_ball_joint(instance_struct: &mut Instances, pos: Coordinat
         .as_mut()
         .expect("Instance Struct should have Color Instances Vector!")
         .push(color_to_srgba(color));
+}
+
+//============================================
+// Time-related utilities
+//============================================
+
+cfg_if! {
+    if #[cfg(not(target_arch="wasm32"))]{
+        ///The following code is to create a "Shim" struct to allow for
+        /// instants to be used on cross-platforms that don't
+        /// have std::time::Instant implementations (i.e. WASM). This version
+        /// uses the implementation that exists for standard platforms
+        /// such as x86 or ARM.
+        ///
+        /// Code is a reduced form of the following comment
+        /// https://github.com/rust-lang/rust/issues/48564#issuecomment-698712971
+        #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+        pub struct InstantShim(std::time::Instant);
+
+        impl InstantShim {
+            pub fn now() -> Self { Self(std::time::Instant::now()) }
+            pub fn elapsed(&self) -> Duration { self.0.elapsed() }
+        }
+    } else {
+        use wasm_bindgen::prelude::*;
+        #[wasm_bindgen(inline_js = r#"export function performance_now() {return performance.now();}"#)]
+        extern "C" {
+            fn performance_now() -> f64;
+        }
+
+        ///The following code is to create a "Shim" struct to allow for
+        /// instants to be used on cross-platforms that don't
+        /// have std::time::Instant implementations (i.e. WASM).
+        /// This version uses the performance.now() method in JS
+        /// engines to get the time necessary.
+        ///
+        /// Code is a reduced form of the following comment
+        /// https://github.com/rust-lang/rust/issues/48564#issuecomment-698712971
+        #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+        pub struct InstantShim(u64);
+
+        impl InstantShim {
+            pub fn now() -> Self { Self((performance_now() * 1000.0) as u64) }
+            pub fn duration_since(&self, earlier: InstantShim) -> Duration { Duration::from_micros(self.0 - earlier.0) }
+            pub fn elapsed(&self) -> Duration { Self::now().duration_since(*self) }
+        }
+    }
 }
 
 //=============================================
