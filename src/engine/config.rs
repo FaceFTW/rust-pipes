@@ -218,7 +218,7 @@ pub fn make_cli_parser() -> Command {
 //Test cfg should imply not(target_arch="wasm32")
 #[cfg(test)]
 mod tests {
-    use super::make_cli_parser;
+    use super::{make_cli_parser, parse_seed};
 
     #[test]
     pub fn cli_single_run_flag_tests() {
@@ -339,5 +339,16 @@ mod tests {
             .get_one::<f32>("turn-chance")
             .expect("Default value should have been configured");
         assert_eq!(val1, 0.75);
+    }
+
+    #[test]
+    pub fn parse_seed_parsable_u64_returned() {
+        let result = parse_seed("432");
+        assert_eq!(result.unwrap(), Some(432));
+    }
+    #[test]
+    pub fn parse_seed_parsed_string_u64_returned() {
+        let result = parse_seed("lmao");
+        assert_eq!(result.unwrap(), Some(1087897816963742493));
     }
 }
