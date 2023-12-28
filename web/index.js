@@ -5,6 +5,15 @@
 // will "boot" the module and make it ready to use. Currently browsers
 // don't support natively imported WebAssembly as an ES module, but
 // eventually the manual initialization won't be required!
+
+var e = document.getElementById('hover-div');
+e.onmouseover = () => {
+	document.getElementById('info-box').style.display = 'block';
+};
+e.onmouseout = () => {
+	document.getElementById('info-box').style.display = 'none';
+};
+
 import init from './pkg/web.js';
 
 async function run() {
@@ -24,10 +33,12 @@ async function run() {
 		// modes
 		await init();
 	} catch (e) {
+		console.log(e);
 		if (!error.message.startsWith("Using exceptions for control flow,")) {
 			throw error;
 		}
 	}
 }
+
 
 run();

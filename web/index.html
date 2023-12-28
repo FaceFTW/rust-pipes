@@ -1,9 +1,113 @@
 <html>
-  <head>
-    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
-  </head>
-  <body>
-    <canvas style="position: absolute;top:0;bottom: 0;left: 0;right: 0;margin:auto;"></canvas>
-    <!-- <canvas style="position: absolute;top:0;bottom: 0;left: 600;right: 0;margin:auto;"></canvas> -->
-  </body>
+	<head>
+		<meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+		<style>
+			@font-face {
+				font-family: 'Fira Code';
+				src: url('./FiraCode-Regular.ttf');
+			}
+			body {
+				padding: 0px;
+				margin: 0px;
+			}
+
+			#container {
+				position: relative;
+			}
+
+			#container canvas {
+				position: absolute;
+				z-index: 0;
+			}
+
+			#container #hover-div {
+				position: absolute;
+				width: 25px !important;
+				/* color:#FFF; */
+				display: block;
+				z-index: 9999 !important;
+				margin: 10px;
+			}
+
+			svg#info-icon {
+				fill: #888;
+			}
+
+			svg#info-icon:hover {
+				transition: cubic-bezier(0.075, 0.82, 0.165, 1);
+				fill: #fff;
+			}
+
+			#info-box {
+				/* margin: 20px; */
+				/* fill: #888; */
+				/* background-color: #888; */
+				display: none;
+			}
+
+			#info-container {
+				/* fill: #888; */
+				/* background-color: #888; */
+				padding: 10px;
+				width: 550px;
+			}
+
+			#info-container p,
+			#info-container li {
+				color: #fff;
+				font-family: 'Fira Code';
+				margin: 0.2rem;
+			}
+
+			a,
+			a:visited {
+				font-family: 'Fira Code';
+				color: #fff;
+				text-decoration: none;
+			}
+		</style>
+		<script defer src="index.js"></script>
+	</head>
+	<body>
+		<div id="container">
+			<canvas></canvas>
+			<div id="hover-div">
+				<svg
+					id="info-icon"
+					height="48"
+					viewBox="0 0 48 48"
+					width="48"
+					xmlns="http://www.w3.org/2000/svg">
+					<path d="M0 0h48v48h-48z" fill="none" />
+					<path
+						d="M22 34h4v-12h-4v12zm2-30c-11.05 0-20 8.95-20 20s8.95 20 20 20 20-8.95 20-20-8.95-20-20-20zm0 36c-8.82 0-16-7.18-16-16s7.18-16 16-16 16 7.18 16 16-7.18 16-16 16zm-2-22h4v-4h-4v4z" />
+				</svg>
+				<div id="info-box">
+					<div id="info-container">
+						<p>Controls:</p>
+						<ul>
+							<li>Hold Left-Click + Drag to Rotate the Camera</li>
+							<li>Use the scroll wheel to zoom in</li>
+						</ul>
+
+						<br />
+						<p>THIS PROJECT IS STILL A WORK IN PROGRESS</p>
+						<p>&copy; 2023 Alex "FaceFTW" Westerman</p>
+						<p>This project (rust-pipes) is licensed under the
+							MIT License</p>
+						<p>
+							Other assets/code used are &copy; of their respective
+							owners.
+						</p>
+						<div>
+							<a href="https://github.com/FaceFTW/gl-pipes">
+								Source Code:
+								<img src="./github-mark-white.svg" width="20" />
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
 </html>
