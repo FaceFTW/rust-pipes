@@ -119,6 +119,7 @@ impl Configuration {
 /// Fun fact, I am basing this roughly off of how Minecraft takes level
 /// generation seeds but downcasting to u64 size instead of 128-bit
 /// (See net.minecraft.world.level.levelgen.RandomSupport)
+#[cfg(not(target_arch = "wasm32"))]
 fn parse_seed(val: &str) -> Result<Option<u64>, std::io::Error> {
     match val.parse::<u64>() {
         Ok(val) => Ok(Some(val)),
