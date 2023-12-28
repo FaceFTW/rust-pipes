@@ -29,7 +29,7 @@ impl DrawOptions {
 }
 
 pub(crate) struct WorldOptions {
-    pub max_pipes: u8,
+    // pub max_pipes: u8,
     pub max_bounds: (u8, u8, u8),
     pub turn_chance: f32,
     pub max_gen_time: u32,
@@ -48,9 +48,9 @@ impl WorldOptions {
         let bounds_tuple: (u8, u8, u8) = (bounds_vec[0], bounds_vec[1], bounds_vec[2]);
 
         WorldOptions {
-            max_pipes: *cli_match
-                .get_one("max-pipes")
-                .expect("Arg max-pipes should be populated"),
+            // max_pipes: *cli_match
+            //     .get_one("max-pipes")
+            //     .expect("Arg max-pipes should be populated"),
             max_bounds: bounds_tuple,
             turn_chance: *cli_match
                 .get_one("turn-chance")
@@ -73,6 +73,7 @@ pub(crate) struct Configuration {
     pub world: WorldOptions,
     pub single_run: bool,
     pub rng_seed: Option<u64>,
+    pub window_size: Option<(u32, u32)>,
 }
 
 impl Configuration {
@@ -88,6 +89,9 @@ impl Configuration {
                 Some(val) => Some(*val),
                 None => None,
             },
+            window_size: *cli_match
+                .get_one("window-size")
+                .expect("Arg window-size should be populated"),
         }
     }
 
@@ -107,6 +111,7 @@ impl Configuration {
             },
             single_run: false,
             rng_seed: None,
+            window_size: None,
         }
     }
 }
@@ -152,9 +157,19 @@ pub fn make_cli_parser() -> Command {
     command!()
         .group(ArgGroup::new("exec").required(false).multiple(true))
         .next_help_heading("Execution Options")
-        .args([Arg::new("rng-seed").long("seed").value_name("seed").help(
-            "The seed input used by the random number generator for pipe generation.\n The state of the random number generator is not reset between simulations.\n Seeds can be alphanumeric.",
-        ).value_parser(ValueParser::new(parse_seed))])
+        .args([
+            Arg::new("rng-seed")
+                .long("seed")
+                .value_name("seed")
+                .help("The seed input used by the random number generator for pipe generation.\n The state of the random number generator is not reset between simulations.\n Seeds can be alphanumeric.",)
+                .value_parser(ValueParser::new(parse_seed)),
+            Arg::new("window-size")
+                .long("win-size")
+                .num_args(2)
+                .value_parser(clap::value_parser!(u32).range(1..))
+                .value_names(["width", "height"])
+                .default_values(["1280","720"])
+        ])
         .group(ArgGroup::new("sim").required(false).multiple(true))
         .next_help_heading("Simulation Options")
         .args([

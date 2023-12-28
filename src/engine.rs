@@ -33,7 +33,7 @@ pub fn real_main() {
     //===============================================
     let window = Window::new(WindowSettings {
         title: "Rust Pipes".to_string(),
-        max_size: Some((1280, 720)),
+        max_size: cfg.window_size,
         ..Default::default()
     })
     .unwrap();
