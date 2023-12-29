@@ -1,0 +1,33 @@
+name: Release
+
+on: workflow_dispatch
+
+env:
+    CARGO_TERM_COLOR: always
+
+jobs:
+    pipeline-win:
+        name: CI Pipeline
+        runs-on: ${{ matrix.host-os }}
+        strategy:
+            fail-fast: true
+            matrix:
+                include:
+                    - name: 'Windows x86'
+                      host-os: 'windows-latest'
+                      target-triple: 'i686-pc-windows-msvc'
+                    - name: 'Windows x64'
+                      host-os: 'windows-latest'
+                      target-triple: 'x86_64-pc-windows-msvc'
+                    - name: 'Windows ARM64'
+                      host-os: 'windows-latest'
+                      target-triple: 'aarch64-pc-windows-msvc'
+        steps:
+            - uses: actions/checkout@v3
+            - name: Sanity Build
+              run: cargo build --verbose
+            - name: Run Tests
+              run: cargo test --verbose
+            - name: Build and Zip release
+              run: |
+                cargo build --verbose --release --target=${{ matrix.target-triple }}
