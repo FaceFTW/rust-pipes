@@ -33,5 +33,6 @@ jobs:
           entryPoint: ./web
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_RUST_PIPES }}'
           projectId: rust-pipes
+          channelId: live
 
 
