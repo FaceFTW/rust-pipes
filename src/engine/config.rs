@@ -89,9 +89,13 @@ impl Configuration {
                 Some(val) => Some(*val),
                 None => None,
             },
-            window_size: *cli_match
-                .get_one("window-size")
-                .expect("Arg window-size should be populated"),
+            window_size: match cli_match.get_many("window-size") {
+                Some(vals) => {
+                    let vector: Vec<u32> = vals.copied().collect();
+                    Some((vector[0], vector[1]))
+                }
+                None => None,
+            },
         }
     }
 
