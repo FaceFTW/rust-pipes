@@ -218,7 +218,7 @@ impl World {
         self.active_pipes
     }
 
-    pub fn max_active_count_reached(&self, max_num: u32) -> bool {
+    pub fn max_active_count_reached(&self, max_num: u8) -> bool {
         self.active_pipes < max_num as usize
     }
 

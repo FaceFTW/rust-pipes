@@ -29,7 +29,7 @@ impl DrawOptions {
 }
 
 pub(crate) struct WorldOptions {
-    // pub max_pipes: u8,
+    pub max_pipes: u8,
     pub max_bounds: (u8, u8, u8),
     pub turn_chance: f32,
     pub max_gen_time: u32,
@@ -48,9 +48,9 @@ impl WorldOptions {
         let bounds_tuple: (u8, u8, u8) = (bounds_vec[0], bounds_vec[1], bounds_vec[2]);
 
         WorldOptions {
-            // max_pipes: *cli_match
-            //     .get_one("max-pipes")
-            //     .expect("Arg max-pipes should be populated"),
+            max_pipes: *cli_match
+                .get_one("max-pipes")
+                .expect("Arg max-pipes should be populated"),
             max_bounds: bounds_tuple,
             turn_chance: *cli_match
                 .get_one("turn-chance")
@@ -103,7 +103,7 @@ impl Configuration {
                 angle_subdiv: 16,
             },
             world: WorldOptions {
-                // max_pipes: 8,
+                max_pipes: 8,
                 max_bounds: (20, 20, 20),
                 turn_chance: 0.3,
                 max_gen_time: 15,

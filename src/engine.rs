@@ -14,8 +14,6 @@ use three_d::{
     InstancedMesh, Instances, OrbitControl, PhysicalMaterial, Srgba, Window, WindowSettings,
 };
 
-const MAX_PIPES: u32 = 10;
-
 pub fn real_main() {
     //===============================================
     // WORLD INITIALIZATION
@@ -193,7 +191,7 @@ fn world_update_tick(
             }
         }
     }
-    if rng.gen_bool(world.new_pipe_chance()) && world.max_active_count_reached(MAX_PIPES) {
+    if rng.gen_bool(world.new_pipe_chance()) && world.max_active_count_reached(cfg.world.max_pipes) {
         let data = world.new_pipe(&mut rng);
         make_instanced_ball_joint(ball_instances, data.start_node, data.color);
     }
@@ -215,3 +213,5 @@ fn world_update_tick(
     }
     false
 }
+
+
