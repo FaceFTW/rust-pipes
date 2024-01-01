@@ -1,33 +1,53 @@
 name: Release
 
-on: workflow_dispatch
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
 
 env:
-    CARGO_TERM_COLOR: always
+  CARGO_TERM_COLOR: always
 
 jobs:
-    pipeline-win:
-        name: CI Pipeline
-        runs-on: ${{ matrix.host-os }}
-        strategy:
-            fail-fast: true
-            matrix:
-                include:
-                    - name: 'Windows x86'
-                      host-os: 'windows-latest'
-                      target-triple: 'i686-pc-windows-msvc'
-                    - name: 'Windows x64'
-                      host-os: 'windows-latest'
-                      target-triple: 'x86_64-pc-windows-msvc'
-                    - name: 'Windows ARM64'
-                      host-os: 'windows-latest'
-                      target-triple: 'aarch64-pc-windows-msvc'
-        steps:
-            - uses: actions/checkout@v3
-            - name: Sanity Build
-              run: cargo build --verbose
-            - name: Run Tests
-              run: cargo test --verbose
-            - name: Build and Zip release
-              run: |
-                cargo build --verbose --release --target=${{ matrix.target-triple }}
+  test:
+    name: 'Test/Code Coverage'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Add cargo-llvm-cov
+        run: cargo +stable install cargo-llvm-cov
+      - name: Cargo Build
+        run: cargo build --verbose
+      - name: Cargo Test
+        run: cargo test --verbose
+      - name: Generate Coverage Report
+        run: cargo llvm-cov --codecov --output-path report.json
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./report.json
+
+    # pipeline-win:
+    #     name: CI Pipeline
+    #     runs-on: ${{ matrix.host-os }}
+    #     strategy:
+    #         fail-fast: true
+    #         matrix:
+    #             include:
+    #                 # - name: 'Windows x86'
+    #                 #   host-os: 'windows-latest'
+    #                 #   target-triple: 'i686-pc-windows-msvc'
+    #                 - name: 'Windows x64'
+    #                   host-os: 'windows-latest'
+    #                   target-triple: 'x86_64-pc-windows-msvc'
+    #                 # - name: 'Windows ARM64'
+    #                 #   host-os: 'windows-latest'
+    #                 #   target-triple: 'aarch64-pc-windows-msvc'
+    #     steps:
+    #         - uses: actions/checkout@v3
+    #         - name: Sanity Build
+    #           run: cargo build --verbose
+    #         - name: Run Tests
+    #           run: cargo test --verbose
