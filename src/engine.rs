@@ -4,7 +4,7 @@ mod world;
 
 use crate::engine::{
     config::Configuration,
-    util::{make_instanced_ball_joint, make_instanced_pipe_section, RngShim, InstantShim},
+    util::{make_instanced_ball_joint, make_instanced_pipe_section, InstantShim, RngShim},
     world::World,
 };
 use cfg_if::cfg_if;
@@ -191,27 +191,36 @@ fn world_update_tick(
             }
         }
     }
-    if rng.gen_bool(world.new_pipe_chance()) && world.max_active_count_reached(cfg.world.max_pipes) {
+    if rng.gen_bool(world.new_pipe_chance()) && world.max_active_count_reached(cfg.world.max_pipes)
+    {
         let data = world.new_pipe(&mut rng);
         make_instanced_ball_joint(ball_instances, data.start_node, data.color);
     }
-
-    let max_cycle_time = (cfg.world.max_gen_time + cfg.world.max_freeze_time) as f64;
 
     match start_time.elapsed() {
         elapsed if elapsed.as_secs_f64() < cfg.world.max_gen_time as f64 => (),
         elapsed
             if elapsed.as_secs_f64() >= cfg.world.max_gen_time as f64
-                && elapsed.as_secs_f64() < max_cycle_time =>
+                && elapsed.as_secs_f64() < cfg.world.max_freeze_time as f64 =>
         {
             world.set_gen_complete();
             for i in 0..world.active_pipes_count() {
                 world.kill_pipe(i);
             }
         }
+        elapsed
+            if elapsed.as_secs_f64()
+                >= (cfg.world.max_gen_time + cfg.world.max_freeze_time) as f64
+                && elapsed.as_secs_f64() < cfg.world.max_cycle_time =>
+        {
+            ()
+        }
         _ => return true,
     }
     false
 }
 
-
+#[cfg(test)]
+mod tests {
+    use super::*;
+}

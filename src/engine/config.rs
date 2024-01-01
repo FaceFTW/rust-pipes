@@ -34,6 +34,7 @@ pub(crate) struct WorldOptions {
     pub turn_chance: f32,
     pub max_gen_time: u32,
     pub max_freeze_time: u32,
+    pub max_cycle_time: f64,
 }
 
 impl WorldOptions {
@@ -47,6 +48,16 @@ impl WorldOptions {
 
         let bounds_tuple: (u8, u8, u8) = (bounds_vec[0], bounds_vec[1], bounds_vec[2]);
 
+        let max_gen_time = *cli_match
+            .get_one("max-gen-time")
+            .expect("Arg max-gen-time should be populated");
+
+        let max_freeze_time = *cli_match
+            .get_one("max-freeze-time")
+            .expect("Arg max-freeze-time should be populated");
+
+        let max_cycle_time = (max_gen_time + max_freeze_time) as f64;
+
         WorldOptions {
             max_pipes: *cli_match
                 .get_one("max-pipes")
@@ -55,12 +66,9 @@ impl WorldOptions {
             turn_chance: *cli_match
                 .get_one("turn-chance")
                 .expect("Arg turn-chance should be populated"),
-            max_gen_time: *cli_match
-                .get_one("max-gen-time")
-                .expect("Arg max-gen-time should be populated"),
-            max_freeze_time: *cli_match
-                .get_one("max-freeze-time")
-                .expect("Arg max-freeze-time should be populated"),
+            max_gen_time,
+            max_freeze_time,
+            max_cycle_time,
         }
     }
 }
@@ -112,6 +120,7 @@ impl Configuration {
                 turn_chance: 0.3,
                 max_gen_time: 15,
                 max_freeze_time: 10,
+                max_cycle_time: 25.0,
             },
             single_run: false,
             rng_seed: None,
