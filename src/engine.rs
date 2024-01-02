@@ -1,4 +1,5 @@
 mod config;
+mod rng;
 mod util;
 mod world;
 
