@@ -191,12 +191,26 @@ fn world_update_tick(
             }
         }
     }
+
+    new_pipe_step(rng, world, cfg, ball_instances);
+
+    check_time_step(start_time, cfg, world)
+}
+
+fn new_pipe_step(
+    mut rng: &mut Rng,
+    world: &mut World,
+    cfg: &Configuration,
+    ball_instances: &mut Instances,
+) {
     if rng.gen_bool(world.new_pipe_chance()) && world.max_active_count_reached(cfg.world.max_pipes)
     {
         let data = world.new_pipe(&mut rng);
         make_instanced_ball_joint(ball_instances, data.start_node, data.color);
     }
+}
 
+fn check_time_step(start_time: InstantShim, cfg: &Configuration, world: &mut World) -> bool {
     match start_time.elapsed() {
         elapsed if elapsed.as_secs_f64() < cfg.world.max_gen_time as f64 => (),
         elapsed
