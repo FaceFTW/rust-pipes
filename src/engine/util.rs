@@ -13,32 +13,6 @@ const PIPE_RADIUS: f32 = 0.15;
 const BALL_JOINT_RADIUS: f32 = 0.3;
 
 //=============================================
-// Random-related Utilities
-//=============================================
-///"shim" trait to allow for code practices that were
-/// used with the original `rand` package in the project.
-/// Mainly compatibility related, may no longer exist
-/// when better ideas come to mind
-// pub(super) trait RngShim {
-//     fn gen_bool(&mut self, cutoff: f64) -> bool;
-//     fn gen(&mut self) -> (u8, u8, u8);
-// }
-
-// impl RngShim for Rng {
-//     fn gen_bool(&mut self, cutoff: f64) -> bool {
-//         self.f64() <= cutoff
-//     }
-
-//     fn gen(&mut self) -> (u8, u8, u8) {
-//         (
-//             self.u8(u8::MIN..u8::MAX),
-//             self.u8(u8::MIN..u8::MAX),
-//             self.u8(u8::MIN..u8::MAX),
-//         )
-//     }
-// }
-
-//=============================================
 // State-related Utilities
 //=============================================
 ///Defines a direction in space

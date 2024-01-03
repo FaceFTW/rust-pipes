@@ -1,6 +1,5 @@
 #[cfg_attr(test, mockall::automock)]
 pub trait EngineRng {
-    // fn new() -> impl EngineRng;
     fn with_seed(seed: u64) -> Self;
     fn u8(&mut self, min: u8, max: u8) -> u8;
     fn u32(&mut self, min: u32, max: u32) -> u32;

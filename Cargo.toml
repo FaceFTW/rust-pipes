@@ -10,7 +10,6 @@ name = "rust_pipes_wasm"
 [dependencies]
 three-d = "0.16.3"
 three-d-asset = "0.6.0"
-# rand = "0.8.5"
 fastrand = "2.0.1"
 cfg-if = "1.0.0"
 md5 = "0.7.0"      # used for non-crypto seed translation
