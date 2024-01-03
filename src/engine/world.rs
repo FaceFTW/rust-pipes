@@ -1,6 +1,6 @@
 use crate::engine::config::Configuration;
 use crate::engine::util::*;
-use fastrand::Rng;
+use crate::engine::EngineRng;
 use std::collections::HashSet;
 
 //=============================================
@@ -22,7 +22,7 @@ impl Pipe {
     pub fn new(
         occupied_nodes: &mut HashSet<Coordinate>,
         bounds: Coordinate,
-        rng: &mut Rng,
+        rng: &mut impl EngineRng,
     ) -> Pipe {
         let mut new_pipe: Pipe = Pipe {
             alive: true,
@@ -64,7 +64,7 @@ impl Pipe {
     pub fn update(
         &mut self,
         occupied_nodes: &mut HashSet<Coordinate>,
-        rng: &mut Rng,
+        rng: &mut impl EngineRng,
         turn_chance: Option<f32>,
     ) {
         if !self.alive {
@@ -76,7 +76,7 @@ impl Pipe {
             None => 1.0 / 2.0,
         };
 
-        let want_to_turn = rng.gen_bool(turn_float);
+        let want_to_turn = rng.bool(turn_float);
         let mut directions_to_try: Vec<Direction> = Direction::iterator().copied().collect();
         rng.shuffle(directions_to_try.as_mut_slice());
         if self.nodes.len() > 1 && !want_to_turn {
@@ -169,11 +169,15 @@ impl World {
         }
     }
 
-    pub fn new_pipe(&mut self, rng: &mut Rng) -> NewPipeData {
+    pub fn new_pipe(&mut self, rng: &mut impl EngineRng) -> NewPipeData {
         self.pipes
             .push(Pipe::new(&mut self.occupied_nodes, self.space_bounds, rng));
         let start = self.pipes[self.pipes.len() - 1].get_current_head();
-        let new_color: Color = rng.gen();
+        let new_color: Color = (
+            rng.u8(u8::MIN, u8::MAX),
+            rng.u8(u8::MIN, u8::MAX),
+            rng.u8(u8::MIN, u8::MAX),
+        );
         self.pipe_colors.push(new_color);
         self.active_pipes += 1;
 
@@ -183,7 +187,7 @@ impl World {
         }
     }
 
-    pub fn pipe_update(&mut self, idx: usize, rng: &mut Rng) -> PipeChangeData {
+    pub fn pipe_update(&mut self, idx: usize, rng: &mut impl EngineRng) -> PipeChangeData {
         let color = self.pipe_colors[idx];
         let last_node = self.pipes[idx].get_current_head();
         let last_dir = self.pipes[idx].get_current_dir();
@@ -197,7 +201,7 @@ impl World {
         let total_nodes = self.space_bounds.0 * self.space_bounds.1 * self.space_bounds.2;
         let chance_to_kill = (self.occupied_nodes.len() as f64) / (total_nodes as f64);
 
-        if self.pipes[idx].len() >= (total_nodes * 10 / 100) && rng.gen_bool(chance_to_kill) {
+        if self.pipes[idx].len() >= (total_nodes * 10 / 100) && rng.bool(chance_to_kill) {
             self.pipes[idx].kill();
             // self.active_pipes -= 1;
         }
@@ -252,12 +256,14 @@ impl World {
 //=============================================
 #[cfg(test)]
 mod tests {
+    use crate::engine::rng::StdRng;
+
     use super::*;
 
     #[test]
     fn test_dead_pipe_does_not_update() {
         let mut occupied_nodes: HashSet<Coordinate> = HashSet::new();
-        let mut rng = Rng::new();
+        let mut rng = StdRng::new();
         let bounds = (10, 10, 10);
         let mut pipe = Pipe::new(&mut occupied_nodes, bounds, &mut rng);
         let head = pipe.get_current_head();

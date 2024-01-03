@@ -1,8 +1,10 @@
 use cfg_if::cfg_if;
 use core::fmt;
-use fastrand::Rng;
+
 use std::{collections::HashSet, slice::Iter, time::Duration};
 use three_d::{Deg, Instances, Mat4, Srgba, Vec3};
+
+use super::rng::EngineRng;
 
 pub type Coordinate = (i32, i32, i32);
 pub type Color = (u8, u8, u8);
@@ -17,24 +19,24 @@ const BALL_JOINT_RADIUS: f32 = 0.3;
 /// used with the original `rand` package in the project.
 /// Mainly compatibility related, may no longer exist
 /// when better ideas come to mind
-pub(super) trait RngShim {
-    fn gen_bool(&mut self, cutoff: f64) -> bool;
-    fn gen(&mut self) -> (u8, u8, u8);
-}
+// pub(super) trait RngShim {
+//     fn gen_bool(&mut self, cutoff: f64) -> bool;
+//     fn gen(&mut self) -> (u8, u8, u8);
+// }
 
-impl RngShim for Rng {
-    fn gen_bool(&mut self, cutoff: f64) -> bool {
-        self.f64() <= cutoff
-    }
+// impl RngShim for Rng {
+//     fn gen_bool(&mut self, cutoff: f64) -> bool {
+//         self.f64() <= cutoff
+//     }
 
-    fn gen(&mut self) -> (u8, u8, u8) {
-        (
-            self.u8(u8::MIN..u8::MAX),
-            self.u8(u8::MIN..u8::MAX),
-            self.u8(u8::MIN..u8::MAX),
-        )
-    }
-}
+//     fn gen(&mut self) -> (u8, u8, u8) {
+//         (
+//             self.u8(u8::MIN..u8::MAX),
+//             self.u8(u8::MIN..u8::MAX),
+//             self.u8(u8::MIN..u8::MAX),
+//         )
+//     }
+// }
 
 //=============================================
 // State-related Utilities
@@ -128,8 +130,8 @@ pub fn is_in_bounds(coord: Coordinate, bounds: Coordinate) -> bool {
     x >= 0 && x < x_max && y >= 0 && y < y_max && z >= 0 && z < z_max
 }
 
-pub fn choose_random_direction(rng: &mut Rng) -> Direction {
-    match rng.u8(0..6) {
+pub fn choose_random_direction(rng: &mut impl EngineRng) -> Direction {
+    match rng.u8(0, 6) {
         0 => Direction::North,
         1 => Direction::South,
         2 => Direction::East,
@@ -145,7 +147,7 @@ pub fn choose_random_direction(rng: &mut Rng) -> Direction {
 pub fn find_random_start(
     occupied_nodes: &HashSet<Coordinate>,
     bounds: Coordinate,
-    rng: &mut Rng,
+    rng: &mut impl EngineRng,
 ) -> Coordinate {
     //Double check if somehow there is no more space on the board
     if occupied_nodes.len() == (bounds.0 * bounds.1 * bounds.2) as usize {
@@ -153,9 +155,9 @@ pub fn find_random_start(
     }
 
     let (x_max, y_max, z_max) = bounds;
-    let mut coord = (rng.i32(0..x_max), rng.i32(0..y_max), rng.i32(0..z_max));
+    let mut coord = (rng.i32(0, x_max), rng.i32(0, y_max), rng.i32(0, z_max));
     while occupied_nodes.contains(&coord) {
-        coord = (rng.i32(0..x_max), rng.i32(0..y_max), rng.i32(0..z_max));
+        coord = (rng.i32(0, x_max), rng.i32(0, y_max), rng.i32(0, z_max));
     }
     coord
 }

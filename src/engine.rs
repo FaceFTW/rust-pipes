@@ -5,11 +5,11 @@ mod world;
 
 use crate::engine::{
     config::Configuration,
-    util::{make_instanced_ball_joint, make_instanced_pipe_section, InstantShim, RngShim},
+    rng::{EngineRng, StdRng},
+    util::{make_instanced_ball_joint, make_instanced_pipe_section, InstantShim},
     world::World,
 };
 use cfg_if::cfg_if;
-use fastrand::Rng;
 use three_d::{
     degrees, vec3, Camera, ClearState, CpuMaterial, CpuMesh, DirectionalLight, FrameOutput, Gm,
     InstancedMesh, Instances, OrbitControl, PhysicalMaterial, Srgba, Window, WindowSettings,
@@ -22,10 +22,10 @@ pub fn real_main() {
     let cfg = get_config();
     let mut world = World::new(Some(&cfg));
     let mut rng = match cfg.rng_seed {
-        Some(seed) => Rng::with_seed(seed),
-        None => Rng::new(),
+        Some(seed) => StdRng::with_seed(seed),
+        None => StdRng::new(),
     };
-    dbg!(rng.get_seed());
+    // dbg!(rng.get_seed());
 
     //===============================================
     // ENGINE INIT
@@ -162,7 +162,7 @@ cfg_if! {
 
 fn world_update_tick(
     world: &mut World,
-    mut rng: &mut Rng,
+    rng: &mut impl EngineRng,
     ball_instances: &mut Instances,
     pipe_instances: &mut Instances,
     start_time: InstantShim,
@@ -173,7 +173,7 @@ fn world_update_tick(
             if !world.is_pipe_alive(i) {
                 continue;
             }
-            let delta_state = world.pipe_update(i, &mut rng);
+            let delta_state = world.pipe_update(i, rng);
 
             if delta_state.last_node != delta_state.current_node {
                 if delta_state.last_dir != delta_state.current_dir {
@@ -199,14 +199,13 @@ fn world_update_tick(
 }
 
 fn new_pipe_step(
-    mut rng: &mut Rng,
+    rng: &mut impl EngineRng,
     world: &mut World,
     cfg: &Configuration,
     ball_instances: &mut Instances,
 ) {
-    if rng.gen_bool(world.new_pipe_chance()) && world.max_active_count_reached(cfg.world.max_pipes)
-    {
-        let data = world.new_pipe(&mut rng);
+    if rng.bool(world.new_pipe_chance()) && world.max_active_count_reached(cfg.world.max_pipes) {
+        let data = world.new_pipe(rng);
         make_instanced_ball_joint(ball_instances, data.start_node, data.color);
     }
 }
@@ -235,7 +234,10 @@ fn check_time_step(start_time: InstantShim, cfg: &Configuration, world: &mut Wor
     false
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-}
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+// 	pub fn test(){
+
+// 	}
+// }
