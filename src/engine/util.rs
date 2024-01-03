@@ -71,20 +71,6 @@ impl From<Coordinate> for Direction {
     }
 }
 
-impl fmt::Display for Direction {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let dir_str = match self {
-            Direction::North => "North",
-            Direction::South => "South",
-            Direction::East => "East",
-            Direction::West => "West",
-            Direction::Up => "Up",
-            Direction::Down => "Down",
-        };
-        write!(f, "{}", dir_str)
-    }
-}
-
 /// Steps a coordinate in a specified direction.
 pub fn step_in_dir(coord: Coordinate, dir: Direction) -> Coordinate {
     let (x, y, z) = coord;
