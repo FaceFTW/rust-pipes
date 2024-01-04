@@ -225,10 +225,9 @@ cfg_if! {
 //=============================================
 #[cfg(test)]
 mod tests {
-    use crate::engine::rng::MockEngineRng;
-
     use super::*;
     use super::{color_to_srgba, PIPE_RADIUS};
+    use crate::engine::rng::MockEngineRng;
     use mockall::Sequence;
     use three_d::{Instances, Mat4, Vec3};
 
@@ -385,6 +384,50 @@ mod tests {
     #[should_panic]
     fn test_direction_from_coordinate_vector_dirs_panic() {
         let _test2 = Direction::from((1, 2, 3));
+    }
+
+    #[test]
+    fn choose_random_direction_returns_based_on_rng() {
+        let mut mock_rng = MockEngineRng::new();
+        let mut seq = Sequence::new();
+
+        mock_rng
+            .expect_u8()
+            .once()
+            .in_sequence(&mut seq)
+            .return_const(0);
+        mock_rng
+            .expect_u8()
+            .once()
+            .in_sequence(&mut seq)
+            .return_const(1);
+        mock_rng
+            .expect_u8()
+            .once()
+            .in_sequence(&mut seq)
+            .return_const(2);
+        mock_rng
+            .expect_u8()
+            .once()
+            .in_sequence(&mut seq)
+            .return_const(3);
+        mock_rng
+            .expect_u8()
+            .once()
+            .in_sequence(&mut seq)
+            .return_const(4);
+        mock_rng
+            .expect_u8()
+            .once()
+            .in_sequence(&mut seq)
+            .return_const(5);
+
+        assert_eq!(choose_random_direction(&mut mock_rng), Direction::North);
+        assert_eq!(choose_random_direction(&mut mock_rng), Direction::South);
+        assert_eq!(choose_random_direction(&mut mock_rng), Direction::East);
+        assert_eq!(choose_random_direction(&mut mock_rng), Direction::West);
+        assert_eq!(choose_random_direction(&mut mock_rng), Direction::Up);
+        assert_eq!(choose_random_direction(&mut mock_rng), Direction::Down);
     }
 
     #[test]
