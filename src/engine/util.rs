@@ -1,10 +1,7 @@
+use super::rng::EngineRng;
 use cfg_if::cfg_if;
-use core::fmt;
-
 use std::{collections::HashSet, slice::Iter, time::Duration};
 use three_d::{Deg, Instances, Mat4, Srgba, Vec3};
-
-use super::rng::EngineRng;
 
 pub type Coordinate = (i32, i32, i32);
 pub type Color = (u8, u8, u8);
@@ -110,7 +107,7 @@ pub fn find_random_start(
     rng: &mut impl EngineRng,
 ) -> Coordinate {
     //Double check if somehow there is no more space on the board
-    if occupied_nodes.len() == (bounds.0 * bounds.1 * bounds.2) as usize {
+    if occupied_nodes.len() >= ((bounds.0 + 1) * (bounds.1 + 1) * (bounds.2 + 1)) as usize {
         panic!("No more space on the board!");
     }
 
@@ -121,6 +118,7 @@ pub fn find_random_start(
     }
     coord
 }
+
 fn color_to_srgba(color: Color) -> Srgba {
     Srgba {
         r: color.0,
@@ -227,8 +225,11 @@ cfg_if! {
 //=============================================
 #[cfg(test)]
 mod tests {
+    use crate::engine::rng::MockEngineRng;
+
     use super::*;
     use super::{color_to_srgba, PIPE_RADIUS};
+    use mockall::Sequence;
     use three_d::{Instances, Mat4, Vec3};
 
     #[test]
@@ -390,5 +391,84 @@ mod tests {
     #[should_panic]
     fn test_direction_from_coordinate_zero_vector_panics() {
         let _test1 = Direction::from((0, 0, 0));
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_find_random_start_no_more_nodes_exact_len_panics() {
+        let mut mock_rng = MockEngineRng::new();
+        let mut occupied: HashSet<Coordinate> = HashSet::new();
+        for x in 0..2 {
+            for y in 0..2 {
+                for z in 0..2 {
+                    occupied.insert((x, y, z) as Coordinate);
+                }
+            }
+        }
+
+        find_random_start(&occupied, (2, 2, 2), &mut mock_rng);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_find_random_start_no_more_nodes_extra_len_panics() {
+        let mut mock_rng = MockEngineRng::new();
+        let mut occupied: HashSet<Coordinate> = HashSet::new();
+        for x in 0..2 {
+            for y in 0..2 {
+                for z in 0..2 {
+                    occupied.insert((x, y, z) as Coordinate);
+                }
+            }
+        }
+        occupied.insert((3, 2, 2));
+
+        find_random_start(&occupied, (2, 2, 2), &mut mock_rng);
+    }
+
+    #[test]
+    fn test_find_random_start_no_occupied_uses_rng() {
+        let mut mock_rng = MockEngineRng::new();
+        let occupied: HashSet<Coordinate> = HashSet::new();
+
+        mock_rng.expect_i32().times(3).return_const(1);
+
+        let result = find_random_start(&occupied, (2, 2, 2), &mut mock_rng);
+        assert_eq!(result, (1, 1, 1))
+    }
+
+    #[test]
+    fn test_find_random_start_some_occupied_did_collision_loops_to_next_val() {
+        let mut mock_rng = MockEngineRng::new();
+        let mut occupied: HashSet<Coordinate> = HashSet::new();
+        occupied.insert((1, 1, 1));
+        let mut seq = Sequence::new();
+
+        mock_rng
+            .expect_i32()
+            .times(3)
+            .return_const(1)
+            .in_sequence(&mut seq);
+
+        mock_rng
+            .expect_i32()
+            .times(3)
+            .return_const(2)
+            .in_sequence(&mut seq);
+
+        let result = find_random_start(&occupied, (2, 2, 2), &mut mock_rng);
+        assert_eq!(result, (2, 2, 2))
+    }
+
+    #[test]
+    fn test_find_random_start_some_occupied_no_collision_does_not_loop() {
+        let mut mock_rng = MockEngineRng::new();
+        let mut occupied: HashSet<Coordinate> = HashSet::new();
+        occupied.insert((0, 0, 0));
+
+        mock_rng.expect_i32().times(3).return_const(1);
+
+        let result = find_random_start(&occupied, (2, 2, 2), &mut mock_rng);
+        assert_eq!(result, (1, 1, 1))
     }
 }
