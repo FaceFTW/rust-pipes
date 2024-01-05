@@ -187,7 +187,7 @@ cfg_if! {
         ///
         /// Code is a reduced form of the following comment
         /// https://github.com/rust-lang/rust/issues/48564#issuecomment-698712971
-        #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+        #[derive(Clone, Copy, Debug)]
         pub struct InstantShim(std::time::Instant);
 
         impl InstantShim {
@@ -209,7 +209,7 @@ cfg_if! {
         ///
         /// Code is a reduced form of the following comment
         /// https://github.com/rust-lang/rust/issues/48564#issuecomment-698712971
-        #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+        #[derive(Clone, Copy, Debug)]
         pub struct InstantShim(u64);
 
         impl InstantShim {
@@ -534,5 +534,28 @@ mod tests {
         assert!(!is_in_bounds((0, 0, 2), bounds));
     }
 
+    #[test]
+    fn test_direction_derived_traits() {
+        //Clone testing
+        let dir1 = Direction::North;
+        let dir2 = dir1.clone();
 
+        assert_eq!(dir1, dir2);
+
+        //Debug testing
+        assert_eq!(format!("{dir1:?}"), "North");
+    }
+
+    // #[test]
+    // #[cfg(not(target_arch = "wasm32"))]
+    // fn test_instantshim_derived_traits() {
+    //     //Clone testing
+    //     let shim1 = InstantShim::now();
+    //     let shim2 = shim1.clone();
+
+    //     assert_eq!(shim1.elapsed(), shim2.elapsed());
+
+    //     //Debug Testing
+    //     assert_eq!("{shim1:?}", "");
+    // }
 }
