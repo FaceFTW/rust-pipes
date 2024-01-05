@@ -13,7 +13,7 @@ const BALL_JOINT_RADIUS: f32 = 0.3;
 // State-related Utilities
 //=============================================
 ///Defines a direction in space
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Direction {
     North,
     South,
@@ -514,4 +514,25 @@ mod tests {
         let result = find_random_start(&occupied, (2, 2, 2), &mut mock_rng);
         assert_eq!(result, (1, 1, 1))
     }
+
+    #[test]
+    fn test_is_in_bounds() {
+        let bounds = (2, 2, 2);
+        assert!(!is_in_bounds((-1, 0, 0), bounds));
+        assert!(is_in_bounds((0, 0, 0), bounds));
+        assert!(is_in_bounds((1, 0, 0), bounds));
+        assert!(!is_in_bounds((2, 0, 0), bounds));
+
+        assert!(!is_in_bounds((0, -1, 0), bounds));
+        assert!(is_in_bounds((0, 0, 0), bounds));
+        assert!(is_in_bounds((0, 1, 0), bounds));
+        assert!(!is_in_bounds((0, 2, 0), bounds));
+
+        assert!(!is_in_bounds((0, 0, -1), bounds));
+        assert!(is_in_bounds((0, 0, 0), bounds));
+        assert!(is_in_bounds((0, 0, 1), bounds));
+        assert!(!is_in_bounds((0, 0, 2), bounds));
+    }
+
+
 }
