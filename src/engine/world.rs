@@ -76,34 +76,51 @@ impl Pipe {
             None => 1.0 / 2.0,
         };
 
+        let directions_to_try = self.get_directions(rng, turn_float);
+
+        match self.get_next_pos(directions_to_try, occupied_nodes) {
+            Some(pos) => {
+                occupied_nodes.insert(pos);
+                self.nodes.insert(0, pos);
+            }
+            None => {
+                self.kill();
+                return;
+            }
+        }
+    }
+
+    ///Portion of update logic related to generating the random
+    /// list of directions to check for the next node.
+    fn get_directions(&mut self, rng: &mut impl EngineRng, turn_float: f64) -> Vec<Direction> {
         let want_to_turn = rng.bool(turn_float);
         let mut directions_to_try: Vec<Direction> = Direction::iterator().copied().collect();
         rng.shuffle(directions_to_try.as_mut_slice());
         if self.nodes.len() > 1 && !want_to_turn {
             directions_to_try.insert(0, self.current_dir);
         }
+        directions_to_try
+    }
 
-        let mut found_valid_direction = false;
-        let mut new_position: Coordinate = (0, 0, 0);
+    ///Portion of update logic related to determining the next
+    /// node position of a pipe.
+    fn get_next_pos(
+        &mut self,
+        directions_to_try: Vec<Direction>,
+        occupied_nodes: &mut HashSet<Coordinate>,
+    ) -> Option<Coordinate> {
         for dir in directions_to_try {
-            new_position = step_in_dir(self.get_current_head(), dir);
+            let new_position = step_in_dir(self.get_current_head(), dir);
             if !is_in_bounds(new_position, self.space_bounds) {
                 continue;
             }
             if occupied_nodes.contains(&new_position) {
                 continue;
             }
-            found_valid_direction = true;
             self.current_dir = dir;
-            break;
+            return Some(new_position);
         }
-        if !found_valid_direction {
-            self.kill();
-            return;
-        }
-
-        occupied_nodes.insert(new_position);
-        self.nodes.insert(0, new_position);
+        None
     }
 }
 
@@ -256,7 +273,7 @@ impl World {
 //=============================================
 #[cfg(test)]
 mod tests {
-    use mockall::Sequence;
+    use mockall::{predicate, Sequence};
 
     use crate::engine::rng::{MockEngineRng, StdRng};
 
@@ -319,5 +336,165 @@ mod tests {
         //since the pipe is dead and should short circuit immediately
         pipe.update(&mut occupied_nodes, &mut rng, None);
         assert_eq!(pipe.get_current_head(), head);
+    }
+
+    #[test]
+    fn test_pipe_update_get_directions() {
+        //Part 1
+        let mut pipe = Pipe {
+            alive: true,
+            current_dir: Direction::North,
+            nodes: Vec::new(),
+            space_bounds: (2, 2, 2),
+        };
+        let mut rng1 = MockEngineRng::new();
+        let mut seq1 = Sequence::new();
+
+        rng1.expect_bool()
+            .once()
+            .return_const(true)
+            .in_sequence(&mut seq1);
+        rng1.expect_shuffle::<Direction>()
+            .once()
+            .return_const(())
+            .in_sequence(&mut seq1);
+
+        let dirs1: Vec<Direction> = Direction::iterator().copied().collect();
+        assert_eq!(pipe.get_directions(&mut rng1, 0.5), dirs1);
+
+        //Part 2
+        pipe.nodes.push((1, 1, 1));
+        pipe.nodes.push((1, 1, 0));
+        let mut rng2 = MockEngineRng::new();
+        let mut seq2 = Sequence::new();
+
+        rng2.expect_bool()
+            .once()
+            .return_const(true)
+            .in_sequence(&mut seq2);
+        rng2.expect_shuffle::<Direction>()
+            .once()
+            .return_const(())
+            .in_sequence(&mut seq2);
+
+        let dirs2: Vec<Direction> = Direction::iterator().copied().collect();
+        assert_eq!(pipe.get_directions(&mut rng2, 0.5), dirs2);
+
+        //Part 3
+        let mut rng3 = MockEngineRng::new();
+        let mut seq3 = Sequence::new();
+
+        rng3.expect_bool()
+            .once()
+            .return_const(false)
+            .in_sequence(&mut seq3);
+        rng3.expect_shuffle::<Direction>()
+            .once()
+            .return_const(())
+            .in_sequence(&mut seq3);
+
+        let mut dirs3: Vec<Direction> = Direction::iterator().copied().collect();
+        dirs3.insert(0, Direction::North);
+        assert_eq!(pipe.get_directions(&mut rng3, 0.5), dirs3);
+    }
+
+    #[test]
+    fn test_pipe_update_get_next_pos_satisfies_conds() {
+        let mut pipe = Pipe {
+            alive: true,
+            current_dir: Direction::North,
+            nodes: Vec::new(),
+            space_bounds: (2, 2, 2),
+        };
+        let mut occupied: HashSet<Coordinate> = HashSet::new();
+        pipe.nodes.push((1, 0, 0));
+        pipe.nodes.push((1, 1, 0));
+        occupied.insert((1, 0, 0));
+        occupied.insert((1, 1, 0));
+
+        //First Dir will be out of bounds, second dir will be occupied, third will satisfy conditions
+        let dirs_to_try = Vec::from(&[Direction::North, Direction::Up, Direction::East]);
+        let next_pos = pipe.get_next_pos(dirs_to_try, &mut occupied);
+
+        assert!(next_pos == Some((1, 0, 1)));
+        assert!(pipe.current_dir == Direction::East);
+    }
+
+    #[test]
+    fn test_pipe_update_get_next_pos_fallback_conds() {
+        let mut pipe = Pipe {
+            alive: true,
+            current_dir: Direction::North,
+            nodes: Vec::new(),
+            space_bounds: (2, 2, 2),
+        };
+        let mut occupied: HashSet<Coordinate> = HashSet::new();
+        pipe.nodes.push((1, 0, 0));
+        pipe.nodes.push((1, 1, 0));
+        occupied.insert((1, 0, 0));
+        occupied.insert((1, 1, 0));
+
+        //No dirs will be usable, so we should get None back
+        let dirs_to_try = Vec::from(&[Direction::North, Direction::Up]);
+        let next_pos = pipe.get_next_pos(dirs_to_try, &mut occupied);
+
+        assert!(next_pos == None);
+        assert!(pipe.current_dir == Direction::North);
+    }
+
+    ///Two-fold test to check if the default or custom turn chance is used when provided
+    #[test]
+    fn test_pipe_update_provided_chance_used() {
+        let mut pipe = Pipe {
+            alive: true,
+            current_dir: Direction::North,
+            nodes: Vec::new(),
+            space_bounds: (2, 2, 2),
+        };
+        let mut occupied: HashSet<Coordinate> = HashSet::new();
+        pipe.nodes.push((1, 0, 0));
+        pipe.nodes.push((1, 1, 0));
+        occupied.insert((1, 0, 0));
+        occupied.insert((1, 1, 0));
+
+        let mut rng1 = MockEngineRng::new();
+        rng1.expect_bool()
+            .with(predicate::eq(1.0 / 2.0))
+            .return_const(false);
+        rng1.expect_shuffle::<Direction>().return_const(());
+        pipe.update(&mut occupied, &mut rng1, None);
+
+        let mut rng2 = MockEngineRng::new();
+        rng2.expect_bool()
+            .with(predicate::eq(0.25))
+            .return_const(false);
+        rng2.expect_shuffle::<Direction>().return_const(());
+        pipe.update(&mut occupied, &mut rng2, Some(0.25));
+    }
+
+    #[test]
+    fn test_pipe_update_kills_on_no_possible_dirs_used() {
+        let mut pipe = Pipe {
+            alive: true,
+            current_dir: Direction::North,
+            nodes: Vec::new(),
+            space_bounds: (2, 2, 2),
+        };
+        let mut occupied: HashSet<Coordinate> = HashSet::new();
+        pipe.nodes.push((1, 0, 0));
+        pipe.nodes.push((1, 1, 0));
+        occupied.insert((1, 0, 0));
+        occupied.insert((1, 1, 0));
+        occupied.insert((0, 0, 0));
+        occupied.insert((1, 0, 1));
+
+        let mut rng1 = MockEngineRng::new();
+        rng1.expect_bool()
+            .with(predicate::eq(1.0 / 2.0))
+            .return_const(false);
+        rng1.expect_shuffle::<Direction>().return_const(());
+        pipe.update(&mut occupied, &mut rng1, None);
+
+        assert!(!pipe.alive);
     }
 }
