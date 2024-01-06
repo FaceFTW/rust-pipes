@@ -256,9 +256,53 @@ impl World {
 //=============================================
 #[cfg(test)]
 mod tests {
-    use crate::engine::rng::StdRng;
+    use mockall::Sequence;
+
+    use crate::engine::rng::{MockEngineRng, StdRng};
 
     use super::*;
+
+    #[test]
+    fn test_pipe_new_init() {
+        let mut occupied_nodes: HashSet<Coordinate> = HashSet::new();
+        let mut mock_rng = MockEngineRng::new();
+        let mut seq = Sequence::new();
+        let bounds = (2, 2, 2);
+
+        mock_rng
+            .expect_u8()
+            .times(1)
+            .return_const(2)
+            .in_sequence(&mut seq);
+
+        mock_rng
+            .expect_i32()
+            .times(3)
+            .return_const(1)
+            .in_sequence(&mut seq);
+
+        let pipe = Pipe::new(&mut occupied_nodes, bounds, &mut mock_rng);
+
+        assert!(pipe.is_alive());
+        assert!(pipe.get_current_head() == (1, 1, 1));
+        assert!(pipe.get_current_dir() == Direction::East);
+        assert!(occupied_nodes.contains(&(1, 1, 1)));
+    }
+
+    #[test]
+    fn test_pipe_getter_funcs() {
+        let pipe = Pipe {
+            alive: false,
+            nodes: Vec::from(&[(1, 0, 0), (0, 0, 0), (0, 1, 0), (0, 1, 1)]),
+            current_dir: Direction::Down,
+            space_bounds: (2, 2, 2),
+        };
+
+        assert!(pipe.len() == 4);
+        assert!(pipe.get_current_dir() == Direction::Down);
+        assert!(pipe.get_current_head() == (1, 0, 0));
+        assert!(!pipe.is_alive());
+    }
 
     #[test]
     fn test_dead_pipe_does_not_update() {
@@ -267,8 +311,10 @@ mod tests {
         let bounds = (10, 10, 10);
         let mut pipe = Pipe::new(&mut occupied_nodes, bounds, &mut rng);
         let head = pipe.get_current_head();
-        pipe.kill();
+        assert!(pipe.is_alive());
 
+        pipe.kill();
+        assert!(!pipe.is_alive());
         //It should not matter what the occupied nodes are,
         //since the pipe is dead and should short circuit immediately
         pipe.update(&mut occupied_nodes, &mut rng, None);
