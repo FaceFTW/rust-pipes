@@ -13,3 +13,8 @@ cfg_if::cfg_if! {
         }
     }
 }
+mod engine;
+
+pub fn entry_point() {
+    engine::real_main();
+}

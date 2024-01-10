@@ -6,13 +6,15 @@ license = "Apache-2.0"
 description = "A remake of the 3D Pipes Screensaver from Windows 98 in Rust"
 repository = "https://github.com/FaceFTW/rust-pipes"
 build = "build.rs"
+autobins = true
 
 [[bin]]
 name = "rust-pipes"
+path = "./src/main.rs"
 
 [lib]
-crate-type = ["cdylib"]
-name = "rust_pipes_wasm"
+crate-type = ["cdylib", "rlib"]
+name = "rust_pipes_lib"
 
 
 [dependencies]
@@ -38,3 +40,7 @@ fastrand = { version = "2.0.1", features = ["std", "js"] }
 
 [target.'cfg(target_os="windows")'.build-dependencies]
 winres = "0.1.12"
+
+[profile.release]
+lto = true
+codegen-units = 1
