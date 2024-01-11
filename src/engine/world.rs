@@ -1,6 +1,6 @@
 use crate::engine::config::Configuration;
+use crate::engine::rng::EngineRng;
 use crate::engine::util::*;
-use crate::engine::EngineRng;
 use std::collections::HashSet;
 
 //=============================================
@@ -136,17 +136,14 @@ pub(crate) struct PipeChangeData {
     pub last_dir: Direction,
     pub current_node: Coordinate,
     pub current_dir: Direction,
-    pub pipe_color: Color,
 }
 
 pub(crate) struct NewPipeData {
     pub start_node: Coordinate,
-    pub color: Color,
 }
 
 pub(crate) struct World {
     pipes: Vec<Pipe>,
-    pipe_colors: Vec<Color>,
     occupied_nodes: HashSet<Coordinate>,
     space_bounds: Coordinate,
     new_pipe_chance: f64,
@@ -159,7 +156,6 @@ impl Default for World {
     fn default() -> Self {
         World {
             pipes: Vec::new(),
-            pipe_colors: Vec::new(),
             occupied_nodes: HashSet::new(),
             space_bounds: (20, 20, 20),
             new_pipe_chance: 0.1,
@@ -190,22 +186,12 @@ impl World {
         self.pipes
             .push(Pipe::new(&mut self.occupied_nodes, self.space_bounds, rng));
         let start = self.pipes[self.pipes.len() - 1].get_current_head();
-        let new_color: Color = (
-            rng.u8(u8::MIN, u8::MAX),
-            rng.u8(u8::MIN, u8::MAX),
-            rng.u8(u8::MIN, u8::MAX),
-        );
-        self.pipe_colors.push(new_color);
         self.active_pipes += 1;
 
-        NewPipeData {
-            start_node: start,
-            color: new_color,
-        }
+        NewPipeData { start_node: start }
     }
 
     pub fn pipe_update(&mut self, idx: usize, rng: &mut impl EngineRng) -> PipeChangeData {
-        let color = self.pipe_colors[idx];
         let last_node = self.pipes[idx].get_current_head();
         let last_dir = self.pipes[idx].get_current_dir();
         self.pipes[idx].update(&mut self.occupied_nodes, rng, Some(self.turn_chance));
@@ -228,7 +214,6 @@ impl World {
             last_dir,
             current_node,
             current_dir,
-            pipe_color: color,
         }
     }
 

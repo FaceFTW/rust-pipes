@@ -11,7 +11,7 @@ use super::util::{add_new_ball_joint, add_new_pipe_section};
 use super::{
     config::Configuration,
     rng::EngineRng,
-    util::{make_instanced_ball_joint, make_instanced_pipe_section, InstantShim},
+    util::InstantShim,
     world::World,
 };
 
@@ -74,13 +74,13 @@ impl RenderedPipe {
         self.ball_geometry.set_instances(&self.ball_instances);
     }
 
-    pub fn reset_instances(&mut self) {
-        self.ball_instances.transformations.clear();
-        self.pipe_instances.transformations.clear();
+    // pub fn reset_instances(&mut self) {
+    //     self.ball_instances.transformations.clear();
+    //     self.pipe_instances.transformations.clear();
 
-        self.ball_geometry.set_instances(&self.ball_instances);
-        self.pipe_geometry.set_instances(&self.pipe_instances);
-    }
+    //     self.ball_geometry.set_instances(&self.ball_instances);
+    //     self.pipe_geometry.set_instances(&self.pipe_instances);
+    // }
 
     pub fn get_render_objects(
         &self,
@@ -120,9 +120,9 @@ impl Engine {
         let data = self.world.new_pipe(&mut self.rng);
         let mut pipe = RenderedPipe::new(
             Srgba {
-                r: data.color.0,
-                g: data.color.1,
-                b: data.color.2,
+                r: self.rng.u8(u8::MIN, u8::MAX),
+                g: self.rng.u8(u8::MIN, u8::MAX),
+                b: self.rng.u8(u8::MIN, u8::MAX),
                 a: u8::MAX,
             },
             &self.config,
@@ -188,48 +188,6 @@ impl Engine {
     pub fn reset_state(&mut self) {
         self.world = World::new(Some(&self.config));
         self.pipes.clear();
-    }
-}
-
-pub(crate) fn update_pipe_step(
-    world: &mut World,
-    rng: &mut impl EngineRng,
-    ball_instances: &mut Instances,
-    pipe_instances: &mut Instances,
-) {
-    for i in 0..world.active_pipes_count() {
-        if !world.is_pipe_alive(i) {
-            continue;
-        }
-        let delta_state = world.pipe_update(i, rng);
-
-        if delta_state.last_node != delta_state.current_node {
-            if delta_state.last_dir != delta_state.current_dir {
-                make_instanced_ball_joint(
-                    ball_instances,
-                    delta_state.last_node,
-                    delta_state.pipe_color,
-                );
-            }
-            make_instanced_pipe_section(
-                pipe_instances,
-                delta_state.last_node,
-                delta_state.current_node,
-                delta_state.pipe_color,
-            );
-        }
-    }
-}
-
-pub(crate) fn new_pipe_step(
-    rng: &mut impl EngineRng,
-    world: &mut World,
-    cfg: &Configuration,
-    ball_instances: &mut Instances,
-) {
-    if rng.bool(world.new_pipe_chance()) && world.max_active_count_reached(cfg.world.max_pipes) {
-        let data = world.new_pipe(rng);
-        make_instanced_ball_joint(ball_instances, data.start_node, data.color);
     }
 }
 
