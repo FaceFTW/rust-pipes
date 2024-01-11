@@ -1,4 +1,4 @@
-use super::rng::EngineRng;
+use super::{core::RenderedPipe, rng::EngineRng};
 use cfg_if::cfg_if;
 use std::{collections::HashSet, slice::Iter, time::Duration};
 use three_d::{Deg, Instances, Mat4, Srgba, Vec3};
@@ -157,6 +157,21 @@ pub fn make_instanced_pipe_section(
         .push(color_to_srgba(color));
 }
 
+pub fn add_new_pipe_section(pipe: &mut RenderedPipe, from: Coordinate, to: Coordinate) {
+    let (from_x, from_y, from_z) = from;
+    let (to_x, to_y, to_z) = to;
+    let delta = (to_x - from_x, to_y - from_y, to_z - from_z);
+    let pipe_len = ((delta.0.pow(2) + delta.1.pow(2) + delta.2.pow(2)) as f32).sqrt();
+
+    let translation_matrix =
+        Mat4::from_translation(Vec3::new(from_x as f32, from_y as f32, from_z as f32));
+    let rotation_matrix: Mat4 = Direction::from(delta).into();
+    let scale_matrix = Mat4::from_nonuniform_scale(pipe_len, PIPE_RADIUS, PIPE_RADIUS);
+    let transform = translation_matrix * rotation_matrix * scale_matrix;
+
+    pipe.add_pipe_instance(transform);
+}
+
 pub fn make_instanced_ball_joint(instance_struct: &mut Instances, pos: Coordinate, color: Color) {
     let (pos_x, pos_y, pos_z) = pos;
 
@@ -171,6 +186,17 @@ pub fn make_instanced_ball_joint(instance_struct: &mut Instances, pos: Coordinat
         .as_mut()
         .expect("Instance Struct should have Color Instances Vector!")
         .push(color_to_srgba(color));
+}
+
+pub fn add_new_ball_joint(pipe: &mut RenderedPipe, pos: Coordinate) {
+    let (pos_x, pos_y, pos_z) = pos;
+
+    let translation_matrix =
+        Mat4::from_translation(Vec3::new(pos_x as f32, pos_y as f32, pos_z as f32));
+    let scale_matrix = Mat4::from_scale(BALL_JOINT_RADIUS); //Scale is uniform here unlike pipes
+    let transform = translation_matrix * scale_matrix;
+
+    pipe.add_ball_instance(transform);
 }
 
 //============================================
