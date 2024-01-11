@@ -3,6 +3,7 @@ use clap::ArgMatches;
 
 use crate::engine::util::Color;
 
+#[derive(Clone)]
 pub(crate) struct DrawOptions {
     pub bg_color: Color,
     pub angle_subdiv: u32,
@@ -28,6 +29,7 @@ impl DrawOptions {
     }
 }
 
+#[derive(Clone)]
 pub(crate) struct WorldOptions {
     pub max_pipes: u8,
     pub max_bounds: (u8, u8, u8),
@@ -76,6 +78,7 @@ impl WorldOptions {
 ///Internal struct to organize configuration and
 /// pass it around to necessary parts of the program
 ///
+#[derive(Clone)]
 pub(crate) struct Configuration {
     pub draw: DrawOptions,
     pub world: WorldOptions,

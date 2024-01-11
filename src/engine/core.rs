@@ -91,19 +91,19 @@ impl RenderedPipe {
 
 pub struct Engine {
     world: World,
-    config: Configuration,
-    gl_context: Box<&'static Context>, //TODO will this cause issues??
+    config: Box<Configuration>,
+    gl_context: Box<Context>, //TODO will this cause issues??
     pipes: Vec<RenderedPipe>,
     rng: StdRng,
 }
 
 impl Engine {
-    pub fn new(config: Configuration, context: &'static Context) -> Self {
+    pub fn new<'c>(config: &Configuration, context: &Context) -> Self {
         let seed = config.rng_seed.borrow().to_owned(); //yucky
         let mut new_engine = Self {
             world: World::new(Some(&config)),
-            config,
-            gl_context: Box::new(context),
+            config: Box::new(config.clone()),
+            gl_context: Box::new(context.clone()),
             pipes: Vec::new(),
             rng: match seed {
                 Some(val) => StdRng::with_seed(val),
