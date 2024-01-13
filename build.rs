@@ -1,5 +1,6 @@
 use std::io;
 
+#[cfg(target_os = "windows")]
 fn main() -> io::Result<()> {
     if cfg!(target_os = "windows") && !cfg!(test) {
         let mut res = winres::WindowsResource::new();
@@ -8,5 +9,10 @@ fn main() -> io::Result<()> {
         res.compile()?;
     }
 
+    Ok(())
+}
+
+#[cfg(not(target_os = "windows"))]
+fn main() -> io::Result<()> {
     Ok(())
 }
