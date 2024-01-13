@@ -20,10 +20,10 @@ name = "rust_pipes_lib"
 [dependencies]
 winit = "0.28"
 three-d = "0.16.3"
-three-d-asset = "0.6.0"
+three-d-asset = { version = "0.6.0", features = ["obj"] }
 fastrand = "2.0.1"
 cfg-if = "1.0.0"
-md5 = "0.7.0"           # used for non-crypto seed translation
+md5 = "0.7.0"   # used for non-crypto seed translation
 
 [dev-dependencies]
 mockall = "0.12.1"

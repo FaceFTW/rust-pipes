@@ -3,6 +3,7 @@ mod core;
 mod rng;
 mod util;
 mod world;
+mod teapot;
 
 use crate::engine::{config::Configuration, util::InstantShim};
 use cfg_if::cfg_if;
