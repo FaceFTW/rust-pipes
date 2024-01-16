@@ -7,13 +7,9 @@ use three_d::{
 use three_d_asset::Mat4;
 
 use super::rng::StdRng;
+use super::teapot::teapot_mesh;
 use super::util::{add_new_ball_joint, add_new_pipe_section};
-use super::{
-    config::Configuration,
-    rng::EngineRng,
-    util::InstantShim,
-    world::World,
-};
+use super::{config::Configuration, rng::EngineRng, util::InstantShim, world::World};
 
 ///Used to contain the information needed to render a `crate::world::Pipe`
 pub struct RenderedPipe {
@@ -24,7 +20,13 @@ pub struct RenderedPipe {
 }
 
 impl RenderedPipe {
-    pub fn new(color: Srgba, cfg: &Configuration, context: &Context) -> Self {
+    pub fn new(
+        color: Srgba,
+        cfg: &Configuration,
+        context: &Context,
+        pipe_mesh: &CpuMesh,
+        joint_mesh: &CpuMesh,
+    ) -> Self {
         //Instanced Rendering Data
         let pipe_instances = Instances {
             transformations: Vec::new(),
@@ -41,19 +43,11 @@ impl RenderedPipe {
         };
 
         let pipe_geometry = Gm::new(
-            InstancedMesh::new(
-                context,
-                &Instances::default(),
-                &CpuMesh::cylinder(cfg.draw.angle_subdiv),
-            ),
+            InstancedMesh::new(context, &Instances::default(), &pipe_mesh),
             PhysicalMaterial::new(&context, &base_instance_material),
         );
         let ball_geometry = Gm::new(
-            InstancedMesh::new(
-                &context,
-                &Instances::default(),
-                &CpuMesh::sphere(cfg.draw.angle_subdiv),
-            ),
+            InstancedMesh::new(&context, &Instances::default(), &joint_mesh),
             PhysicalMaterial::new(&context, &base_instance_material),
         );
         RenderedPipe {
@@ -95,6 +89,10 @@ pub struct Engine {
     gl_context: Box<Context>, //TODO will this cause issues??
     pipes: Vec<RenderedPipe>,
     rng: StdRng,
+    //Reference meshes
+    sphere_mesh: CpuMesh,
+    pipe_mesh: CpuMesh,
+    teapot_mesh: CpuMesh,
 }
 
 impl Engine {
@@ -109,6 +107,9 @@ impl Engine {
                 Some(val) => StdRng::with_seed(val),
                 None => StdRng::new(),
             },
+            sphere_mesh: CpuMesh::sphere(config.draw.angle_subdiv),
+            pipe_mesh: CpuMesh::cylinder(config.draw.angle_subdiv),
+            teapot_mesh: teapot_mesh(),
         };
 
         new_engine.init_new_pipe();
@@ -127,6 +128,8 @@ impl Engine {
             },
             &self.config,
             &self.gl_context,
+            &self.pipe_mesh,
+            &self.sphere_mesh,
         );
         add_new_ball_joint(&mut pipe, data.start_node);
 

@@ -1,17 +1,18 @@
-use three_d_asset::{
-    io::{Deserialize, RawAssets},
-    TriMesh,
-};
+///Literally just contains code/data to load and render the funny teapot.
+use three_d_asset::{io::RawAssets, TriMesh};
 
-///Literally just contains data to render the funny teapot.
-
+///You could theoretically replace this with any viable model
+/// as long as it is OBJ format. Scaling is a whole other issue however...
 const TEAPOT_OBJ: &[u8] = include_bytes!("../teapot.obj");
 
+///Method to deserialize the OBJ file inlined in the executable.
+/// This is executed once by the engine so that it we don't
+/// need to "recache" the object everytime we want to render the
+/// teapot.
 pub(crate) fn teapot_mesh() -> TriMesh {
     let mut assets = RawAssets::new();
     assets.insert("teapot.obj", Vec::from(TEAPOT_OBJ));
-
-    let mut obj: TriMesh = assets.deserialize("teapot.obj").unwrap();
+    let obj: TriMesh = assets.deserialize("teapot.obj").unwrap();
 
     obj
 }
