@@ -1,9 +1,9 @@
 mod config;
 mod core;
 mod rng;
+mod teapot;
 mod util;
 mod world;
-mod teapot;
 
 use crate::engine::{config::Configuration, util::InstantShim};
 use cfg_if::cfg_if;
@@ -31,16 +31,18 @@ pub fn real_main() {
     .unwrap();
     let context: Context = window.gl();
 
+    let cam_y = cfg.world.max_bounds.1 / 2;
+    let cam_xz: i8 = -1 * cfg.world.max_bounds.0 as i8;
     let mut camera = Camera::new_perspective(
         window.viewport(),
-        vec3(-20.0, 10.0, -20.0),
-        vec3(0.0, 10.0, 0.0),
+        vec3(cam_xz as f32, cam_y as f32, cam_xz as f32),
+        vec3(0.0, cam_y as f32, 0.0),
         vec3(0.0, 1.0, 0.0),
         degrees(45.0),
         0.1,
-        1000.0,
+        10000.0,
     );
-    let mut control = OrbitControl::new(*camera.target(), 1.0, 100.0);
+    let mut control = OrbitControl::new(*camera.target(), 1.0, 10000.0);
 
     let light0 = DirectionalLight::new(&context, 1.0, Srgba::WHITE, &vec3(0.0, -0.5, -0.5));
     let light1 = DirectionalLight::new(&context, 1.0, Srgba::WHITE, &vec3(0.0, 0.5, 0.5));
