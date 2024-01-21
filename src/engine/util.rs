@@ -211,125 +211,109 @@ cfg_if! {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::engine::rng::MockEngineRng;
+    use crate::engine::{config::Configuration, rng::MockEngineRng};
     use mockall::Sequence;
+    use three_d::CpuMesh;
+    use three_d::HeadlessContext;
+    use three_d_asset::Srgba;
 
-    // #[test]
-    // pub fn make_instanced_pipe_section_creates_expected_instances() {
-    //     let mut pipe_instances = Instances {
-    //         transformations: Vec::new(),
-    //         colors: Some(Vec::new()),
-    //         ..Default::default()
-    //     };
+    #[test]
+    pub fn add_new_pipe_section_creates_expected_instances() {
+        let context = HeadlessContext::new().unwrap();
+        let dummy_mesh = CpuMesh::circle(16);
+        let config: Configuration = Default::default();
+        let mut pipe = RenderedPipe::new(
+            Srgba {
+                r: 0,
+                g: 0,
+                b: 0,
+                a: 255,
+            },
+            &config,
+            &context,
+            &dummy_mesh,
+            &dummy_mesh,
+        );
 
-    //     let scale_mat = Mat4::from_nonuniform_scale(1.0, PIPE_RADIUS, PIPE_RADIUS);
+        let scale_mat = Mat4::from_nonuniform_scale(1.0, PIPE_RADIUS, PIPE_RADIUS);
 
-    //     let rot_mat_north: Mat4 = Direction::North.into();
-    //     let rot_mat_south: Mat4 = Direction::South.into();
-    //     let rot_mat_east: Mat4 = Direction::East.into();
-    //     let rot_mat_west: Mat4 = Direction::West.into();
-    //     let rot_mat_up: Mat4 = Direction::Up.into();
-    //     let rot_mat_down: Mat4 = Direction::Down.into();
+        let rot_mat_north: Mat4 = Direction::North.into();
+        let rot_mat_south: Mat4 = Direction::South.into();
+        let rot_mat_east: Mat4 = Direction::East.into();
+        let rot_mat_west: Mat4 = Direction::West.into();
+        let rot_mat_up: Mat4 = Direction::Up.into();
+        let rot_mat_down: Mat4 = Direction::Down.into();
 
-    //     let expected_transforms = vec![
-    //         Mat4::from_translation(Vec3::new(0.0, 0.0, 0.0)) * rot_mat_north * scale_mat,
-    //         Mat4::from_translation(Vec3::new(1.0, 0.0, 0.0)) * rot_mat_south * scale_mat,
-    //         Mat4::from_translation(Vec3::new(0.0, 1.0, 0.0)) * rot_mat_east * scale_mat,
-    //         Mat4::from_translation(Vec3::new(0.0, 0.0, 1.0)) * rot_mat_west * scale_mat,
-    //         Mat4::from_translation(Vec3::new(1.0, 1.0, 0.0)) * rot_mat_up * scale_mat,
-    //         Mat4::from_translation(Vec3::new(1.0, 0.0, 1.0)) * rot_mat_down * scale_mat,
-    //     ];
+        let expected_transforms = vec![
+            Mat4::from_translation(Vec3::new(0.0, 0.0, 0.0)) * rot_mat_north * scale_mat,
+            Mat4::from_translation(Vec3::new(1.0, 0.0, 0.0)) * rot_mat_south * scale_mat,
+            Mat4::from_translation(Vec3::new(0.0, 1.0, 0.0)) * rot_mat_east * scale_mat,
+            Mat4::from_translation(Vec3::new(0.0, 0.0, 1.0)) * rot_mat_west * scale_mat,
+            Mat4::from_translation(Vec3::new(1.0, 1.0, 0.0)) * rot_mat_up * scale_mat,
+            Mat4::from_translation(Vec3::new(1.0, 0.0, 1.0)) * rot_mat_down * scale_mat,
+        ];
 
-    //     let expected_colors = vec![
-    //         color_to_srgba((0, 0, 0)),
-    //         color_to_srgba((255, 0, 0)),
-    //         color_to_srgba((0, 255, 0)),
-    //         color_to_srgba((0, 0, 255)),
-    //         color_to_srgba((255, 255, 0)),
-    //         color_to_srgba((255, 255, 255)),
-    //     ];
+        add_new_pipe_section(&mut pipe, (0, 0, 0), (1, 0, 0));
+        add_new_pipe_section(&mut pipe, (1, 0, 0), (0, 0, 0));
+        add_new_pipe_section(&mut pipe, (0, 1, 0), (0, 1, 1));
+        add_new_pipe_section(&mut pipe, (0, 0, 1), (0, 0, 0));
+        add_new_pipe_section(&mut pipe, (1, 1, 0), (1, 2, 0));
+        add_new_pipe_section(&mut pipe, (1, 0, 1), (1, -1, 1));
 
-    //     make_instanced_pipe_section(&mut pipe_instances, (0, 0, 0), (1, 0, 0), (0, 0, 0));
-    //     make_instanced_pipe_section(&mut pipe_instances, (1, 0, 0), (0, 0, 0), (255, 0, 0));
-    //     make_instanced_pipe_section(&mut pipe_instances, (0, 1, 0), (0, 1, 1), (0, 255, 0));
-    //     make_instanced_pipe_section(&mut pipe_instances, (0, 0, 1), (0, 0, 0), (0, 0, 255));
-    //     make_instanced_pipe_section(&mut pipe_instances, (1, 1, 0), (1, 2, 0), (255, 255, 0));
-    //     make_instanced_pipe_section(&mut pipe_instances, (1, 0, 1), (1, -1, 1), (255, 255, 255));
+        assert_eq!(
+            pipe.pipe_instances.transformations.len(),
+            expected_transforms.len()
+        );
 
-    //     assert_eq!(
-    //         pipe_instances.transformations.len(),
-    //         expected_transforms.len()
-    //     );
+        for i in 0..pipe.pipe_instances.transformations.len() {
+            let expected_transform = expected_transforms[i];
+            let actual_transform = pipe.pipe_instances.transformations[i];
+            assert_eq!(expected_transform, actual_transform);
+        }
+    }
 
-    //     assert!(pipe_instances.colors.is_some());
-    //     let actual_colors = pipe_instances
-    //         .colors
-    //         .expect("Colors Vector was not found in Instance Struct!");
+    #[test]
+    pub fn add_new_ball_joint_creates_expected_instances() {
+        let context = HeadlessContext::new().unwrap();
+        let dummy_mesh = CpuMesh::circle(16);
+        let config: Configuration = Default::default();
+        let mut pipe = RenderedPipe::new(
+            Srgba {
+                r: 0,
+                g: 0,
+                b: 0,
+                a: 255,
+            },
+            &config,
+            &context,
+            &dummy_mesh,
+            &dummy_mesh,
+        );
 
-    //     assert_eq!(actual_colors.len(), expected_colors.len());
+        let scale_mat = Mat4::from_scale(BALL_JOINT_RADIUS);
 
-    //     for i in 0..pipe_instances.transformations.len() {
-    //         let expected_transform = expected_transforms[i];
-    //         let actual_transform = pipe_instances.transformations[i];
-    //         assert_eq!(expected_transform, actual_transform);
+        let expected_transforms = vec![
+            Mat4::from_translation(Vec3::new(0.0, 0.0, 0.0)) * scale_mat,
+            Mat4::from_translation(Vec3::new(1.0, 0.0, 0.0)) * scale_mat,
+            Mat4::from_translation(Vec3::new(0.0, 1.0, 0.0)) * scale_mat,
+            Mat4::from_translation(Vec3::new(0.0, 0.0, 1.0)) * scale_mat,
+        ];
 
-    //         let expected_color = expected_colors[i];
-    //         let actual_color = actual_colors[i];
-    //         assert_eq!(expected_color, actual_color);
-    //     }
-    // }
+        add_new_ball_joint(&mut pipe, (0, 0, 0));
+        add_new_ball_joint(&mut pipe, (1, 0, 0));
+        add_new_ball_joint(&mut pipe, (0, 1, 0));
+        add_new_ball_joint(&mut pipe, (0, 0, 1));
 
-    // #[test]
-    // pub fn make_instanced_ball_joint_creates_expected_instances() {
-    //     let mut ball_instances = Instances {
-    //         transformations: Vec::new(),
-    //         colors: Some(Vec::new()),
-    //         ..Default::default()
-    //     };
-
-    //     let scale_mat = Mat4::from_scale(BALL_JOINT_RADIUS);
-
-    //     let expected_transforms = vec![
-    //         Mat4::from_translation(Vec3::new(0.0, 0.0, 0.0)) * scale_mat,
-    //         Mat4::from_translation(Vec3::new(1.0, 0.0, 0.0)) * scale_mat,
-    //         Mat4::from_translation(Vec3::new(0.0, 1.0, 0.0)) * scale_mat,
-    //         Mat4::from_translation(Vec3::new(0.0, 0.0, 1.0)) * scale_mat,
-    //     ];
-
-    //     let expected_colors = vec![
-    //         color_to_srgba((0, 0, 0)),
-    //         color_to_srgba((255, 0, 0)),
-    //         color_to_srgba((0, 255, 0)),
-    //         color_to_srgba((0, 0, 255)),
-    //     ];
-
-    //     make_instanced_ball_joint(&mut ball_instances, (0, 0, 0), (0, 0, 0));
-    //     make_instanced_ball_joint(&mut ball_instances, (1, 0, 0), (255, 0, 0));
-    //     make_instanced_ball_joint(&mut ball_instances, (0, 1, 0), (0, 255, 0));
-    //     make_instanced_ball_joint(&mut ball_instances, (0, 0, 1), (0, 0, 255));
-
-    //     assert_eq!(
-    //         ball_instances.transformations.len(),
-    //         expected_transforms.len()
-    //     );
-
-    //     assert!(ball_instances.colors.is_some());
-    //     let actual_colors = ball_instances
-    //         .colors
-    //         .expect("Colors Vector was not found in Instance Struct!");
-
-    //     assert_eq!(actual_colors.len(), expected_colors.len());
-
-    //     for i in 0..ball_instances.transformations.len() {
-    //         let expected_transform = expected_transforms[i];
-    //         let actual_transform = ball_instances.transformations[i];
-    //         assert_eq!(expected_transform, actual_transform);
-
-    //         let expected_color = expected_colors[i];
-    //         let actual_color = actual_colors[i];
-    //         assert_eq!(expected_color, actual_color);
-    //     }
-    // }
+        assert_eq!(
+            pipe.ball_instances.transformations.len(),
+            expected_transforms.len()
+        );
+        for i in 0..pipe.ball_instances.transformations.len() {
+            let expected_transform = expected_transforms[i];
+            let actual_transform = pipe.ball_instances.transformations[i];
+            assert_eq!(expected_transform, actual_transform);
+        }
+    }
 
     #[test]
     fn test_step_in_dir() {

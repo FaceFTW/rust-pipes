@@ -11,14 +11,23 @@ use super::teapot::teapot_mesh;
 use super::util::{add_new_ball_joint, add_new_pipe_section};
 use super::{config::Configuration, rng::EngineRng, util::InstantShim, world::World};
 
+enum PipeType {
+    BallJointed,
+    TeapotJointed,
+    BendJointed,
+}
+
 ///Used to contain the information needed to render a `crate::world::Pipe`
+///
 pub struct RenderedPipe {
-    ball_instances: Instances,
-    pipe_instances: Instances,
+    pipe_type: PipeType,
+    pub(super) ball_instances: Instances,
+    pub(super) pipe_instances: Instances,
     ball_geometry: Gm<InstancedMesh, PhysicalMaterial>,
     pipe_geometry: Gm<InstancedMesh, PhysicalMaterial>,
 }
 
+// #[cfg_attr(test, mockall::automock)]
 impl RenderedPipe {
     pub fn new(
         color: Srgba,
@@ -51,6 +60,7 @@ impl RenderedPipe {
             PhysicalMaterial::new(&context, &base_instance_material),
         );
         RenderedPipe {
+            pipe_type: PipeType::BallJointed,
             ball_instances,
             pipe_instances,
             ball_geometry,
@@ -76,7 +86,7 @@ impl RenderedPipe {
     //     self.pipe_geometry.set_instances(&self.pipe_instances);
     // }
 
-    pub fn get_render_objects(
+    pub fn get_render_objects<'a>(
         &self,
     ) -> impl IntoIterator<Item = &Gm<InstancedMesh, PhysicalMaterial>> {
         [&self.ball_geometry, &self.pipe_geometry].into_iter()
