@@ -1,6 +1,6 @@
 use super::{core::RenderedPipe, rng::EngineRng};
 use cfg_if::cfg_if;
-use std::{collections::HashSet, slice::Iter, time::Duration};
+use std::{collections::HashSet, f32::consts::PI, slice::Iter, time::Duration};
 use three_d::{Deg, Mat4, Vec3};
 
 pub type Coordinate = (i32, i32, i32);
@@ -206,6 +206,38 @@ cfg_if! {
 }
 
 //=============================================
+// Camera Angle Calculations
+//=============================================
+
+///Assuming a camera positioned at `pos` and targeting it's viewport toward
+/// the point `target_pos`, calculate the new position of the camera that
+/// satisfies the condition such that the angle between the original and new
+/// position is equal to `angle`. Angle is in units of degrees.
+///
+/// Generally speaking, the angle is assumed to be
+/// to be between two lines on the XZ plane, or rotating on the Y Axis (I think
+/// my orientation is correct). This is not as robust such as if the target is
+/// is not at the origin of the XZ plane (i.e. target_pos != (0, y, 0))
+///
+/// A diagram would be really helpful here, but I don't feel like ascii
+/// drawing
+///
+/// We only return the position of the camera, since all information is effectively
+/// returned in that data. We don't need Hamiltonians here, get that s*** out of my face
+///
+pub fn calc_camera_pos(pos: Coordinate, target_pos: Coordinate, angle: f32) -> (f32, f32, f32) {
+    let xz_distance_sq = ((target_pos.0 - pos.0).pow(2) + (target_pos.2 - pos.2).pow(2));
+    let xz_distance = (xz_distance_sq as f32).sqrt();
+
+    let angle_rad = angle * PI / 180.0;
+
+    let pos_x = xz_distance * angle_rad.cos();
+    let pos_z = xz_distance * angle_rad.sin();
+
+    (pos_x, pos.1 as f32, pos_z)
+}
+
+//=============================================
 // Unit Tests
 //=============================================
 #[cfg(test)]
@@ -219,7 +251,7 @@ mod tests {
     // static context: HeadlessContext = HeadlessContext::new().unwrap();
 
     #[test]
-	#[ignore = "HeadlessContext Issue"]
+    #[ignore = "HeadlessContext Issue"]
     pub fn add_new_pipe_section_creates_expected_instances() {
         let context = HeadlessContext::new().unwrap();
         let dummy_mesh = CpuMesh::circle(16);
@@ -275,7 +307,7 @@ mod tests {
     }
 
     #[test]
-	#[ignore = "HeadlessContext Issue"]
+    #[ignore = "HeadlessContext Issue"]
     pub fn add_new_ball_joint_creates_expected_instances() {
         let context = HeadlessContext::new().unwrap();
         let dummy_mesh = CpuMesh::circle(16);

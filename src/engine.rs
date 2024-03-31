@@ -12,7 +12,7 @@ use three_d::{
     Window, WindowSettings,
 };
 
-use self::core::Engine;
+use self::{core::Engine, util::Coordinate};
 
 pub fn real_main() {
     //===============================================
@@ -33,6 +33,10 @@ pub fn real_main() {
 
     let cam_y = cfg.world.max_bounds.1 / 2;
     let cam_xz: i8 = -1 * cfg.world.max_bounds.0 as i8;
+    let mut angle = 0;
+    let cam_base_pos = (cam_xz as i32, cam_y as i32, cam_xz as i32);
+
+
     let mut camera = Camera::new_perspective(
         window.viewport(),
         vec3(cam_xz as f32, cam_y as f32, cam_xz as f32),
