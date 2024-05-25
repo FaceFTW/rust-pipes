@@ -12,7 +12,10 @@ use three_d::{
     Window, WindowSettings,
 };
 
-use self::{core::Engine, util::Coordinate};
+use self::{
+    core::Engine,
+    util::{calc_camera_pos, Coordinate},
+};
 
 pub fn real_main() {
     //===============================================
@@ -31,16 +34,25 @@ pub fn real_main() {
     .unwrap();
     let context: Context = window.gl();
 
-    let cam_y = cfg.world.max_bounds.1 / 2;
-    let cam_xz: i8 = -1 * cfg.world.max_bounds.0 as i8;
-    let mut angle = 0;
-    let cam_base_pos = (cam_xz as i32, cam_y as i32, cam_xz as i32);
+    let bounds_radius = cfg.world.max_bounds.1 / 2;
+    let mut angle: f32 = 0.0;
 
+    //Adjust target to be the center of the bounds
+    let target = (
+        bounds_radius as i32,
+        bounds_radius as i32,
+        bounds_radius as i32,
+    );
+    let camera_pos = calc_camera_pos(target, bounds_radius as f32 * 3.0, angle);
 
     let mut camera = Camera::new_perspective(
         window.viewport(),
-        vec3(cam_xz as f32, cam_y as f32, cam_xz as f32),
-        vec3(0.0, cam_y as f32, 0.0),
+        vec3(camera_pos.0, camera_pos.1, camera_pos.2),
+        vec3(
+            bounds_radius as f32,
+            bounds_radius as f32,
+            bounds_radius as f32,
+        ), //Center of Bounds
         vec3(0.0, 1.0, 0.0),
         degrees(45.0),
         0.1,

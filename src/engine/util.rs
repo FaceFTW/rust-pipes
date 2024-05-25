@@ -225,16 +225,26 @@ cfg_if! {
 /// We only return the position of the camera, since all information is effectively
 /// returned in that data. We don't need Hamiltonians here, get that s*** out of my face
 ///
-pub fn calc_camera_pos(pos: Coordinate, target_pos: Coordinate, angle: f32) -> (f32, f32, f32) {
-    let xz_distance_sq = ((target_pos.0 - pos.0).pow(2) + (target_pos.2 - pos.2).pow(2));
-    let xz_distance = (xz_distance_sq as f32).sqrt();
+// pub fn calc_camera_pos(pos: Coordinate, target_pos: Coordinate, angle: f32) -> (f32, f32, f32) {
+//     let xz_distance_sq = ((target_pos.0 - pos.0).pow(2) + (target_pos.2 - pos.2).pow(2));
+//     let xz_distance = (xz_distance_sq as f32).sqrt();
 
+//     let angle_rad = angle * PI / 180.0;
+
+//     let pos_x = xz_distance * angle_rad.cos();
+//     let pos_z = xz_distance * angle_rad.sin();
+
+//     (pos_x, pos.1 as f32, pos_z)
+// }
+
+pub fn calc_camera_pos(target_pos: Coordinate, radius: f32, angle: f32) -> (f32, f32, f32) {
     let angle_rad = angle * PI / 180.0;
 
-    let pos_x = xz_distance * angle_rad.cos();
-    let pos_z = xz_distance * angle_rad.sin();
-
-    (pos_x, pos.1 as f32, pos_z)
+    (
+        target_pos.0 as f32 + (radius * angle_rad.cos()),
+        target_pos.1 as f32,
+        target_pos.2 as f32 + (radius * angle_rad.sin()),
+    )
 }
 
 //=============================================
