@@ -1,6 +1,6 @@
 use std::io;
 
-#[cfg(all(target_os = "windows", not(target_arch = "wasm32")))]
+#[cfg(all(target_os = "windows", any(target_env = "msvc", target_env = "gnu")))]
 fn main() -> io::Result<()> {
     if cfg!(target_os = "windows") && !cfg!(test) {
         let mut res = winres::WindowsResource::new();
@@ -12,7 +12,7 @@ fn main() -> io::Result<()> {
     Ok(())
 }
 
-#[cfg(any(not(target_os = "windows"), target_arch = "wasm32"))]
+#[cfg(any(not(target_os = "windows"), not(any(target_env = "msvc"))))]
 fn main() -> io::Result<()> {
     Ok(())
 }
