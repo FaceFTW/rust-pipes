@@ -1,6 +1,6 @@
 use super::{core::RenderedPipe, rng::EngineRng};
 use cfg_if::cfg_if;
-use std::{collections::HashSet, f32::consts::PI, slice::Iter, time::Duration};
+use std::{collections::HashSet, slice::Iter, time::Duration};
 use three_d::{Deg, Mat4, Vec3};
 
 pub type Coordinate = (i32, i32, i32);
