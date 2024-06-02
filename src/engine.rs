@@ -12,10 +12,7 @@ use three_d::{
     Window, WindowSettings,
 };
 
-use self::{
-    core::Engine,
-    util::{calc_camera_pos, Coordinate},
-};
+use self::core::Engine;
 
 pub fn real_main() {
     //===============================================
@@ -35,15 +32,16 @@ pub fn real_main() {
     let context: Context = window.gl();
 
     let bounds_radius = cfg.world.max_bounds.1 / 2;
-    let mut angle: f32 = 0.0;
 
     //Adjust target to be the center of the bounds
-    let target = (
+    let _target = (
         bounds_radius as i32,
         bounds_radius as i32,
         bounds_radius as i32,
     );
-    let camera_pos = calc_camera_pos(target, bounds_radius as f32 * 3.0, angle);
+    let camera_pos = (bounds_radius as f32 * 4.0, bounds_radius as f32, 0.0);
+
+    // calc_camera_pos(target, bounds_radius as f32 * 3.0, 0.0);
 
     let mut camera = Camera::new_perspective(
         window.viewport(),
@@ -68,13 +66,24 @@ pub fn real_main() {
 
     let mut engine = Engine::new(&cfg, &context);
     window.render_loop(move |mut frame_input| {
-        camera.set_viewport(frame_input.viewport);
-        control.handle_events(&mut camera, &mut frame_input.events);
-
         if do_reset && !cfg.single_run {
             start_time = InstantShim::now();
             engine.reset_state();
+            // angle += (15.0 * (PI / 180.0)) % (2.0 * PI);``
+
+            camera.rotate_around_with_fixed_up(
+                &vec3(
+                    bounds_radius as f32,
+                    bounds_radius as f32,
+                    bounds_radius as f32,
+                ),
+                45.0,
+                0.0,
+            );
         }
+
+        camera.set_viewport(frame_input.viewport);
+        control.handle_events(&mut camera, &mut frame_input.events);
 
         //World Update Step
         do_reset = engine.update_state(start_time);
