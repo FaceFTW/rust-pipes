@@ -3,36 +3,37 @@ name: Web Deploy
 on: workflow_dispatch
 
 env:
-  CARGO_TERM_COLOR: always
+    CARGO_TERM_COLOR: always
 
 jobs:
-  deploy:
-    name: Deploy to Firebase
-    runs-on: windows-latest # purely preference, could work on linux hosts
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: ./web/package-lock.json
-      - name: Sanity Build/Testing
-        run: cargo test --verbose
-      - name: Install Build tools for Web Deploy
-        working-directory: ./web
-        run: npm ci
-      - name: WASM Build
-        working-directory: ./web
-        run: npx wasm-pack build ".." --target web --out-name web --out-dir web/pkg
-      - name: Webpack Build
-        working-directory: ./web
-        run: npm run build
-      - uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          entryPoint: ./web
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_RUST_PIPES }}'
-          projectId: rust-pipes
-          channelId: live
-
-
+    deploy:
+        name: Deploy to Firebase
+        runs-on: windows-latest # purely preference, could work on linux hosts
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: 20
+                  cache: npm
+                  cache-dependency-path: ./web/package-lock.json
+            # prevent winres from trying to add resources to what is not a win32 executable
+            - name: build.rs Hack
+              run: rm build.rs
+            - name: Sanity Build/Testing
+              run: cargo test --verbose
+            - name: Install Build tools for Web Deploy
+              working-directory: ./web
+              run: npm ci
+            - name: WASM Build
+              working-directory: ./web
+              run: npx wasm-pack build ".." --target web --out-name web --out-dir web/pkg
+            - name: Webpack Build
+              working-directory: ./web
+              run: npm run build
+            - uses: FirebaseExtended/action-hosting-deploy@v0
+              with:
+                  repoToken: '${{ secrets.GITHUB_TOKEN }}'
+                  entryPoint: ./web
+                  firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_RUST_PIPES }}'
+                  projectId: rust-pipes
+                  channelId: live

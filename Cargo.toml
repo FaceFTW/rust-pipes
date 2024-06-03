@@ -5,7 +5,6 @@ edition = "2021"
 license = "Apache-2.0"
 description = "A remake of the 3D Pipes Screensaver from Windows 98 in Rust"
 repository = "https://github.com/FaceFTW/rust-pipes"
-build = "build.rs"
 autobins = true
 
 [[bin]]
