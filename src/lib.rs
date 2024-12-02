@@ -1,7 +1,9 @@
 #![allow(special_module_name)]
+
+mod engine;
+
 cfg_if::cfg_if! {
     if #[cfg(target_arch="wasm32")]{
-        mod engine;
 
         // Entry point for wasm
         use wasm_bindgen::prelude::*;
@@ -13,7 +15,6 @@ cfg_if::cfg_if! {
         }
     }
 }
-mod engine;
 
 pub fn entry_point() {
     engine::real_main();
