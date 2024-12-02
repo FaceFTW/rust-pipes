@@ -16,9 +16,6 @@ jobs:
                   node-version: 20
                   cache: npm
                   cache-dependency-path: ./web/package-lock.json
-            # prevent winres from trying to add resources to what is not a win32 executable
-            - name: build.rs Hack
-              run: rm build.rs
             - name: Sanity Build/Testing
               run: cargo test --verbose
             - name: Install Build tools for Web Deploy
@@ -30,13 +27,6 @@ jobs:
             - name: Webpack Build
               working-directory: ./web
               run: npm run build
-            # - uses: FirebaseExtended/action-hosting-deploy@v0
-            #   with:
-            #       repoToken: '${{ secrets.GITHUB_TOKEN }}'
-            #       entryPoint: ./web
-            #       firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_RUST_PIPES }}'
-            #       projectId: rust-pipes
-            #       channelId: live
             - uses: cloudflare/wrangler-action@v3
               with:
                 apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
